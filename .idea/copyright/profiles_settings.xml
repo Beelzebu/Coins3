@@ -1,0 +1,9 @@
+<component name="CopyrightManager">
+  <settings default="GNU AGLP">
+    <LanguageOptions name="JAVA">
+      <option name="fileTypeOverride" value="3" />
+      <option name="addBlankAfter" value="false" />
+      <option name="prefixLines" value="false" />
+    </LanguageOptions>
+  </settings>
+</component>

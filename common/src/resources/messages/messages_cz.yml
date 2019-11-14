@@ -1,0 +1,92 @@
+# Coins messages file.
+# If you need support or find a bug open a issuse in
+# the official github repo https://github.com/Beelzebu/Coins/issuses/
+
+# The version of this file, is used to auto update this file, don't change it
+# unless you know what you do.
+
+# Translate by server: PosledniTezba.cz
+# www.PosledniTezba.cz
+version: 9
+
+Help:
+  User:
+  - '&8&m+-------------------------------------------------+'
+  - ' &e/coins &f- &6Zobrazi pocet coinu.'
+  - ' &e/coins pay <hrac> <pocet> &f- &6Posles coiny hracovi.'
+  - '&8&m+-------------------------------------------------+'
+  Admin:
+  - '&8&m+-------------------------------------------------+'
+  - ' &e/coins give <hrac> <pocet> (server) &f- &6Da hracovi coiny.'
+  - ' &e/coins take <hrac> <pocet> &f- &6Odebera hracovi coiny.'
+  - ' &e/coins set <hrac> <pocet> &f- &6Nastavi hracovi coiny.'
+  - ' &e/coins multiplier &f- &6Zobrazi podpr�kazy.'
+  - ' &8&m+-------------------------------------------------+'
+  Pay Usage: '%prefix% &cPros�m pouzi: &e/coins pay <hrac> <coinu>'
+  Give Usage: '%prefix% &cPros�m pouzi: &e/coins give <hrac> <coinu>'
+  Take Usage: '%prefix% &cPros�m pouzi: &e/coins take <hrac> <coinu>'
+  Reset Usage: '%prefix% &cPros�m pouzi: &e/coins reset <hrac>'
+  Set Usage: '%prefix% &cPros�m pouzi: &e/coins set <hrac> <coinu>'
+  Multiplier Usage: '%prefix% &cPros�m pouzi: &e/coins multiplier'
+  Multiplier Create: '%prefix% &cPros�m pouzi: &e/coins multiplier create <hrac> <pocet> <minut> (server)'
+  Multiplier:
+  - '&8&m+-------------------------------------------------+'
+  - '%prefix% Booster podpr�kazy'
+  - ' '
+  - ' &ecreate <hrac> <pocet> <minut> (server) &8- &6Vytvori booster.'
+  - '&8&m+-------------------------------------------------+'
+Errors:
+  No permissions: '%prefix% &cNa toto nemas prava.'
+  Unknown command: '%prefix% &6Prikaz neexistuje, pouzi &e/coins help &6pro zobrazeni prikazu.'
+  Unknown player: '%prefix% &6Hrac &e%target% &6neni registrovan v dazabazi.'
+  Console: '%prefix% &cMusis byt hrac.'
+  No Negative: '%prefix% &cNelze nastavit zaporne hodnoty!'
+  No Zero: '%prefix% &cPocet nemuze byt &e0&c.'
+  No Coins: '%prefix% &cNemas tolik coinu.'
+  No Execute: '%prefix% &cNelze najit prikaz s timto id.'
+Coins:
+  Top:
+    Header: '&8&m+-------------------&8- &c&lCoins TOP &8&m--------------------+'
+    List: ' &c%top%. &e%player%&6: &e%coins%'
+  Get: '%prefix% &6Hrac &e%target% &6ma &e%coins%&6 coinu.'
+  Own coins: '%prefix% &6Mas &e%coins%&6 coinu.'
+  Pay: '%prefix% &6Poslal si &e%coins%&6 coiunu hraci &e%target%&6.'
+  Pay target: '%prefix% &6Hrac &e%from%&7 ti poslal &e%coins%&6 coinu.'
+  Give: '%prefix% Dal jsi &e%coins%&6 coinu hraci &e%target%&6.'
+  Give target: '%prefix% Dostal jsi &e%coins% &6coinu.'
+  Take: '%prefix% Odebral jsi &e%coins%&7 coinu hraci &e%target%&6, jeho aktualni stav je: &e%newcoins%&6.'
+  Take target: '%prefix% Tvoje coiny byly upravene na &e%coins%&6 coinu.'
+  Set: '%prefix% Coiny hrace &e%target% byly nastavene na &e%coins%&6.'
+  Set target: '%prefix% Tvoje coiny byly nastevene na &e%coins%&6.'
+  Reset: '%prefix% Coiny hrace &etarget% &6byly resetovany.'
+  Reset target: '%prefix% Tvoje coiny byly resetovany.'
+Multipliers:
+  Menu:
+    Title: '&6Booster menu'
+    Confirm:
+      Title: '&8Opravdu?'
+      Accept: '&aANO!'
+      Decline: '&cNE'
+    Multipliers:
+      Name: '&6Multiplier &cx%amount%'
+      Lore:
+      - ''
+      - '&7Pocet: &c%amount%'
+      - '&7Server: &c%server%'
+      - '&7Minut: &c%minutes%'
+      - ''
+      - '&7ID: &c#%id%'
+    No Multipliers:
+      Name: '&cNemas zadne boostry :('
+      Lore:
+      - ''
+      - '&7Zakup si boostry v obchode'
+      - '&6&nstore.servername.net'
+  Placeholders:
+    Enabler:
+      Message: '&8? Aktivovano &8(&e%enabler%&8)'
+      Anyone: '&8? Neni aktivovano :('
+  Created: '%prefix% uspesne vytvoreno pro hrace &e%player%&6.'
+  No Multipliers: '%prefix% Nemas zadny booster.'
+  Already active: '%prefix% Jiz je jeden zapnut, tento se &eautomaticky&6 zapne po skonceni aktualniho.'
+  Format: '&8(&bx%multiplier%&8) &6Byl &azapnut&6 hracen &a%enabler%&6!'

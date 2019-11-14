@@ -1,0 +1,109 @@
+# Coins messages file.
+# If you need support or find a bug open a issuse in
+# the official github repo https://github.com/Beelzebu/Coins/issuses/
+
+# The version of this file, is used to auto update this file, don't change it
+# unless you know what you do.
+version: 10
+
+Help:
+  User:
+  - '&8&m+-------------------------------------------------+'
+  - '%prefix% Доступные команды:'
+  - ' '
+  - ' &a/coins help &f- &7Показать это сообщение.'
+  - ' &a/coins &f- &7Показать ваши монеты.'
+  - ' &a/coins <имя> &f- &7Показать монеты игрока.'
+  - ' &a/coins pay <имя> <количество> &f- &7Заплатить игроку выбранную сумму.'
+  - ' &a/coins top &f- &7Показать 10 богатых игроков.'
+  - '&8&m+-------------------------------------------------+'
+  Admin:
+  - '&8&m+-------------------------------------------------+'
+  - '%prefix% Команды админа:'
+  - ' '
+  - ' &c/coins give <имя> <количество> (boolean) &f- &7Выдать монеты игроку.'
+  - '   &7&otrue, чтобы выдать монеты с использованием множителя активного сервера.'
+  - ' &c/coins take <имя> <количество> &f- &7Взять монеты у игрока.'
+  - ' &c/coins set <имя> <количество> &f- &7Установить монеты игроку.'
+  - ' &c/coins reset <имя> &f- &7Сбросить монеты игроку.'
+  - ' &c/coins reload &f- &7Перезагрузить конфигурацию и сообщения.'
+  - ' &c/coins about &f- &7Показать информацию о плагине.'
+  - ' &c/coins import &f- &7Импорт данных из других плагинов.'
+  - ' &c/coins importdb &f- &7Импорт данных из другого хранилища.'
+  - ' &c/coins multiplier &f- &7Показывать подкоманды множителя.'
+  - ' &8&m+-------------------------------------------------+'
+  Pay Usage: '%prefix% &cПожалуйста, используйте &f/coins pay <имя> <монеты>'
+  Give Usage: '%prefix% &cПожалуйста, используйте &f/coins give <имя> <монеты>'
+  Take Usage: '%prefix% &cПожалуйста, используйте &f/coins take <имя> <монеты>'
+  Reset Usage: '%prefix% &cПожалуйста, используйте &f/coins reset <имя>'
+  Set Usage: '%prefix% &cПожалуйста, используйте &f/coins set <имя> <монеты>'
+  Multiplier Usage: '%prefix% &cПожалуйста, используйте &f/coins multiplier'
+  Multiplier Create: '%prefix% &cПожалуйста, используйте &f/coins multiplier create <имя> <количество> <минуты> (сервер)'
+  Multiplier Set: '%prefix% &cПожалуйста, используйте &f/coins multiplier set <количество> <enabler> <минуты> (сервер)'
+  Multiplier:
+  - '&8&m+-------------------------------------------------+'
+  - '%prefix% Подкоманды умножителя'
+  - ' '
+  - ' &ccreate <player> <количество> <минуты> (сервер) &f- &7Создать множитель.'
+  - ' &cset <количество> <enabler> <минуты> (сервер) &f- &7Установить множитель.'
+  - '&8&m+-------------------------------------------------+'
+Errors:
+  No permissions: '%prefix% &cУ вас нет разрешения.'
+  Unknown command: '%prefix% &cНеизвестная команда, используйте &f/coins help&c, чтобы просмотреть все доступные команды.'
+  Unknown player: '%prefix% &cИгрок %target% не найден в базе данных.'
+  Console: '%prefix% &cВы должны быть игроком.'
+  No Negative: '%prefix% &cВы не можете установить отрицательные монеты!'
+  No Zero: '%prefix% &cСумма не может быть равна нулю.'
+  No Coins: '%prefix% &cУ вас нет таких монет.'
+  No Execute: '%prefix% &cНе удается найти команду для выполнения с этим ID.'
+Coins:
+  Top:
+    Header: '&8&m+-------------------&8- &c&lТоп богачей &8&m--------------------+'
+    List: ' &c%top%. &8%player%&f: &7%coins%'
+  Get: '%prefix% &a%target% &7имеет &f%coins%&7 монет.'
+  Own coins: '%prefix% Вы имеете &f%coins%&7 монет.'
+  Pay: '%prefix% Вы заплатили &f%coins%&7 монет игроку &f%target%&7.'
+  Pay target: '%prefix% &f%from%&7 заплатил вам &f%coins%&7 монет.'
+  Give: '%prefix% Вы дали &f%coins%&7 монет игроку &f%target%&7.'
+  Give target: '%prefix% Вы получили &f%coins%&7. %multiplier_format%'
+  Take: '%prefix% Вы удалили &f%coins%&7 у игроку &f%target%&7, новый баланс: &f%newcoins%&7.'
+  Take target: '%prefix% Ваши монеты были изменены до &f%coins%&7.'
+  Set: '%prefix% Монеты игрока %target% были установлены на &f%coins%&7.'
+  Set target: '%prefix% Ваши монеты установлены на &f%coins%&7.'
+  Reset: '%prefix% Монеты игрока %target% были сброшены.'
+  Reset target: '%prefix% Ваши монеты сброшены.'
+Multipliers:
+  Menu:
+    Title: '&6Множитель'
+    Confirm:
+      Title: '&8Ты уверен?'
+      Accept: '&a¡ДА!'
+      Decline: '&cНеа'
+    Multipliers:
+      Name: '&6Множитель &cx%amount%'
+      Lore:
+      - ''
+      - '&7Количество: &c%amount%'
+      - '&7Сервер: &c%server%'
+      - '&7Минуты: &c%minutes%'
+      - ''
+      - '&7ID: &c#%id%'
+    No Multipliers:
+      Name: '&cУ вас нет множителя :('
+      Lore:
+      - ''
+      - '&7Вы можете купить множители в нашем магазине'
+      - '&6&nstore.servername.net'
+  Placeholders:
+    Enabler:
+      Message: '&8➠ Множитель был переключен на &a%enabler%'
+      Anyone: '&8➠ Множитель не активирован :('
+  Created: '%prefix% Вы успешно создали множитель для %player%.'
+  Set:
+  - '%prefix% Множитель со следующими данными был установлен для %server%'
+  - '  &7Включен: &c%enabler%'
+  - '  &7Количество: &c%amount%'
+  - '  &7Минуты: &c%minutes%'
+  No Multipliers: '%prefix% У вас нет множителя.'
+  Already active: '%prefix% Уже имеется активный множитель, ваш множитель был поставлен в очередь и будет включен, когда активный множитель завершится.'
+  Format: '&8(&bx%multiplier%&8) &aМножитель был переключен на &c%enabler%&a!'

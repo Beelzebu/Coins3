@@ -1,0 +1,127 @@
+# Coins plugin by: Beelzebu
+# If you need support or find a bug open a issue in the official github repo
+# https://github.com/Beelzebu/Coins/issues/
+
+# The version of the config, don't touch!
+version: 16
+
+# This is the prefix used in all the messages.
+Prefix: '&cCoins &6&l>&7'
+
+# Here you can enable Vault to make this plugin manage all the Vault transactions.
+Vault:
+  Use: false
+  # Names used by vault for the currency.
+  Name:
+    Singular: 'Coin'
+    Plural: 'Coins'
+
+# Wich storage method the plugin should use.
+#
+# Available options:
+#  -> sqlite    data is stored locally and can't be shared with other servers.
+#  -> mysql     data is stored on a mysql server and can be shared by several servers.
+#  -> mariadb   we will use mariadb driver instead of mysql driver.
+Storage Type: sqlite
+
+# Don't touch this setting, this is only for internal usage to auto update the
+# database when something changes.
+Database Version: 2
+
+# Settings for messaging service
+# If enabled and configured, Coins will use the messaging service to inform other
+# connected servers of changes.
+#
+# Available options:
+#  -> bungeecord           uses the plugin messaging channels. You must enable bungeecord
+#                          in spigot.yml and install the plugin in BungeeCord to work.
+#  -> redis (recommended)  uses redis pub sub to push changes. You redis server must be
+#                          configured below.
+#  -> none                 nothing.
+Messaging Service: none
+
+# Settings for data caching
+# Coins keeps data in cache for better performance on read operations, currently the plugin
+# only support two methods for caching
+#
+# Available options:
+#  -> redis                uses redis for storing data and share it across servers, this is
+#                          the recommended method for bungee networks. You must enable it in
+#                          all servers connected to bungeecord.
+#  -> local                all data will be cached locally, this is the recommended method
+#                          for single servers.
+Cache: local
+
+# Here are the MySQL server settings.
+MySQL:
+  Host: 'localhost'
+  Port: 3306
+  Database: 'minecraft'
+  User: 'root'
+  Password: 'S3CUR3P4SSW0RD'
+  Prefix: 'Coins_'
+  # Don't change this value if you don't know what it does.
+  Connection Pool: 8
+  # MySQL table names without prefix, you can change this to use same database
+  # for all servers and but keep different balances in every server.
+  Data Table: 'data'
+  Multipliers Table: 'multipliers'
+
+# Here are the Redis server settings.
+Redis:
+  Host: 'localhost'
+  Port: 6379
+  Password: 'S3CUR3P4SSW0RD'
+
+# Plugin general configurations.
+General:
+  # Here you can define the starting coins of a player when is registered in the
+  # database or his coins are reset with "/coins reset"
+  Starting Coins: 0
+  # Here you can configure the base command of the plugin.
+  Command:
+    Coins:
+      Name: 'coins'
+      Description: 'Base command of the Coins plugin'
+      Usage: '/coins'
+      Permission: 'coins.use'
+      Aliases: [mycoins, coinsalias]
+    Multiplier:
+      Name: 'multiplier'
+      Description: 'Command to see and edit multipliers'
+      Usage: '/multiplier'
+      Permission: 'coins.multiplier'
+      Aliases: [multipliers]
+  # Here you can configure the auto purge of inactive accounts.
+  Purge:
+    Enabled: true # If this is true the old accounts would be purged at server startup.
+    Days: 60 # The time in days before deleting an account.
+    Log Purge:
+      Enabled: true
+      Days: 10 # The days to keep plugin logs.
+  # Options about internal logging, by default the plugin will log all messages,
+  # errors and executed commands related to this plugin in a file called latest.log
+  # that is inside of the plugins/Coins/logs folder.
+  Logging:
+    Debug:
+      # Enable or disable debug mode, all errors and debug messages will be
+      # immediately logged to the console.
+      Enabled: false
+      # If debug messages should be written to the file, if this option is disabled
+      # logs folder inside Coins folder won't be generated and will be deleted if
+      # already exists.
+      File: true
+  Executor Sign:
+    '1': '&c&lCoins'
+    '2': '%executor_displayname%'
+    '3': '%executor_cost%'
+    '4': ''
+  # If you want the users to be created when they join to the server, enable this,
+  # otherwise the players will be created when his coins are modified or consulted
+  # to the database for the first time (recommended for big servers).
+  Create Join: false
+
+# Here you can define a cost to use a specific command.
+Command Cost:
+  /example: 100.0 # When a player use this command, we gonna take 100 coins from his account.
+  /command: 5.5 # You can use decimals too.

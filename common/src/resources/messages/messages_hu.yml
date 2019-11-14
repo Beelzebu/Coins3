@@ -1,0 +1,109 @@
+# Coins üzenetfájl.
+# Ha segítségre van szüksége, vagy hibát talál,
+# a kérdéseket tegye fel a hivatalos átvitelről https://github.com/Beelzebu/Coins/issues/
+
+# A fájl verziója automatikusan frissíti ezt a fájlt, és nem módosítja
+# hacsak nem tudod, mit csinálsz.
+version: 10
+
+Help:
+  User:
+  - '&8&m+-------------------------------------------------+'
+  - '%prefix% Elérhető parancsok:'
+  - ' '
+  - ' &a/coins help &f- &7A súgóüzenet megjelenítése.'
+  - ' &a/coins &f- &7Megmutassa az érméidet.'
+  - ' &a/coins <név> &f- &7Megmutassa a felhasználó érméit.'
+  - ' &a/coins pay <név> <mennyiség> &f- &7Fizet a felhasználónak a kiválasztott összeget.'
+  - ' &a/coins top &f- &7Megmutassa a tíz legnagyobb felhasználót érmékben.'
+  - '&8&m+-------------------------------------------------+'
+  Admin:
+  - '&8&m+-------------------------------------------------+'
+  - '%prefix% Admin parancsok:'
+  - ' '
+  - ' &c/coins give <név> <mennyiség> (boolean) &f- &7Ad érméket egy felhasználónak.'
+  - '   &f&oIgaz, hogy érméket használ az aktív szerver szorzót.'
+  - ' &c/coins take <név> <mennyiség> &f- &7Elvesz érméket egy felhasználóból.'
+  - ' &c/coins set <név> <mennyiség> &f- &7Beállítsa a felhasználó érméit.'
+  - ' &c/coins reset <név> &f- &7Visszaállítsa a felhasználó érméit.'
+  - ' &c/coins reload &f- &7Újratölti a konfigurációt és az üzeneteket.'
+  - ' &c/coins about &f- &7Információkat mutat a pluginról.'
+  - ' &c/coins import &f- &7Adatok importálása más beépülő modulokból.'
+  - ' &c/coins importdb &f- &7Adatok importálása egy másik tárból.'
+  - ' &c/coins multiplier &f- &7Megmutatja a szorzó al-parancsokat.'
+  - ' &8&m+-------------------------------------------------+'
+  Pay Usage: '%prefix% &cKérlek, használd &f/coins pay <név> <érmék>'
+  Give Usage: '%prefix% &cKérlek, használd &f/coins give <név> <érmék>'
+  Take Usage: '%prefix% &cKérlek, használd &f/coins take <név> <érmék>'
+  Reset Usage: '%prefix% &cKérlek, használd &f/coins reset <név>'
+  Set Usage: '%prefix% &cKérlek, használd &f/coins set <név> <érmék>'
+  Multiplier Usage: '%prefix% &cKérlek, használd &f/coins multiplier'
+  Multiplier Create: '%prefix% &cKérlek, használd &f/coins multiplier create <név> <mennyiség> <percek> (szerver)'
+  Multiplier Set: '%prefix% &cKérlek, használd &f/coins multiplier set <mennyiség> <engedélyező> <percek> (szerver)'
+  Multiplier:
+  - '&8&m+-------------------------------------------------+'
+  - '%prefix% Szorzó parancsok'
+  - ' '
+  - ' &ccreate <játékos> <mennyiség> <percek> (szerver) &f- &7Létrehoz egy szorzót.'
+  - ' &cset <mennyiség> <engedélyező> <perc> (szerver) &f- &7Beállít egy szorzót.'
+  - '&8&m+-------------------------------------------------+'
+Errors:
+  No permissions: '%prefix% &cNincs jogod ehhez.'
+  Unknow command: '%prefix% &cIsmeretlen parnacs, próbáld &f/coins help &caz összes elérhető parancs megjelenítéséhez.'
+  Unknow player: '%prefix% &cA(z) %target% játékos nem található az adatbázisban.'
+  Console: '%prefix% &cJátékosnak kell lenned.'
+  No Negative: '%prefix% &cNem helyezhet negatív érméket!'
+  No Zero: '%prefix% &cAz összeg nem lehet nulla.'
+  No Coins: '%prefix% &cNincsenek ilyen érméi.'
+  No Execute: '%prefix% &cNem talál parancsot végrehajtani ezzel az azonosítóval.'
+Coins:
+  Top:
+    Header: '&8&m+-------------------&8- &c&lÉrmék TOP &8&m--------------------+'
+    List: ' &c%top%. &8%player%&f: &7%coins%'
+  Get: '%prefix% &a%target% &7van &f%coins%&7 érme.'
+  Own coins: '%prefix% Neked van &f%coins%&7 érme.'
+  Pay: '%prefix% Küldtél &f%coins%&7 érmét &f%target%&7-nak/-nek.'
+  Pay target: '%prefix% &f%from%&7 küldtek &f%coins%&7 érmét.'
+  Give: '%prefix% Adtál &f%coins%&7 érmét &f%target%&7-nak/-nek.'
+  Give target: '%prefix% Megkaptad &f%coins%&7. %multiplier_format%'
+  Take: '%prefix% Törölted &f%coins%&7 &f%target%&7-tól/-től, új egyenleg: &f%newcoins%&7.'
+  Take target: '%prefix% Az érméid módosultak &f%coins%&7.'
+  Set: '%prefix% Az érmék %target% beállítva &f%coins%&7.'
+  Set target: '%prefix% Az érmék beállítva &f%coins%&7.'
+  Reset: '%prefix% Az érmék %target%-nál/-nél vissza lett állítva.'
+  Reset target: '%prefix% A pénzérméket visszaállították.'
+Multipliers:
+  Menu:
+    Title: '&6Multiplikátorok GUI'
+    Confirm:
+      Title: '&8Biztos vagy ebben?'
+      Accept: '&a¡IGEN!'
+      Decline: '&cNope'
+    Multipliers:
+      Name: '&6Szorzó &cx%amount%'
+      Lore:
+      - ''
+      - '&7Mennyiség: &c%amount%'
+      - '&7Szerver: &c%server%'
+      - '&7Percek: &c%minutes%'
+      - ''
+      - '&7ID: &c#%id%'
+    No Multipliers:
+      Name: '&cNincs sokszorozója :('
+      Lore:
+      - ''
+      - '&7Megvásárolhatják a szorzókat az üzletünkben'
+      - '&6&nstore.servername.net'
+  Placeholders:
+    Enabler:
+      Message: '&8➠ A multiplikátor &a%enabler% által engedélyezve'
+      Anyone: '&8➠ Nincs szorzó aktív :('
+  Created: '%prefix% Sikeresen létrehoztál egy szorzót %player% játékosnál.'
+  Set:
+  - '%prefix% A következő adatokat tartalmazó szorzót állítottuk be %server%'
+  - '  &7Engedélyező: &c%enabler%'
+  - '  &7Mennyiség: &c%amount%'
+  - '  &7Percek: &c%minutes%'
+  No Multipliers: '%prefix% Nincs sokszorozója.'
+  Already active: '%prefix% Már van aktív multiplikátor, a szorzó sorba állt, és az aktív multiplikátor befejezésekor aktiválódik.'
+  Format: '&8(&bx%multiplier%&8) &aA multiplikátor &c%enabler%&a által engedélyezve!'

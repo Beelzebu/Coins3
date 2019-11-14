@@ -1,0 +1,97 @@
+#这个是插件的语言文件
+#插件版本，不要更改
+#本汉化配置由MCBBS我的世界中文论坛 www.mcbbs.net 的不死之躯汉化 QQ：2324908475
+#http://www.mcbbs.net/home.php?mod=space&uid=1687169
+#请在帖子中回复评分给人气支持我
+version: 9
+
+Help:
+  User:
+  - '&8&m+-------------------------------------------------+'
+  - '%prefix% 玩家可用的命令:'
+  - ' '
+  - ' &a/coins help &f- &7显示本插件的帮助信息.'
+  - ' &a/coins &f- &7显示您拥有的货币数量.'
+  - ' &a/coins <玩家名> &f- &7查询指定玩家的货币数量.'
+  - ' &a/coins pay <玩家名> <数量> &f- &7向指定玩家打钱.'
+  - ' &a/coins top &f- &7显示本服金钱前10位的玩家[膜拜].'
+  - '&8&m+-------------------------------------------------+'
+  Admin:
+  - '&8&m+-------------------------------------------------+'
+  - '%prefix% 管理员可以使用的命令:'
+  - ' '
+  - ' &c/coins give <玩家名> <数量> (不得是0) &f- &7给指定玩家钱.'
+  - ' &c/coins take <玩家名> <数量> &f- &7拿取玩家的钱币.'
+  - ' &c/coins set <玩家名> <数量> &f- &7直接设置玩家的钱.'
+  - ' &c/coins reset <玩家名> &f- &7重置玩家的钱类似删除.'
+  - ' &c/coins reload &f- &7重置插件.'
+  - ' &c/coins multiplier &f- &7表示命令数量[雾].'
+  - ' &8&m+-------------------------------------------------+'
+  Pay Usage: '%prefix% &c请使用 &f/coins pay <玩家名> <钱数>'
+  Give Usage: '%prefix% &c请使用 &f/coins give <玩家名> <钱数>'
+  Take Usage: '%prefix% &c请使用 &f/coins take <玩家名> <钱数>'
+  Reset Usage: '%prefix% &c请使用 &f/coins reset <玩家名>'
+  Set Usage: '%prefix% &c请使用 &f/coins set <玩家名> <钱数>'
+  Multiplier Usage: '%prefix% &c请使用 &f/coins multiplier'
+  Multiplier Create: '%prefix% &c请使用 &f/coins multiplier create <玩家名> <数量> <分钟> (服务器)'
+  Multiplier:
+  - '&8&m+-------------------------------------------------+'
+  - '%prefix% 乘数的命令'
+  - ' '
+  - ' &ccreate <player> <数量> <minutes> (服务器) &f- &7创建一个乘数.'
+  - '&8&m+-------------------------------------------------+'
+Errors:
+  No permissions: '%prefix% &c你没有权限.'
+  Unknown command: '%prefix% &c未知命令，请使用 &f/coins help &c查看上面可用的命令.'
+  Unknown player: '%prefix% &c玩家在 %target% ''在数据库中找不到.'
+  Console: '%prefix% &c你需要一个玩家.'
+  No Negative: '%prefix% &c你不能将钱设置为负数!'
+  No Zero: '%prefix% &c将钱 数量 设置为0.'
+  No Coins: '%prefix% &c你灭有那些钱.'
+  No Execute: '%prefix% &c无法找到此ID使用的命令.'
+Coins:
+  Top:
+    Header: '&8&m+-------------------&8- &c&l服务器前十排行榜 &8&m--------------------+'
+    List: ' &c%top%. &8%player%&f: &7%coins%'
+  Get: '%prefix% &a%target% &7有 &f%coins%&7 钱.'
+  Own coins: '%prefix% 你有 &f%coins%&7 钱.'
+  Pay: '%prefix% 你付 &f%coins%&7 钱 to &f%target%&7.'
+  Pay target: '%prefix% &f%from%&7 给你 &f%coins%&7 钱.'
+  Give: '%prefix% 你给 &f%coins%&7 钱 to &f%target%&7.'
+  Give target: '%prefix% 你收到 &f%coins%&7. %multiplier_format%'
+  Take: '%prefix% 你删除了 &f%coins%&7 from &f%target%&7, new balance: &f%newcoins%&7.'
+  Take target: '%prefix% 你的钱数已修改 &f%coins%&7.'
+  Set: '%prefix% 你的钱 of %target% 已被重新更改 &f%coins%&7.'
+  Set target: '%prefix% 你的钱已经设置过了 &f%coins%&7.'
+  Reset: '%prefix% 你的钱 %target% 已经重置.'
+  Reset target: '%prefix% 你的钱已经复位.'
+Multipliers:
+  Menu:
+    Title: '&6GUI'
+    Confirm:
+      Title: '&8你确定吗?'
+      Accept: '&a?是的!'
+      Decline: '&c不是'
+    Multipliers:
+      Name: '&6Multiplier &cx%amount%'
+      Lore:
+      - ''
+      - '&7数量: &c%amount%'
+      - '&7服务器: &c%server%'
+      - '&7Minutes: &c%minutes%'
+      - ''
+      - '&7ID: &c#%id%'
+    No Multipliers:
+      Name: '&c你没有任何 multiplier :('
+      Lore:
+      - ''
+      - '&7你可以在我的店铺里买 multipliers '
+      - '&6&nstore.servername.net'
+  Placeholders:
+    Enabler:
+      Message: '&8? Multiplier 启用 &a%enabler%'
+      Anyone: '&8? 不 multiplier 积极地 :('
+  Created: '%prefix% 你成功了 multiplier for %player%.'
+  No Multipliers: '%prefix% 你一点也没有 multiplier.'
+  Already active: '%prefix% There is an active multiplier already, your multiplier was queued and will be enabled when the active multiplier finish.'
+  Format: '&8(&bx%multiplier%&8) &aMultiplier enabled by &c%enabler%&a!'

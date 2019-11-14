@@ -1,0 +1,109 @@
+# Coins messages file.
+# Si necesitas soporte o encuentras un error por favor abre un ticket en el
+# repositorio oficial de github https://github.com/Beelzebu/Coins/issuses/
+
+# La versión de este archivo, es usado para actualizarlo automáticamente, no lo cambies
+# a menos que sepas lo que haces.
+version: 10
+
+Help:
+  User:
+  - '&8&m+-------------------------------------------------+'
+  - '%prefix% Comandos disponibles:'
+  - ' '
+  - ' &a/coins ayuda &f- &7Muestra este mensaje de ayuda.'
+  - ' &a/coins &f- &7Muestra tus coins.'
+  - ' &a/coins <nombre> &f- &7Muestra las coins del usuario.'
+  - ' &a/coins pay <nombre> <cantidad> &f- &7Paga al usuario seleccionado.'
+  - ' &a/coins top &f- &7Muestra las personas con más coins.'
+  - '&8&m+-------------------------------------------------+'
+  Admin:
+  - '&8&m+-------------------------------------------------+'
+  - '%prefix% Comandos de administrador:'
+  - ' '
+  - ' &c/coins dar <nombre> <cantidad> (boolean) &f- &7Entrega coins a un usuario.'
+  - '   &f&oTrue para usar el multiplicador activo.'
+  - ' &c/coins quitar <nombre> <cantidad> &f- &7Quita coins a un usuario.'
+  - ' &c/coins set <nombre> <cantidad> &f- &7Establece las coins de un usuario.'
+  - ' &c/coins reset <nombre> &f- &7Establece las coins de el usuario en 0.'
+  - ' &c/coins reload &f- &7Recarga la configuración y los mensajes.'
+  - ' &c/coins about &f- &7Muestra información acerca del plugin.'
+  - ' &c/coins import &f- &7Importa información desde otros plugins.'
+  - ' &c/coins importdb &f- &7Importa información desde otro almacenamiento.'
+  - ' &c/coins multiplier &f- &7Muestra los subcomandos de multiplicadores.'
+  - ' &8&m+-------------------------------------------------+'
+  Pay Usage: '%prefix% &cPor favor usa &f/coins pay <nombre> <coins>'
+  Give Usage: '%prefix% &cPor favor usa &f/coins dar <nombre> <coins>'
+  Take Usage: '%prefix% &cPor favor usa &f/coins quitar <nombre> <coins>'
+  Reset Usage: '%prefix% &cPor favor usa &f/coins reset <nombre>'
+  Set Usage: '%prefix% &cPor favor usa &f/coins set <nombre> <coins>'
+  Multiplier Usage: '%prefix% &cPor favor usa &f/coins multiplier'
+  Multiplier Create: '%prefix% &cPor favor usa &f/coins multiplier create <nombre> <cantidad> <minutos> (servidor)'
+  Multiplier Set: '%prefix% &cPor favor usa &f/coins multiplier set <cantidad> <activador> <minutos> (server)'
+  Multiplier:
+  - '&8&m+-------------------------------------------------+'
+  - '%prefix% Sub comandos de multiplicador'
+  - ' '
+  - ' &ccreate <nombre> <cantidad> <minutos> (servidor) &f- &7Crea un multiplicador.'
+  - ' &cset <cantidad> <activador> <minutos> (servidor) &f- &7Establece un multiplicador.'
+  - '&8&m+-------------------------------------------------+'
+Errors:
+  No permissions: '%prefix% &cNo tienes permisos.'
+  Unknown command: '%prefix% &cComando desconocido, usa &f/coins ayuda &cpara ver todos los comandos disponibles.'
+  Unknown player: '%prefix% &cEl jugador %target% no existe en la base de datos.'
+  Console: '%prefix% &cDebes ser un jugador.'
+  No Negative: '%prefix% &cNo puedes establecer coins negativas!'
+  No Zero: '%prefix% &cLa cantidad no puede ser cero.'
+  No Coins: '%prefix% &cNo tienes suficientes coins.'
+  No Execute: '%prefix% &cNo se encontró un ejecutor con la id especificada.'
+Coins:
+  Top:
+    Header: '&8&m+-------------------&8- &c&lCoins TOP &8&m--------------------+'
+    List: ' &c%top%. &8%player%&f: &7%coins%'
+  Get: '%prefix% &a%target% &7tiene &f%coins%&7 coins.'
+  Own coins: '%prefix% Tienes &f%coins%&7 coins.'
+  Pay: '%prefix% Pagaste &f%coins%&7 coins a &f%target%&7.'
+  Pay target: '%prefix% &f%from%&7 te pagó &f%coins%&7 coins.'
+  Give: '%prefix% Diste &f%coins%&7 coins a &f%target%&7.'
+  Give target: '%prefix% Has recibido &f%coins%&7 coins. %multiplier_format%'
+  Take: '%prefix% Quitaste &f%coins%&7 coins a &f%target%&7, su nuevo saldo es: &f%newcoins%&7.'
+  Take target: '%prefix% Tus coins fueron modificadas a &f%coins%&7.'
+  Set: '%prefix% Las coins de %target% fueron establecidas en &f%coins%&7.'
+  Set target: '%prefix% Tus coins fueron establecidas en &f%coins%&7.'
+  Reset: '%prefix% Las coins de %target% fueron reiniciadas.'
+  Reset target: '%prefix% Tus coins fueron reiniciadas.'
+Multipliers:
+  Menu:
+    Title: '&6Menú de multiplicadores'
+    Confirm:
+      Title: '&8¿Estás seguro?'
+      Accept: '&a¡SI!'
+      Decline: '&cNo'
+    Multipliers:
+      Name: '&6Multiplicador &cx%amount%'
+      Lore:
+      - ''
+      - '&7Cantidad: &c%amount%'
+      - '&7Servidor: &c%server%'
+      - '&7Minutos: &c%minutes%'
+      - ''
+      - '&7ID: &c#%id%'
+    No Multipliers:
+      Name: '&cNo tienes ningún multiplicador :('
+      Lore:
+      - ''
+      - '&7Puedes comprar multiplicadores en nuestra tienda'
+      - '&6&nstore.servername.net'
+  Placeholders:
+    Enabler:
+      Message: '&8➠ Multiplicador activado por &a%enabler%'
+      Anyone: '&8➠ No hay multiplicadores activos :('
+  Created: '%prefix% Has creado un multiplicador para %player% correctamente.'
+  Set:
+  - '%prefix% Un multiplicador con la siguiente información fue establecido en %server%'
+  - '  &7Activador: &c%enabler%'
+  - '  &7Cantidad: &c%amount%'
+  - '  &7Minutos: &c%minutes%'
+  No Multipliers: '%prefix% No tienes ningún multiplicador.'
+  Already active: '%prefix% En estos momentos ya hay un multiplicador activo.'
+  Format: '&8(&bx%multiplier%&8) &aMultiplicador activado por &c%enabler%&a!'

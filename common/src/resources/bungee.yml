@@ -1,0 +1,4 @@
+name: Coins
+main: ${project.groupId}.coins.bungee.CoinsBungeeMain
+version: ${project.version}
+author: Beelzebu

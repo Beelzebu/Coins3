@@ -1,0 +1,139 @@
+# 货币插件 by: Beelzebu
+# 如果你发现BUG请联系我
+# 官方 github 地址 https://github.com/Beelzebu/Coins/issues/
+#本插件由龙骑Ryuki【不死之躯】全权汉化，汉化归龙骑版权所有 QQ:2324908475
+#本插件汉化后在MCBBS我的世界中文论坛发布，不得非法转载汉化
+#本插件默认编码为ANSI编码，Windows不用更改，其他系统自行百度更改
+#既然你已经下载了这个汉化插件你不在帖子内回复，和评分支持一下好意思吗？
+
+# 插件版本，不得修改用于检测版本
+version: 10
+
+#此为输出本插件命令时的前戳如：【货币系统>您拥有货币100￥】
+Prefix: '&c&l货币系统 &6&l>&7'
+
+# 此项为设置储存玩家信息时玩家名称的方式
+#true推荐正版服开启，储存玩家名字时 用的MJ的UUID
+#false盗版服开启，储存玩家信息时，用的玩家在服务器内的名字如：【weiletao】
+Online Mode: false
+
+# 启用这个功能后，这个插件的将接管这个服务器内的其他经济插件的交易管理如 Vault 经济插件，推荐有这个经济插件时开启
+Vault:
+  Use: false
+  # 本货币插件在使用时，货币的名称如游戏币，节操，金币，点券
+  Name:
+    Singular: '点券'
+    Plural: '点券'
+
+# 本插件特殊功能也就是BC跨服和Mysql数据库的支持中的MySql数据库，本地储存，请在底下输入你的数据库信息
+MySQL:
+  #是否开启Mysql数据库功能，不开启则默认本地储存
+  Use: false
+  #数据库地址
+  Host: 'localhost'
+  #数据库端口
+  Port: '3306'
+  #数据库名
+  Database: 'minecraft'
+  #数据库用户名
+  User: 'root'
+  #数据库密码
+  Password: 'S3CUR3P4SSW0RD'
+  #数据库表前戳如果在一个数据库内安装多个本插件，请设置前戳
+  Prefix: 'Coins_'
+  #不用管
+  Connection Interval: 5
+
+# 插件基本配置
+General:
+  # 在这里您可以设置玩家注册后给予的货币个数
+  # 设置后您可是输入 "/coins reset" 来重载插件和插件配置
+  Starting Coins: 0
+  # 在这里您可以配置插件命令的基本配置
+  Command:
+    Name: 'coins'
+    Description: 'Base command of the Coins plugin'
+    Usage: '/coins'
+    Permission: 'coins.use'
+    Aliases:
+    - 'mycoins'
+    - 'coinsalias'
+  # 在这里您可是设置删除指定时间没上线的用户删除
+  Purge:
+    # 启用服务器开启后自动删除不活跃的用户
+    Enabled: true
+    #用户多久不上线后删除账户，已时间为单位
+    Days: 60
+    Logs:
+      #保留插件日志的时间【天】
+      Days: 10
+  Executor Sign:
+    '1': '&c&lCoins'
+    '2': '%executor_displayname%'
+    '3': '%ececutor_cost%'
+    '4': ''
+
+# 在这里您可以设置使用指定命令需要花费的钱，按照下面的方法添加命令，默认扣除本插件的钱
+Command Cost:
+  #使用这个命令后扣除玩家100元
+  /example: 100.0
+  #如上面所说
+  /command: 5.5
+  #例如：
+  #/stop: 1000000.0 使用stop时扣除10000000.0元
+
+# Here you can make that coins run a command from the console and take a cost to the user.
+Command executor:
+  # This is the command name to use in /coins execute
+  # This is useful if you want to give things to the players by coins.
+  # With the command below you should use /coins execute example1
+  example1:
+    # 这是后台使用的命令
+    Command:
+    - 'eco give %player% 10000' # Note the %player% placeholder, this is replaced by the player that runs the command.
+    Cost: 100 # This is the cost of the command.
+  '2':
+    # You can create executors without cost.
+    Command:
+    - 'broadcast: %player% Is awesome!'
+  list:
+    # 你也可以设置xxxxx     # You can also create a list of commands to run when the executor is called.
+    Command:
+    - 'kill %player%'
+    - 'msg %player% we''re sorry :('
+  all:
+    #当输入一些特殊命令时，给玩家的消息
+    Command:
+    - 'message: You win 100 $'
+    - 'broadcast: %player% winned 100 $'
+    - 'eco give %player% 100'
+    Cost: 10
+  # This example executor is to be used with signs, for signs you can add the 'Displayname'
+  # to be used in the sign, if isn't present the id is used for the displayname, in this case
+  # if we don't put the Displayname this would be: sign1
+  #用于未知的的功能很强大，需要大家自行理解
+  sign1:
+    Displayname: '&lNormal Key'
+    Command:
+    - 'crate givekey %player% 1 normal'
+    - 'message:Here are your key!'
+    Cost: 2
+Multipliers:
+  # 在这里您可以配置GUI的设定
+  GUI:
+    Close:
+      # 配置GUI的方法，如果您是1.8+服务器请查看这个 http://docs.codelanx.com/Bukkit/1.8/org/bukkit/Sound.html
+      # 如上这个是1.9+的配置方法连接 https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html
+      Sound: 'UI_BUTTON_CLICK'
+      Pitch: '1'
+    Use:
+      Sound: 'ENTITY_PLAYER_LEVELUP'
+      Pitch: '2'
+      Fail:
+        Sound: 'ENTITY_VILLAGER_NO'
+        Pitch: '1'
+  #重要如果您将本插件用于跨服经济插件时必须使用Mysql数据库，下面请填写启用本插件的蹦极子服务器名称【须是BC配置内填写的】
+  Server: 'default'
+
+#调试模式，如果插件发生BUG后无法查看原因，请打开这个，但请及时关闭
+Debug: false

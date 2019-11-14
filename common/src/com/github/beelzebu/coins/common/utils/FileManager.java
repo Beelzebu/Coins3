@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,7 +108,6 @@ public class FileManager {
     }
 
     public void updateFiles() {
-        updateMessages();
         updateConfig();
         checkLogs();
         messagesFiles.clear();
@@ -138,6 +136,10 @@ public class FileManager {
                 File oldConfig = new File(plugin.getBootstrap().getDataFolder(), "config.old.yml");
                 if (configFile.renameTo(oldConfig)) {
                     Files.copy(plugin.getBootstrap().getResource("config.yml"), configFile.toPath());
+                    List<String> lines = Files.readAllLines(configFile.toPath());
+                    int index = lines.indexOf("Database Version: 2");
+                    lines.remove(index);
+                    lines.add(index, "Database Version: 1");
                     plugin.log("Your old config file was moved to " + oldConfig.getCanonicalPath() + " the new config was created in the plugin folder, check it.");
                 } else {
                     plugin.log("An error has occurred while renaming old config file.");
@@ -147,174 +149,7 @@ public class FileManager {
             plugin.log("An unexpected error occurred while updating the config file.");
             plugin.debug(ex.getMessage());
         }
-    }
-
-    private void updateMessages() {
-        try {
-            List<String> lines = Files.readAllLines(messagesFiles.get("default").toPath());
-            int index;
-            if (plugin.getMessages("").getInt("version") == 6) {
-                index = lines.indexOf("version: 6");
-                lines.set(index, "version: 7");
-                index = lines.indexOf("Multipliers:");
-                lines.remove(index);
-                index = lines.indexOf("  Menu:");
-                lines.add(index, "Multipliers:");
-                plugin.log("Updated messages.yml file to v7");
-            }
-            if (plugin.getMessages("").getInt("version") == 7) {
-                index = lines.indexOf("version: 7");
-                lines.set(index, "version: 8");
-                index = lines.indexOf("  Menu:") + 2;
-                lines.addAll(index, Arrays.asList(
-                        "    Confirm:",
-                        "      Title: '&8Are you sure?'",
-                        "      Accept: '&a¡YES!'",
-                        "      Decline: '&cNope'",
-                        "    Multipliers:",
-                        "      Name: '&6Multiplier &cx%amount%'",
-                        "      Lore:",
-                        "      - ''",
-                        "      - '&7Amount: &c%amount%'",
-                        "      - '&7Server: &c%server%'",
-                        "      - '&7Minutes: &c%minutes%'",
-                        "      - ''",
-                        "      - '&7ID: &c#%id%'",
-                        "    No Multipliers:",
-                        "      Name: '&cYou don''t have any multiplier :('",
-                        "      Lore:",
-                        "      - ''",
-                        "      - '&7You can buy multipliers in our store'",
-                        "      - '&6&nstore.servername.net'"
-                ));
-                plugin.log("Updated messages.yml file to v8");
-            }
-            if (plugin.getMessages("").getInt("version") == 8) {
-                index = lines.indexOf("version: 8");
-                lines.set(index, "version: 9");
-                lines.removeAll(Arrays.asList(
-                        "# Coins messages file.",
-                        "# If you need support or find a bug open a issuse in",
-                        "# the official github repo https://github.com/Beelzebu/Coins/issuses/",
-                        "",
-                        "# The version of this file, don't edit!"
-                ));
-                lines.addAll(0, Arrays.asList(
-                        "# Coins messages file.",
-                        "# If you need support or find a bug open a issuse in",
-                        "# the official github repo https://github.com/Beelzebu/Coins/issuses/",
-                        "",
-                        "# The version of this file, is used to auto update this file, don't change it",
-                        "# unless you know what you do."
-                ));
-                plugin.log("Updated messages.yml file to v9");
-            }
-            if (plugin.getMessages("").getInt("version") == 9) {
-                index = lines.indexOf("version: 9");
-                lines.set(index, "version: 10");
-                index = lines.indexOf("  Multiplier Create: '" + plugin.getMessages("").getString("Help.Multiplier Create") + "'") + 1;
-                lines.add(index, "  Multiplier Set: '%prefix% &cPlease use &f/coins multiplier set <amount> <enabler> <minutes> (server)'");
-                lines.addAll(Arrays.asList(
-                        "  Set:",
-                        "  - '%prefix% A multiplier with the following data was set for %server%'",
-                        "  - '  &7Enabler: &c%enabler%'",
-                        "  - '  &7Amount: &c%amount%'",
-                        "  - '  &7Minutes: &c%minutes%'"
-                ));
-                plugin.log("Updated messages.yml file to v10");
-            }
-            Files.write(messagesFiles.get("default").toPath(), lines);
-        } catch (IOException ex) {
-            plugin.log("An unexpected error occurred while updating the messages.yml file.");
-            plugin.debug(ex.getMessage());
-        }
-        try {
-            List<String> lines = Files.readAllLines(messagesFiles.get("es").toPath());
-            int index;
-            if (plugin.getMessages("es").getInt("version") == 6) {
-                index = lines.indexOf("version: 6");
-                lines.set(index, "version: 7");
-                index = lines.indexOf("Multipliers:");
-                lines.remove(index);
-                index = lines.indexOf("  Menu:");
-                lines.add(index, "Multipliers:");
-                plugin.log("Updated messages_es.yml file to v7");
-            }
-            if (plugin.getMessages("es").getInt("version") == 7) {
-                index = lines.indexOf("version: 7");
-                lines.set(index, "version: 8");
-                index = lines.indexOf("  Menu:") + 2;
-                lines.addAll(index, Arrays.asList(
-                        "    Confirm:",
-                        "      Title: '&8¿Estás seguro?'",
-                        "      Accept: '&a¡SI!'",
-                        "      Decline: '&cNo'",
-                        "    Multipliers:",
-                        "      Name: '&6Multiplicador &cx%amount%'",
-                        "      Lore:",
-                        "      - ''",
-                        "      - '&7Cantidad: &c%amount%'",
-                        "      - '&7Servidor: &c%server%'",
-                        "      - '&7Minutos: &c%minutes%'",
-                        "      - ''",
-                        "      - '&7ID: &c#%id%'",
-                        "    No Multipliers:",
-                        "      Name: '&cNo tienes ningún multiplicador :('",
-                        "      Lore:",
-                        "      - ''",
-                        "      - '&7Puedes comprar multiplicadores en nuestra tienda'",
-                        "      - '&6&nstore.servername.net'"
-                ));
-                plugin.log("Updated messages_es.yml file to v8");
-            }
-            index = lines.indexOf("      - '&6&nstore.servername.net'\"");
-            if (index != -1) {
-                lines.set(index, "      - '&6&nstore.servername.net'");
-            }
-            if (plugin.getMessages("es").getInt("version") == 8) {
-                index = lines.indexOf("version: 8");
-                lines.set(index, "version: 9");
-                lines.removeAll(Arrays.asList(
-                        "# Coins messages file.",
-                        "# If you need support or find a bug open a issuse in",
-                        "# the official github repo https://github.com/Beelzebu/Coins/issuses/",
-                        "",
-                        "# The version of this file, don't edit!"
-                ));
-                lines.addAll(0, Arrays.asList(
-                        "# Coins messages file.",
-                        "# Si necesitas soporte o encuentras un error por favor abre un ticket en el",
-                        "# repositorio oficial de github https://github.com/Beelzebu/Coins/issuses/",
-                        "",
-                        "# La versión de este archivo, es usado para actualizarlo automáticamente, no lo cambies",
-                        "# a menos que sepas lo que haces."
-                ));
-                plugin.log("Updated messages_es.yml file to v9");
-            }
-            if (plugin.getMessages("es").getInt("version") == 9) {
-                index = lines.indexOf("version: 9");
-                lines.set(index, "version: 10");
-                index = lines.indexOf("  Multiplier Create: '" + plugin.getMessages("es").getString("Help.Multiplier Create") + "'") + 1;
-                lines.add(index, "  Multiplier Set: '%prefix% &cPor favor usa &f/coins multiplier set <cantidad> <activador> <minutos> (server)'");
-                lines.addAll(Arrays.asList(
-                        "  Set:",
-                        "  - '%prefix% Un multiplicador con la siguiente información fue establecido en %server%'",
-                        "  - '  &7Activador: &c%enabler%'",
-                        "  - '  &7Cantidad: &c%amount%'",
-                        "  - '  &7Minutos: &c%minutes%'"
-                ));
-                plugin.log("Updated messages_es.yml file to v10");
-            }
-            if (lines.get(0).startsWith("  Multiplier Set:")) {
-                lines.remove(0);
-                index = lines.indexOf("  Multiplier Create: '" + plugin.getMessages("es").getString("Help.Multiplier Create") + "'") + 1;
-                lines.add(index, "  Multiplier Set: '%prefix% &cPor favor usa &f/coins multiplier set <cantidad> <activador> <minutos> (server)'");
-            }
-            Files.write(messagesFiles.get("es").toPath(), lines);
-        } catch (IOException ex) {
-            plugin.log("An unexpected error occurred while updating the messages_es.yml file.");
-            plugin.debug(ex.getMessage());
-        }
+        plugin.getConfig().reload();
     }
 
     private void checkLogs() {

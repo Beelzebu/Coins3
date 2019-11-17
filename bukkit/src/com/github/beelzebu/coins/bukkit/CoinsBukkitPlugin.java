@@ -18,6 +18,7 @@
  */
 package com.github.beelzebu.coins.bukkit;
 
+import com.github.beelzebu.coins.api.config.CoinsConfig;
 import com.github.beelzebu.coins.bukkit.listener.CommandListener;
 import com.github.beelzebu.coins.bukkit.listener.GUIListener;
 import com.github.beelzebu.coins.bukkit.listener.LoginListener;
@@ -42,8 +43,8 @@ public class CoinsBukkitPlugin extends CommonCoinsPlugin {
 
     private boolean vault = false, placeholderapi = false, leaderheads = false;
 
-    CoinsBukkitPlugin(CoinsBukkitMain bootstrap) {
-        super(bootstrap);
+    CoinsBukkitPlugin(CoinsBukkitMain bootstrap, CoinsConfig config) {
+        super(bootstrap, config);
     }
 
     @Override

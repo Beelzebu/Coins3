@@ -18,6 +18,7 @@
  */
 package com.github.beelzebu.coins.bungee;
 
+import com.github.beelzebu.coins.api.config.CoinsConfig;
 import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import net.md_5.bungee.api.ProxyServer;
 
@@ -26,8 +27,8 @@ import net.md_5.bungee.api.ProxyServer;
  */
 public class CoinsBungeePlugin extends CommonCoinsPlugin {
 
-    CoinsBungeePlugin(CoinsBungeeMain bootstrap) {
-        super(bootstrap);
+    CoinsBungeePlugin(CoinsBungeeMain bootstrap, CoinsConfig config) {
+        super(bootstrap, config);
     }
 
     @Override

@@ -18,14 +18,15 @@
  */
 package com.github.beelzebu.coins.common.storage;
 
-import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.api.storage.StorageType;
 import com.github.beelzebu.coins.api.storage.sql.DatabaseUtils;
 import com.github.beelzebu.coins.api.storage.sql.SQLDatabase;
 import com.github.beelzebu.coins.api.storage.sql.SQLQuery;
+import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -55,6 +56,11 @@ public final class SQLite extends SQLDatabase {
         hc.validate();
         ds = new HikariDataSource(hc);
         updateDatabase();
+    }
+
+    @Override
+    public StorageType getStorageType() {
+        return StorageType.SQLITE;
     }
 
     @Override

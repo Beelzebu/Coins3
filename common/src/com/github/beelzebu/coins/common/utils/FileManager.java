@@ -62,12 +62,10 @@ public class FileManager {
     }
 
     public void copyFiles() throws IOException {
-        if (!logsFolder.exists()) {
-            if (plugin.getConfig() == null || plugin.getConfig().isDebugFile()) {
-                logsFolder.mkdirs();
-            } else {
-                logsFolder.delete();
-            }
+        if (plugin.getConfig() != null && plugin.getConfig().isDebugFile() && !logsFolder.exists()) {
+            logsFolder.mkdirs();
+        } else {
+            logsFolder.delete();
         }
         if (!messagesFolder.exists()) {
             messagesFolder.mkdirs();

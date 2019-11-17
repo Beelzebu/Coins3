@@ -79,12 +79,12 @@ public class CoinsEconomy implements Economy {
 
     @Override
     public String currencyNamePlural() {
-        return plugin.getPluginConfig().getString("Vault.Name.Plural", "Coins");
+        return plugin.getPlugin().getConfig().getString("Vault.Name.Plural", "Coins");
     }
 
     @Override
     public String currencyNameSingular() {
-        return plugin.getPluginConfig().getString("Vault.Name.Singular", "Coin");
+        return plugin.getPlugin().getConfig().getString("Vault.Name.Singular", "Coin");
     }
 
     @Override
@@ -156,65 +156,65 @@ public class CoinsEconomy implements Economy {
     @Override
     @Deprecated
     public EconomyResponse withdrawPlayer(String string, double d) {
-        if (has(string, d)) {
-            CoinsAPI.takeCoins(string, d);
+        CoinsResponse response = CoinsAPI.takeCoins(string, d);
+        if (response.isSuccess()) {
             return new EconomyResponse(d, getBalance(string), ResponseType.SUCCESS, "");
+        } else {
+            return new EconomyResponse(d, getBalance(string), ResponseType.FAILURE, response.getMessage(""));
         }
-        return new EconomyResponse(d, getBalance(string), ResponseType.FAILURE, "No Coins");
     }
 
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer op, double d) {
-        if (has(op, d)) {
-            CoinsAPI.takeCoins(op.getUniqueId(), d);
+        CoinsResponse response = CoinsAPI.takeCoins(op.getUniqueId(), d);
+        if (response.isSuccess()) {
             return new EconomyResponse(d, getBalance(op), ResponseType.SUCCESS, "");
+        } else {
+            return new EconomyResponse(d, getBalance(op), ResponseType.FAILURE, response.getMessage(""));
         }
-        return new EconomyResponse(d, getBalance(op), ResponseType.FAILURE, "No Coins");
     }
 
     @Override
     @Deprecated
     public EconomyResponse withdrawPlayer(String string, String string1, double d) {
-        if (has(string, d)) {
-            CoinsAPI.takeCoins(string, d);
-            return new EconomyResponse(d, getBalance(string), ResponseType.SUCCESS, "");
-        }
-        return new EconomyResponse(d, getBalance(string), ResponseType.FAILURE, "No Coins");
+        return withdrawPlayer(string, d);
     }
 
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer op, String string, double d) {
-        if (has(op, d)) {
-            CoinsAPI.takeCoins(op.getUniqueId(), d);
-            return new EconomyResponse(d, getBalance(op), ResponseType.SUCCESS, "");
-        }
-        return new EconomyResponse(d, getBalance(op), ResponseType.FAILURE, "No Coins");
+        return withdrawPlayer(op, d);
     }
 
     @Override
     @Deprecated
     public EconomyResponse depositPlayer(String string, double d) {
-        CoinsAPI.addCoins(string, d, plugin.getPluginConfig().vaultMultipliers());
-        return new EconomyResponse(d, getBalance(string), ResponseType.SUCCESS, "");
+        CoinsResponse response = CoinsAPI.addCoins(string, d, plugin.getPluginConfig().vaultMultipliers());
+        if (response.isSuccess()) {
+            return new EconomyResponse(d, getBalance(string), ResponseType.SUCCESS, "");
+        } else {
+            return new EconomyResponse(d, getBalance(string), ResponseType.FAILURE, response.getMessage(""));
+        }
     }
 
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer op, double d) {
-        CoinsAPI.addCoins(op.getUniqueId(), d, plugin.getPluginConfig().vaultMultipliers());
-        return new EconomyResponse(d, getBalance(op), ResponseType.SUCCESS, "");
+        CoinsResponse response = CoinsAPI.addCoins(op.getUniqueId(), d, plugin.getPluginConfig().vaultMultipliers());
+        if (response.isSuccess()) {
+            return new EconomyResponse(d, getBalance(op), ResponseType.SUCCESS, "");
+        } else {
+            return new EconomyResponse(d, getBalance(op), ResponseType.FAILURE, response.getMessage(""));
+        }
     }
 
     @Override
     @Deprecated
     public EconomyResponse depositPlayer(String string, String string1, double d) {
-        CoinsAPI.addCoins(string, d, plugin.getPluginConfig().vaultMultipliers());
-        return new EconomyResponse(d, getBalance(string), ResponseType.SUCCESS, "");
+        return depositPlayer(string, d);
     }
 
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer op, String string, double d) {
-        CoinsAPI.addCoins(op.getUniqueId(), d, plugin.getPluginConfig().vaultMultipliers());
-        return new EconomyResponse(d, getBalance(op), ResponseType.SUCCESS, "");
+        return depositPlayer(op, d);
     }
 
     @Override
@@ -289,19 +289,17 @@ public class CoinsEconomy implements Economy {
 
     @Override
     public boolean createPlayerAccount(OfflinePlayer op) {
-        return CoinsAPI.createPlayer(op.getName(), op.getUniqueId()).getResponse() == CoinsResponse.CoinsResponseType.SUCCESS;
+        return CoinsAPI.createPlayer(op.getName() != null ? op.getName() : "", op.getUniqueId()).getResponse() == CoinsResponse.CoinsResponseType.SUCCESS;
     }
 
     @Override
     @Deprecated
     public boolean createPlayerAccount(String string, String string1) {
-        UUID uuid = plugin.getPlugin().getUniqueId(string, false);
-        return CoinsAPI.createPlayer(string, uuid != null ? uuid : UUID.randomUUID()).getResponse() == CoinsResponse.CoinsResponseType.SUCCESS;
+        return createPlayerAccount(string);
     }
 
     @Override
     public boolean createPlayerAccount(OfflinePlayer op, String string) {
-        CoinsAPI.createPlayer(op.getName(), op.getUniqueId());
-        return CoinsAPI.createPlayer(op.getName(), op.getUniqueId()).getResponse() == CoinsResponse.CoinsResponseType.SUCCESS;
+        return createPlayerAccount(op);
     }
 }

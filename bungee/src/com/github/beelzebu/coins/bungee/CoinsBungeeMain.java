@@ -18,11 +18,6 @@
  */
 package com.github.beelzebu.coins.bungee;
 
-import com.github.beelzebu.coins.bungee.config.BungeeConfig;
-import com.github.beelzebu.coins.bungee.config.BungeeMessages;
-import com.github.beelzebu.coins.bungee.events.CoinsChangeEvent;
-import com.github.beelzebu.coins.bungee.events.MultiplierEnableEvent;
-import com.github.beelzebu.coins.bungee.messaging.BungeeMessaging;
 import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.config.AbstractConfigFile;
 import com.github.beelzebu.coins.api.config.CoinsConfig;
@@ -30,6 +25,11 @@ import com.github.beelzebu.coins.api.messaging.ProxyMessaging;
 import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
 import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.api.utils.StringUtils;
+import com.github.beelzebu.coins.bungee.config.BungeeConfig;
+import com.github.beelzebu.coins.bungee.config.BungeeMessages;
+import com.github.beelzebu.coins.bungee.events.CoinsChangeEvent;
+import com.github.beelzebu.coins.bungee.events.MultiplierEnableEvent;
+import com.github.beelzebu.coins.bungee.messaging.BungeeMessaging;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -51,13 +51,13 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
 
     @Override
     public void onLoad() {
-        plugin = new CoinsBungeePlugin(this);
-        plugin.load();
+
     }
 
     @Override
     public void onEnable() {
-        config = new BungeeConfig(new File(getDataFolder(), "config.yml"), plugin);
+        plugin = new CoinsBungeePlugin(this, new BungeeConfig(new File(getDataFolder(), "config.yml")));
+        plugin.load();
         plugin.enable();
     }
 

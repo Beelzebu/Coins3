@@ -18,8 +18,6 @@
  */
 package com.github.beelzebu.coins.common.storage;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.api.storage.StorageType;
@@ -27,6 +25,8 @@ import com.github.beelzebu.coins.api.storage.sql.DatabaseUtils;
 import com.github.beelzebu.coins.api.storage.sql.SQLDatabase;
 import com.github.beelzebu.coins.api.storage.sql.SQLQuery;
 import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -46,7 +46,7 @@ public final class MySQL extends SQLDatabase {
         HikariConfig hc = new HikariConfig();
         hc.setPoolName("Coins MySQL Connection Pool");
         String urlprefix = "jdbc:mysql://";
-        if (plugin.getStorageType().equals(StorageType.MARIADB)) {
+        if (plugin.getStorageProvider().getStorageType().equals(StorageType.MARIADB)) {
             urlprefix = "jdbc:mariadb://";
             hc.setDriverClassName("org.mariadb.jdbc.Driver");
         } else {
@@ -80,6 +80,11 @@ public final class MySQL extends SQLDatabase {
             return;
         }
         updateDatabase();
+    }
+
+    @Override
+    public StorageType getStorageType() {
+        return StorageType.MYSQL;
     }
 
     @Override

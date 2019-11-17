@@ -18,18 +18,18 @@
  */
 package com.github.beelzebu.coins.bukkit;
 
-import com.github.beelzebu.coins.bukkit.command.CommandManager;
-import com.github.beelzebu.coins.bukkit.config.BukkitConfig;
-import com.github.beelzebu.coins.bukkit.config.BukkitMessages;
-import com.github.beelzebu.coins.bukkit.events.CoinsChangeEvent;
-import com.github.beelzebu.coins.bukkit.events.MultiplierEnableEvent;
-import com.github.beelzebu.coins.bukkit.messaging.BukkitMessaging;
 import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.config.AbstractConfigFile;
 import com.github.beelzebu.coins.api.config.CoinsConfig;
 import com.github.beelzebu.coins.api.messaging.ProxyMessaging;
 import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
 import com.github.beelzebu.coins.api.utils.StringUtils;
+import com.github.beelzebu.coins.bukkit.command.CommandManager;
+import com.github.beelzebu.coins.bukkit.config.BukkitConfig;
+import com.github.beelzebu.coins.bukkit.config.BukkitMessages;
+import com.github.beelzebu.coins.bukkit.events.CoinsChangeEvent;
+import com.github.beelzebu.coins.bukkit.events.MultiplierEnableEvent;
+import com.github.beelzebu.coins.bukkit.messaging.BukkitMessaging;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,13 +46,11 @@ public class CoinsBukkitMain extends JavaPlugin implements CoinsBootstrap {
     private CommandManager commandManager;
     @Getter
     private CoinsBukkitPlugin plugin;
-    private BukkitConfig config;
     private BukkitMessaging messaging;
 
     @Override
     public void onLoad() {
-        plugin = new CoinsBukkitPlugin(this);
-        config = new BukkitConfig(null, plugin);
+        plugin = new CoinsBukkitPlugin(this, new BukkitConfig(null));
         plugin.load();
     }
 
@@ -69,7 +67,7 @@ public class CoinsBukkitMain extends JavaPlugin implements CoinsBootstrap {
 
     @Override
     public CoinsConfig getPluginConfig() {
-        return config;
+        return plugin.getConfig();
     }
 
     @Override

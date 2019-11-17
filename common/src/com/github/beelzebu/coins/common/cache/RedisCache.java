@@ -18,12 +18,13 @@
  */
 package com.github.beelzebu.coins.common.cache;
 
-import com.google.gson.JsonSyntaxException;
 import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.cache.CacheProvider;
+import com.github.beelzebu.coins.api.cache.CacheType;
 import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.common.messaging.RedisMessaging;
+import com.google.gson.JsonSyntaxException;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -174,6 +175,11 @@ public final class RedisCache implements CacheProvider {
             plugin.debug(ex);
         }
         return players;
+    }
+
+    @Override
+    public CacheType getCacheType() {
+        return CacheType.REDIS;
     }
 
     private Double getDouble(String string) {

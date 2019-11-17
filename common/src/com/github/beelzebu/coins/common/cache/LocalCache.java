@@ -18,15 +18,16 @@
  */
 package com.github.beelzebu.coins.common.cache;
 
+import com.github.beelzebu.coins.api.CoinsAPI;
+import com.github.beelzebu.coins.api.Multiplier;
+import com.github.beelzebu.coins.api.cache.CacheProvider;
+import com.github.beelzebu.coins.api.cache.CacheType;
+import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonSyntaxException;
-import com.github.beelzebu.coins.api.CoinsAPI;
-import com.github.beelzebu.coins.api.Multiplier;
-import com.github.beelzebu.coins.api.cache.CacheProvider;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
@@ -56,7 +57,6 @@ public final class LocalCache implements CacheProvider {
         if (it.hasNext()) {
             Multiplier multiplier = it.next();
             if (multiplier.getId() == k) {
-                plugin.getMessagingService().enableMultiplier(multiplier);
                 multiplier.enable(false);
                 it.remove();
                 return multiplier;
@@ -172,5 +172,10 @@ public final class LocalCache implements CacheProvider {
     @Override
     public Set<UUID> getPlayers() {
         return new HashSet<>(players.asMap().keySet());
+    }
+
+    @Override
+    public CacheType getCacheType() {
+        return CacheType.LOCAL;
     }
 }

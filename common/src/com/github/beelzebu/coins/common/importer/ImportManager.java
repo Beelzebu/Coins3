@@ -18,11 +18,11 @@
  */
 package com.github.beelzebu.coins.common.importer;
 
-import com.github.beelzebu.coins.common.storage.MySQL;
 import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.api.storage.StorageType;
 import com.github.beelzebu.coins.api.storage.sql.SQLDatabase;
+import com.github.beelzebu.coins.common.storage.MySQL;
 import com.github.beelzebu.coins.common.storage.SQLite;
 import java.util.Map;
 import java.util.UUID;
@@ -48,7 +48,7 @@ public class ImportManager {
     public void importFromStorage(StorageType storage) {
         switch (storage) {
             case MYSQL:
-                if (plugin.getStorageType().equals(StorageType.MYSQL)) {
+                if (plugin.getStorageProvider().getStorageType().equals(StorageType.MYSQL)) {
                     plugin.log("You can't migrate information from the same storageProvider that you are using.");
                     return;
                 }
@@ -64,7 +64,7 @@ public class ImportManager {
                 mysql.shutdown();
                 break;
             case SQLITE:
-                if (plugin.getStorageType().equals(StorageType.SQLITE)) {
+                if (plugin.getStorageProvider().getStorageType().equals(StorageType.SQLITE)) {
                     plugin.log("You can't migrate information from the same storageProvider that you are using.");
                     return;
                 }

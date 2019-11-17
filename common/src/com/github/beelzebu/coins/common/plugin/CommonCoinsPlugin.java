@@ -18,20 +18,12 @@
  */
 package com.github.beelzebu.coins.common.plugin;
 
-import com.github.beelzebu.coins.common.cache.LocalCache;
-import com.github.beelzebu.coins.common.storage.MySQL;
-import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.google.gson.JsonParseException;
 import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.cache.CacheProvider;
 import com.github.beelzebu.coins.api.cache.CacheType;
 import com.github.beelzebu.coins.api.config.AbstractConfigFile;
 import com.github.beelzebu.coins.api.config.CoinsConfig;
-import com.github.beelzebu.coins.api.dependency.Dependency;
-import com.github.beelzebu.coins.api.dependency.DependencyManager;
-import com.github.beelzebu.coins.api.dependency.DependencyRegistry;
 import com.github.beelzebu.coins.api.executor.Executor;
 import com.github.beelzebu.coins.api.executor.ExecutorManager;
 import com.github.beelzebu.coins.api.messaging.AbstractMessagingService;
@@ -41,11 +33,20 @@ import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.api.storage.StorageProvider;
 import com.github.beelzebu.coins.api.storage.StorageType;
 import com.github.beelzebu.coins.api.utils.StringUtils;
+import com.github.beelzebu.coins.common.cache.LocalCache;
 import com.github.beelzebu.coins.common.cache.RedisCache;
+import com.github.beelzebu.coins.common.dependency.Dependency;
+import com.github.beelzebu.coins.common.dependency.DependencyManager;
+import com.github.beelzebu.coins.common.dependency.DependencyRegistry;
+import com.github.beelzebu.coins.common.dependency.classloader.ReflectionClassLoader;
 import com.github.beelzebu.coins.common.messaging.DummyMessaging;
 import com.github.beelzebu.coins.common.messaging.RedisMessaging;
+import com.github.beelzebu.coins.common.storage.MySQL;
 import com.github.beelzebu.coins.common.storage.SQLite;
 import com.github.beelzebu.coins.common.utils.FileManager;
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -68,7 +69,6 @@ import java.util.Scanner;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
@@ -76,15 +76,18 @@ import net.md_5.bungee.api.ChatColor;
 /**
  * @author Beelzebu
  */
-@Getter
 public class CommonCoinsPlugin implements CoinsPlugin {
 
+    @Getter
+    private final CoinsConfig config;
+    @Getter
     private final FileManager fileManager;
+    @Getter
     private final CoinsBootstrap bootstrap;
-    @Getter(AccessLevel.NONE)
     private final HashMap<String, AbstractConfigFile> messagesMap = new HashMap<>();
+    @Getter
     private final Gson gson = new Gson();
-    private final DependencyManager dependencyManager = new DependencyManager(this, new DependencyRegistry(this));
+    private final DependencyManager dependencyManager;
     @Setter
     private MessagingServiceType messagingServiceType;
     @Setter
@@ -99,9 +102,11 @@ public class CommonCoinsPlugin implements CoinsPlugin {
     @Setter
     private CacheProvider cache;
 
-    public CommonCoinsPlugin(CoinsBootstrap bootstrap) {
-        CoinsAPI.setPlugin(this);
+    public CommonCoinsPlugin(CoinsBootstrap bootstrap, CoinsConfig config) {
+        this.config = config;
         this.bootstrap = bootstrap;
+        dependencyManager = new DependencyManager(this, new ReflectionClassLoader(bootstrap), new DependencyRegistry(this));
+        CoinsAPI.setPlugin(this);
         fileManager = new FileManager(this);
     }
 
@@ -123,7 +128,7 @@ public class CommonCoinsPlugin implements CoinsPlugin {
         logEnabled = getConfig().isDebugFile();
         // identify storage type and start messaging service before start things
         storageType = getConfig().getStorageType();
-        getDependencyManager().loadStorageDependencies(storageType);
+        dependencyManager.loadStorageDependencies(storageType);
         messagingServiceType = getConfig().getMessagingService();
         cacheType = getConfig().getCacheType();
         try {
@@ -199,7 +204,7 @@ public class CommonCoinsPlugin implements CoinsPlugin {
                 return cache = new RedisCache();
             case LOCAL:
             default:
-                getDependencyManager().loadDependencies(EnumSet.of(Dependency.CAFFEINE));
+                dependencyManager.loadDependencies(EnumSet.of(Dependency.CAFFEINE));
                 return cache = new LocalCache();
         }
     }
@@ -289,11 +294,6 @@ public class CommonCoinsPlugin implements CoinsPlugin {
             return bootstrap.getName(uniqueId);
         }
         return getStorageProvider().getName(uniqueId);
-    }
-
-    @Override
-    public final CoinsConfig getConfig() {
-        return bootstrap.getPluginConfig();
     }
 
     @Override

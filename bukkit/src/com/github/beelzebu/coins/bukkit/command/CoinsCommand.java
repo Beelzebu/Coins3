@@ -408,7 +408,7 @@ public class CoinsCommand extends AbstractCoinsCommand {
         sender.sendMessage(StringUtils.rep(" &cVersion:&7 " + plugin.getBootstrap().getVersion()));
         if (sender.hasPermission("coins.admin.info") || sender.getName().equals("Beelzebu")) {
             sender.sendMessage(StringUtils.rep(" &cExecutors:&7 " + ExecutorManager.getExecutors().size()));
-            sender.sendMessage(StringUtils.rep(" &cStorage Type:&7 " + plugin.getStorageType()));
+            sender.sendMessage(StringUtils.rep(" &cStorage Type:&7 " + plugin.getStorageProvider().getStorageType()));
             sender.sendMessage(StringUtils.rep(" &cMultipliers in cache:&7 " + plugin.getCache().getMultipliers()));
             sender.sendMessage(StringUtils.rep(" &cPlayers in cache:&7 " + plugin.getCache().getPlayers().size()));
             sender.sendMessage("");

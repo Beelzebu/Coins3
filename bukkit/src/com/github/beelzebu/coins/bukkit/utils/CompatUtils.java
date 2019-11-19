@@ -141,7 +141,7 @@ public final class CompatUtils {
         }
     }
 
-    private static boolean is113orHigher() {
+    public static boolean is113orHigher() {
         return getMinorVersion() > 13;
     }
 

@@ -18,15 +18,16 @@
  */
 package com.github.beelzebu.coins.bukkit.menus;
 
-import com.github.beelzebu.coins.bukkit.utils.CompatUtils;
-import com.github.beelzebu.coins.bukkit.utils.ItemBuilder;
 import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.config.AbstractConfigFile;
 import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.api.utils.StringUtils;
+import com.github.beelzebu.coins.bukkit.utils.CompatUtils;
+import com.github.beelzebu.coins.bukkit.utils.ItemBuilder;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -46,15 +47,14 @@ public class PaginatedMenu {
     private static final CoinsPlugin PLUGIN = CoinsAPI.getPlugin();
     private static final AbstractConfigFile MULTIPLIERS_CONFIG = PLUGIN.getBootstrap().getFileAsConfig(new File(PLUGIN.getBootstrap().getDataFolder(), "multipliers.yml"));
 
-    public static CoinsMenu createPaginatedGUI(Player player, boolean global) {
-        List<Multiplier> contents = new ArrayList<>(global ? CoinsAPI.getMultipliersFor(player.getUniqueId()) : CoinsAPI.getMultipliersFor(player.getUniqueId(), PLUGIN.getConfig().getServerName()));
-        return nextPage(player, contents, global, contents.size() >= 36, 0, null);
+    public static CoinsMenu createPaginatedGUI(Player player, boolean global, Collection<Multiplier> multipliers, String extraTitle) {
+        return nextPage(player, multipliers, global, multipliers.size() >= 36, 0, null, extraTitle);
     }
 
-    private static CoinsMenu nextPage(Player player, List<Multiplier> contents, boolean global, boolean hasNext, int start, CoinsMenu prevPage) {
-        CoinsMenu menu = new MultipliersMenu(player, PLUGIN.getString("Menus.Multipliers." + (global ? "Global" : "Local") + ".Title", CompatUtils.getLocale(player)), contents, start, global);
+    private static CoinsMenu nextPage(Player player, Collection<Multiplier> contents, boolean global, boolean hasNext, int start, CoinsMenu prevPage, String extraTitle) {
+        CoinsMenu menu = new MultipliersMenu(player, PLUGIN.getString("Menus.Multipliers." + (global ? "Global" : "Local") + ".Title" + extraTitle, CompatUtils.getLocale(player)), contents, start, global);
         if (hasNext) {
-            menu.setItem(53, menu.getItem(MULTIPLIERS_CONFIG, "Menus.Multipliers." + (global ? "Global" : "Local") + ".Next", player), p -> nextPage(p, contents, global, true, start + 36, menu).open(p));
+            menu.setItem(53, menu.getItem(MULTIPLIERS_CONFIG, "Menus.Multipliers." + (global ? "Global" : "Local") + ".Next", player), p -> nextPage(p, contents, global, true, start + 36, menu, extraTitle).open(p));
         }
         if (prevPage != null) {
             menu.setItem(45, menu.getItem(MULTIPLIERS_CONFIG, "Menus.Multipliers." + (global ? "Global" : "Local") + ".Next", player), prevPage::open);
@@ -69,7 +69,7 @@ public class PaginatedMenu {
                 p.playSound(p.getLocation(), Sound.valueOf(sound), 10, MULTIPLIERS_CONFIG.getInt(path + ".Pitch", 1));
             } catch (IllegalArgumentException ex) {
                 PLUGIN.log("Seems that you're using an invalid sound, please edit the config and set the sound that corresponds for the version of your server.");
-                PLUGIN.log("Please check https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html\nIf need more help, please open an issue in https://github.com/Beelzebu/Coins/issues");
+                PLUGIN.log("Please check https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html\nIf need more help, please open an issue in https://github.com/Beelzebu/Coins3/issues");
             }
         }
         p.closeInventory();
@@ -82,10 +82,10 @@ public class PaginatedMenu {
         private final int start;
         private final String path;
 
-        MultipliersMenu(Player player, String title, List<Multiplier> contents, int start, boolean global) {
+        MultipliersMenu(Player player, String title, Collection<Multiplier> contents, int start, boolean global) {
             super(54, title);
             this.player = player;
-            this.contents = contents;
+            this.contents = new ArrayList<>(contents);
             this.start = start;
             path = "Menus.Multipliers." + (global ? "Global" : "Local");
             setItems();

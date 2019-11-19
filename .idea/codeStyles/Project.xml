@@ -21,6 +21,9 @@
     <Properties>
       <option name="KEEP_BLANK_LINES" value="true" />
     </Properties>
+    <yaml>
+      <option name="INDENT_SEQUENCE_VALUE" value="false" />
+    </yaml>
     <codeStyleSettings language="JAVA">
       <option name="BLANK_LINES_AFTER_CLASS_HEADER" value="1" />
       <option name="WRAP_COMMENTS" value="true" />

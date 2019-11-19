@@ -67,13 +67,13 @@ public final class SQLite extends SQLDatabase {
     protected void updateDatabase() {
         try (Connection c = ds.getConnection(); Statement st = c.createStatement()) {
             String data
-                    = "CREATE TABLE IF NOT EXISTS `" + dataTable + "`"
+                    = "CREATE TABLE IF NOT EXISTS `" + DATA_TABLE + "`"
                     + "(`id` INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + "`uuid` VARCHAR(50),"
                     + "`name` VARCHAR(50),"
                     + "`balance` DOUBLE,"
                     + "`lastlogin` LONG);";
-            String multiplier = "CREATE TABLE IF NOT EXISTS `" + multipliersTable + "`"
+            String multiplier = "CREATE TABLE IF NOT EXISTS `" + MULTIPLIERS_TABLE + "`"
                     + "(`id` INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + "`server` VARCHAR(50),"
                     + "`uuid` VARCHAR(50),"
@@ -87,7 +87,7 @@ public final class SQLite extends SQLDatabase {
             st.executeUpdate(multiplier);
             if (plugin.getConfig().getInt("Database Version", 1) < 2) {
                 try {
-                    if (DriverManager.getConnection("jdbc:sqlite:plugins/Coins/database.old.db").prepareStatement("SELECT * FROM Data;").executeQuery().next() && !c.prepareStatement("SELECT * FROM " + dataTable + ";").executeQuery().next()) {
+                    if (DriverManager.getConnection("jdbc:sqlite:plugins/Coins/database.old.db").prepareStatement("SELECT * FROM Data;").executeQuery().next() && !c.prepareStatement("SELECT * FROM " + DATA_TABLE + ";").executeQuery().next()) {
                         plugin.log("Seems that your database is outdated, we'll try to update it...");
                         ResultSet res = DriverManager.getConnection("jdbc:sqlite:plugins/Coins/database.old.db").prepareStatement("SELECT * FROM Data;").executeQuery();
                         while (res.next()) {
@@ -106,7 +106,7 @@ public final class SQLite extends SQLDatabase {
                 }
             }
             if (plugin.getConfig().getBoolean("General.Purge.Enabled", true) && plugin.getConfig().getInt("General.Purge.Days") > 0) {
-                st.executeUpdate("DELETE FROM " + dataTable + " WHERE lastlogin < " + (System.currentTimeMillis() - (plugin.getConfig().getInt("General.Purge.Days", 60) * 86400000L)) + ";");
+                st.executeUpdate("DELETE FROM " + DATA_TABLE + " WHERE lastlogin < " + (System.currentTimeMillis() - (plugin.getConfig().getInt("General.Purge.Days", 60) * 86400000L)) + ";");
                 plugin.debug("Inactive users were removed from the database.");
             }
         } catch (SQLException ex) {

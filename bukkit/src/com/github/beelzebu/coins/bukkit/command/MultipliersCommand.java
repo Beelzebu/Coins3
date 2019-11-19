@@ -19,15 +19,19 @@
 package com.github.beelzebu.coins.bukkit.command;
 
 import com.github.beelzebu.coins.api.CoinsAPI;
+import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.MultiplierType;
 import com.github.beelzebu.coins.api.config.AbstractConfigFile;
+import com.github.beelzebu.coins.api.utils.UUIDUtil;
 import com.github.beelzebu.coins.bukkit.menus.CoinsMenu;
 import com.github.beelzebu.coins.bukkit.menus.PaginatedMenu;
 import com.github.beelzebu.coins.bukkit.utils.CompatUtils;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Stream;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -38,21 +42,14 @@ import org.bukkit.entity.Player;
  */
 public class MultipliersCommand extends AbstractCoinsCommand {
 
+    // TODO: update messages files to match new menus
+
     private final AbstractConfigFile multipliersConfig = plugin.getBootstrap().getFileAsConfig(new File(plugin.getBootstrap().getDataFolder(), "multipliers.yml"));
 
     MultipliersCommand(String command) {
         super(command);
     }
 
-    /**
-     * TODO List:
-     * <ul>
-     * <li>add a command to get all multipliers for a player</li>
-     * <li>add a command to enable any multiplier by the ID</li>
-     * <li>add a command to edit existing multipliers</li>
-     * <li>update messages files to match new menus</li>
-     * </ul>
-     */
     @Override
     public boolean execute(CommandSender sender, String label, String[] args) {
         execute(sender, args, sender instanceof Player ? CompatUtils.getLocale((Player) sender) : "");
@@ -66,33 +63,36 @@ public class MultipliersCommand extends AbstractCoinsCommand {
         }
         if (args.length == 0) {
             if (sender instanceof Player) {
-                createMultipliersMenu(lang).open((Player) sender);
+                Player player = (Player) sender;
+                createMultipliersMenu(false, player.getUniqueId(), lang).open(player);
             } else {
                 sender.sendMessage(plugin.getString("Errors.Console", lang));
             }
             return;
-        }
-        if (!sender.hasPermission(getPermission() + ".admin.multiplier")) {
-            return;
-        }
-        if (args[0].equalsIgnoreCase("help")) {
-            plugin.getStringList("Help.Multiplier", lang).forEach(sender::sendMessage);
-            return;
-        }
-        if (args[0].equalsIgnoreCase("create")) {
-            if (args.length >= 4 && args.length <= 6 && CoinsAPI.isindb(args[1])) {
-                if (!isNumber(args[2]) || !isNumber(args[3])) {
-                    sender.sendMessage(plugin.getString("Help.Multiplier Create", lang));
-                    return;
+        } else {
+            if (!sender.hasPermission(getPermission() + ".admin.multiplier")) {
+                return;
+            }
+            switch (args[0].toLowerCase()) {
+                case "help":
+                    _help(sender, lang, args);
+                    break;
+                case "create":
+                    _create(sender, lang, args);
+                    break;
+                case "enable": // add a command to enable any multiplier by the ID
+                    break;
+                case "disable":
+                    break;
+                case "edit": // add a command to edit existing multipliers
+                    break;
+                default: {
+                    String name = args[0];
+                    if (CoinsAPI.isindb(name)) {
+                        createMultipliersMenu(true, UUIDUtil.getUniqueId(name), lang);
+                    }
+                    break;
                 }
-                int multiplier = Integer.parseInt(args[2]);
-                int minutes = Integer.parseInt(args[3]);
-                String server = args.length == 5 && !args[4].equals("") ? args[4] : plugin.getConfig().getServerName();
-                MultiplierType type = args.length == 6 && args[5] != null && Stream.of(MultiplierType.values()).map(Enum::toString).anyMatch(mtype -> mtype.equalsIgnoreCase(args[5])) ? MultiplierType.valueOf(args[5].toUpperCase()) : MultiplierType.SERVER;
-                CoinsAPI.createMultiplier(plugin.getUniqueId(args[1], false), multiplier, minutes, server, type);
-                sender.sendMessage(plugin.getString("Multipliers.Created", lang).replaceAll("%player%", args[1]));
-            } else {
-                sender.sendMessage(plugin.getString("Help.Multiplier Create", lang));
             }
         }
         if (args[0].equalsIgnoreCase("get")) {
@@ -100,8 +100,30 @@ public class MultipliersCommand extends AbstractCoinsCommand {
         }
     }
 
-    private CoinsMenu createMultipliersMenu(String lang) {
-        return new CoinsMenu(multipliersConfig.getInt("Menus.Main.Size"), plugin.getString("Menus.Main.Title", lang)) {
+    private void _help(CommandSender sender, String lang, String... args) {
+        plugin.getStringList("Help.Multiplier", lang).forEach(sender::sendMessage);
+    }
+
+    private void _create(CommandSender sender, String lang, String... args) {
+        if (args.length >= 4 && args.length <= 6 && CoinsAPI.isindb(args[1])) {
+            if (!isNumber(args[2]) || !isNumber(args[3])) {
+                sender.sendMessage(plugin.getString("Help.Multiplier Create", lang));
+                return;
+            }
+            int multiplier = Integer.parseInt(args[2]);
+            int minutes = Integer.parseInt(args[3]);
+            String server = args.length == 5 && !args[4].equals("") ? args[4] : plugin.getConfig().getServerName();
+            MultiplierType type = args.length == 6 && args[5] != null && Stream.of(MultiplierType.values()).map(Enum::toString).anyMatch(mtype -> mtype.equalsIgnoreCase(args[5])) ? MultiplierType.valueOf(args[5].toUpperCase()) : MultiplierType.SERVER;
+            CoinsAPI.createMultiplier(plugin.getUniqueId(args[1], false), multiplier, minutes, server, type);
+            sender.sendMessage(plugin.getString("Multipliers.Created", lang).replaceAll("%player%", args[1]));
+        } else {
+            sender.sendMessage(plugin.getString("Help.Multiplier Create", lang));
+        }
+    }
+
+    private CoinsMenu createMultipliersMenu(boolean admin, UUID target, String lang) {
+        String extraTitle = (admin ? " " + plugin.getName(target, true) : "");
+        return new CoinsMenu(multipliersConfig.getInt("Menus.Main.Size"), plugin.getString("Menus.Main.Title", lang) + extraTitle) {
             @Override
             public void open(Player p) {
                 setItems(p);
@@ -115,16 +137,32 @@ public class MultipliersCommand extends AbstractCoinsCommand {
                     p.closeInventory();
                     String menu = multipliersConfig.getString(section + "." + key + ".Menu");
                     if (menu != null && (Objects.equals(menu.toLowerCase(), "local") || Objects.equals(menu.toLowerCase(), "global"))) {
-                        PaginatedMenu.createPaginatedGUI(p, menu.toLowerCase().equals("global")).open(p);
+                        Collection<Multiplier> multipliers;
+                        boolean global = menu.toLowerCase().equals("global");
+                        if (global) {
+                            multipliers = CoinsAPI.getMultipliersFor(target);
+                        } else {
+                            multipliers = CoinsAPI.getMultipliersFor(target, true);
+                        }
+                        PaginatedMenu.createPaginatedGUI(p, global, multipliers, extraTitle).open(p);
                     }
                     commands.forEach(cmd -> {
-                        if (cmd.toLowerCase().startsWith("console: ")) {
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd.replaceFirst(cmd.split(": ")[0], "").substring(2));
+                        String command = cmd.toLowerCase();
+                        if (command.startsWith("console: ")) {
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), normalizeCommand(command));
                         } else {
-                            Bukkit.dispatchCommand(p, cmd.replaceFirst(cmd.split(": ")[0], "").substring(2));
+                            Bukkit.dispatchCommand(p, normalizeCommand(command));
                         }
                     });
                 }));
+            }
+
+            private String normalizeCommand(String command) {
+                command = command.split(":")[1];
+                while (command.startsWith(" ")) {
+                    command = command.replaceFirst(" ", "");
+                }
+                return command;
             }
         };
     }

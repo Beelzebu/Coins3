@@ -18,12 +18,12 @@
  */
 package com.github.beelzebu.coins.bukkit.menus;
 
-import com.github.beelzebu.coins.bukkit.utils.CompatUtils;
-import com.github.beelzebu.coins.bukkit.utils.ItemBuilder;
 import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.MultiplierType;
 import com.github.beelzebu.coins.api.utils.StringUtils;
+import com.github.beelzebu.coins.bukkit.utils.CompatUtils;
+import com.github.beelzebu.coins.bukkit.utils.ItemBuilder;
 import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -57,7 +57,7 @@ public class ConfirmMenu extends CoinsMenu {
                     } catch (IllegalArgumentException ex) {
                         plugin.log("Seems that you're using an invalid sound, please edit the config and set the sound that corresponds for the version of your server.");
                         plugin.log("Please check https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html\n"
-                                + "If need more help, please open an issue in https://github.com/Beelzebu/Coins/issues");
+                                + "If need more help, please open an issue in https://github.com/Beelzebu/Coins3/issues");
                     }
                 }
             } else {
@@ -69,7 +69,7 @@ public class ConfirmMenu extends CoinsMenu {
                     } catch (IllegalArgumentException ex) {
                         plugin.log("Seems that you're using an invalid sound, please edit the config and set the sound that corresponds for the version of your server.");
                         plugin.log("Please check https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html\n"
-                                + "If need more help, please open an issue in https://github.com/Beelzebu/Coins/issues");
+                                + "If need more help, please open an issue in https://github.com/Beelzebu/Coins3/issues");
                     }
                 }
                 player.sendMessage(plugin.getString("Multipliers.Already active", CompatUtils.getLocale(player)));

@@ -28,6 +28,7 @@ import com.github.beelzebu.coins.bukkit.utils.CoinsEconomy;
 import com.github.beelzebu.coins.bukkit.utils.CompatUtils;
 import com.github.beelzebu.coins.bukkit.utils.leaderheads.LeaderHeadsHook;
 import com.github.beelzebu.coins.bukkit.utils.placeholders.CoinsPlaceholders;
+import com.github.beelzebu.coins.bukkit.utils.placeholders.MultipliersPlaceholders;
 import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import java.util.stream.Stream;
 import org.bukkit.Bukkit;
@@ -102,7 +103,7 @@ public class CoinsBukkitPlugin extends CommonCoinsPlugin {
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI") && !placeholderapi) {
             getBootstrap().log("PlaceholderAPI found, hooking into it.");
             new CoinsPlaceholders().register();
-            //new MultipliersPlaceholders().register();
+            new MultipliersPlaceholders().register();
             placeholderapi = true;
         }
         // Hook with LeaderHeads

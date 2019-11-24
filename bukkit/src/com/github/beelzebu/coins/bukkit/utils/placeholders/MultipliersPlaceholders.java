@@ -19,8 +19,14 @@
 package com.github.beelzebu.coins.bukkit.utils.placeholders;
 
 import com.github.beelzebu.coins.api.CoinsAPI;
+import com.github.beelzebu.coins.api.Multiplier;
+import com.github.beelzebu.coins.api.MultiplierData;
+import com.github.beelzebu.coins.api.MultiplierType;
 import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.bukkit.utils.CompatUtils;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 
@@ -63,19 +69,34 @@ public class MultipliersPlaceholders extends PlaceholderExpansion {
         }
         try {
             String server = placeholder.split("_")[1];
+            List<Multiplier> multipliers = CoinsAPI.getMultipliers(server, true).stream()
+                    .filter(multiplier -> !multiplier.isCustom())
+                    .filter(multiplier -> multiplier.getData().getType() != MultiplierType.PERSONAL)
+                    .filter(multiplier -> !multiplier.getData().isServer()).collect(Collectors.toList());
             if (placeholder.startsWith("enabler_")) {
-                String enabler = !CoinsAPI.getMultipliers(server).isEmpty() ? CoinsAPI.getMultipliers(server).stream().findFirst().get().getData().getEnablerName() : "";
-                if ("".equals(enabler)) {
+                if (multipliers.isEmpty()) {
                     return plugin.getString("Multipliers.Placeholders.Enabler.Anyone", CompatUtils.getLocale(p));
                 } else {
+                    String enabler = multipliers.stream().map(Multiplier::getData).map(MultiplierData::getEnablerName).collect(Collectors.joining(", "));
                     return plugin.getString("Multipliers.Placeholders.Enabler.Message", CompatUtils.getLocale(p)).replaceAll("%enabler%", enabler);
                 }
             }
             if (placeholder.startsWith("amount_")) {
-                return String.valueOf(!CoinsAPI.getMultipliers(server).isEmpty() ? CoinsAPI.getMultipliers(server).stream().findFirst().get().getData().getAmount() : 1);
+                AtomicInteger amount = new AtomicInteger();
+                multipliers.stream().map(Multiplier::getData).map(MultiplierData::getAmount).forEach(amount::addAndGet);
+                return String.valueOf(multipliers.isEmpty() ? 1 : amount.get());
             }
             if (placeholder.startsWith("time_")) {
-                //return CoinsAPI.getMultiplier(server[1]).getMultiplierTimeFormated();
+                Multiplier less = null;
+                for (Multiplier multiplier : multipliers) {
+                    if (less == null) {
+                        less = multiplier;
+                    }
+                    if (less.getEndTime() > multiplier.getEndTime()) {
+                        less = multiplier;
+                    }
+                }
+                return less != null ? less.getMultiplierTimeFormatted() : "";
             }
         } catch (NullPointerException ex) {
             ex.printStackTrace();

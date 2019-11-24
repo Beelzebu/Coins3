@@ -24,7 +24,6 @@
  */
 package com.github.beelzebu.coins.common.dependency;
 
-import com.github.beelzebu.coins.api.messaging.MessagingServiceType;
 import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.api.storage.StorageType;
 import com.google.common.collect.ImmutableList;
@@ -43,13 +42,6 @@ public final class DependencyRegistry {
 
     public Set<Dependency> resolveStorageDependencies(StorageType storageType) {
         Set<Dependency> dependencies = new LinkedHashSet<>(STORAGE_DEPENDENCIES.get(storageType));
-        if (plugin.getConfig().getMessagingService().equals(MessagingServiceType.REDIS)) {
-            LinkedHashSet<Dependency> jedis = new LinkedHashSet<>();
-            jedis.add(Dependency.COMMONS_POOL_2);
-            jedis.add(Dependency.JEDIS);
-            dependencies.addAll(jedis);
-            plugin.log("Loading messaging service dependencies: " + jedis);
-        }
         if (classExists("org.slf4j.Logger") && classExists("org.slf4j.LoggerFactory")) {
             dependencies.remove(Dependency.SLF4J_API);
             dependencies.remove(Dependency.SLF4J_SIMPLE);

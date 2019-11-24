@@ -44,6 +44,7 @@ import com.github.beelzebu.coins.common.messaging.RedisMessaging;
 import com.github.beelzebu.coins.common.storage.MySQL;
 import com.github.beelzebu.coins.common.storage.SQLite;
 import com.github.beelzebu.coins.common.utils.FileManager;
+import com.github.beelzebu.coins.common.utils.RedisManager;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
@@ -101,6 +102,7 @@ public class CommonCoinsPlugin implements CoinsPlugin {
     private CacheType cacheType;
     @Setter
     private CacheProvider cache;
+    private RedisManager redisManager;
 
     public CommonCoinsPlugin(CoinsBootstrap bootstrap, CoinsConfig config) {
         this.config = config;
@@ -126,55 +128,45 @@ public class CommonCoinsPlugin implements CoinsPlugin {
         // update files before we read something
         fileManager.updateFiles();
         logEnabled = getConfig().isDebugFile();
-        // identify storage type and start messaging service before start things
+        // identify storage, messaging service and cache types and load dependencies
         storageType = getConfig().getStorageType();
         dependencyManager.loadStorageDependencies(storageType);
         messagingServiceType = getConfig().getMessagingService();
         cacheType = getConfig().getCacheType();
-        try {
-            if (!getMultipliersFile().exists()) {
-                getMultipliersFile().createNewFile();
-            }
-            Iterator<String> lines = Files.readAllLines(getMultipliersFile().toPath()).iterator();
-            while (lines.hasNext()) {
-                String line = lines.next();
-                try {
-                    getCache().addMultiplier(Multiplier.fromJson(line));
-                } catch (JsonParseException ignore) { // Invalid line
-                    debug(line + " isn't a valid multiplier in json format.");
-                    lines.remove();
-                }
-            }
-            Files.write(getMultipliersFile().toPath(), Lists.newArrayList(lines));
-        } catch (IOException ex) {
-            log("An error has occurred loading multipliers from local storage.");
-            debug(ex.getMessage());
+        if (messagingServiceType.equals(MessagingServiceType.REDIS) || cacheType.equals(CacheType.REDIS)) {
+            log("Loading JEDIS dependency for redis connections...");
+            dependencyManager.loadDependencies(Collections.singleton(Dependency.JEDIS));
+            redisManager = new RedisManager();
+            redisManager.start();
         }
-        if (storageType.equals(StorageType.SQLITE) && getConfig().getInt("Database Version", 1) < 2) {
-            try {
-                Files.move(new File(bootstrap.getDataFolder(), "database.db").toPath(), new File(bootstrap.getDataFolder(), "database.old.db").toPath());
-            } catch (IOException ex) {
-                log("An error has occurred moving the old database");
-                debug(ex.getMessage());
-            }
-        }
+        // try to migrate from v2 if possible
+        migrateFromV2();
+        // load local data
+        loadMultipliers();
+        loadExecutors();
+        // setup storage and start messaging service
         getStorageProvider().setup();
         getMessagingService().start();
         motd(true);
+        // now that everything is running we'll get things from other servers
         getMessagingService().getMultipliers();
         getMessagingService().getExecutors();
-        loadExecutors();
     }
+
 
     @Override
     public void reload() {
-
+        disable();
+        enable();
     }
 
     @Override
     public void disable() {
         getStorageProvider().shutdown();
         messagingService.stop();
+        if (redisManager != null) {
+            redisManager.stop();
+        }
         motd(false);
     }
 
@@ -187,7 +179,7 @@ public class CommonCoinsPlugin implements CoinsPlugin {
             case BUNGEECORD:
                 return messagingService = bootstrap.getBungeeMessaging();
             case REDIS:
-                return messagingService = new RedisMessaging();
+                return messagingService = new RedisMessaging(redisManager);
             case NONE:
             default:
                 return messagingService = new DummyMessaging();
@@ -201,7 +193,7 @@ public class CommonCoinsPlugin implements CoinsPlugin {
         }
         switch (cacheType) {
             case REDIS:
-                return cache = new RedisCache();
+                return cache = new RedisCache(this, redisManager);
             case LOCAL:
             default:
                 dependencyManager.loadDependencies(EnumSet.of(Dependency.CAFFEINE));
@@ -403,5 +395,38 @@ public class CommonCoinsPlugin implements CoinsPlugin {
             debug("Failed to connect to URL: " + surl);
         }
         return response;
+    }
+
+    private void migrateFromV2() {
+        if (storageType.equals(StorageType.SQLITE) && getConfig().getInt("Database Version", 1) < 2) {
+            try {
+                Files.move(new File(bootstrap.getDataFolder(), "database.db").toPath(), new File(bootstrap.getDataFolder(), "database.old.db").toPath());
+            } catch (IOException ex) {
+                log("An error has occurred moving the old database");
+                debug(ex.getMessage());
+            }
+        }
+    }
+
+    private void loadMultipliers() {
+        try {
+            if (!getMultipliersFile().exists()) {
+                getMultipliersFile().createNewFile();
+            }
+            Iterator<String> lines = Files.readAllLines(getMultipliersFile().toPath()).iterator();
+            while (lines.hasNext()) {
+                String line = lines.next();
+                try {
+                    getCache().addMultiplier(Multiplier.fromJson(line));
+                } catch (JsonParseException ignore) { // Invalid line
+                    debug(line + " isn't a valid multiplier in json format.");
+                    lines.remove();
+                }
+            }
+            Files.write(getMultipliersFile().toPath(), Lists.newArrayList(lines));
+        } catch (IOException ex) {
+            log("An error has occurred loading multipliers from local storage.");
+            debug(ex.getMessage());
+        }
     }
 }

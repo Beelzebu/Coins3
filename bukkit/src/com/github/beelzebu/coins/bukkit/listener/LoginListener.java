@@ -21,6 +21,7 @@ package com.github.beelzebu.coins.bukkit.listener;
 import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.messaging.MessagingServiceType;
 import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.bukkit.messaging.BukkitMessaging;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -42,12 +43,19 @@ public class LoginListener implements Listener {
         if (plugin.getConfig().getBoolean("General.Create Join", false)) {
             CoinsAPI.createPlayer(e.getPlayer().getName(), e.getPlayer().getUniqueId());
         }
-        if (first && plugin.getConfig().useBungee()) {
-            plugin.getBootstrap().runAsync(() -> {
-                plugin.getMessagingService().getMultipliers();
-                plugin.getMessagingService().getExecutors();
-            });
-            first = false;
+        if (plugin.getConfig().useBungee()) {
+            BukkitMessaging bukkitMessaging = (BukkitMessaging) plugin.getMessagingService();
+            String message = bukkitMessaging.getMessageQueue().poll();
+            if (message != null) {
+                bukkitMessaging.sendMessage(message, true);
+            }
+            if (first) {
+                plugin.getBootstrap().runAsync(() -> {
+                    plugin.getMessagingService().getMultipliers();
+                    plugin.getMessagingService().getExecutors();
+                });
+                first = false;
+            }
         }
     }
 

@@ -18,12 +18,12 @@
  */
 package com.github.beelzebu.coins.bungee.messaging;
 
+import com.github.beelzebu.coins.api.CoinsAPI;
+import com.github.beelzebu.coins.api.messaging.ProxyMessaging;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.gson.JsonObject;
-import com.github.beelzebu.coins.api.CoinsAPI;
-import com.github.beelzebu.coins.api.messaging.ProxyMessaging;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -36,6 +36,8 @@ import net.md_5.bungee.event.EventHandler;
  * @author Beelzebu
  */
 public final class BungeeMessaging extends ProxyMessaging implements Listener {
+
+    // TODO: handle multiplier changes
 
     @EventHandler
     public void onMessageReceive(PluginMessageEvent e) {

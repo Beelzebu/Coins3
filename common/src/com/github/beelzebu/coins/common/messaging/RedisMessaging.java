@@ -18,26 +18,24 @@
  */
 package com.github.beelzebu.coins.common.messaging;
 
-import com.google.gson.JsonObject;
 import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.messaging.AbstractMessagingService;
 import com.github.beelzebu.coins.api.messaging.MessagingServiceType;
-import java.util.Objects;
+import com.github.beelzebu.coins.common.utils.RedisManager;
+import com.google.gson.JsonObject;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
 
 /**
  * @author Beelzebu
  */
+@RequiredArgsConstructor
 public class RedisMessaging extends AbstractMessagingService {
 
-    @Getter
-    private JedisPool pool;
+    private final RedisManager redisManager;
     private PubSubListener psl;
 
     @Override
@@ -47,23 +45,13 @@ public class RedisMessaging extends AbstractMessagingService {
 
     @Override
     protected void sendMessage(JsonObject message) {
-        try (Jedis jedis = pool.getResource()) {
+        try (Jedis jedis = redisManager.getPool().getResource()) {
             jedis.publish("coins-messaging", message.toString());
         }
     }
 
     @Override
     public void start() {
-        JedisPoolConfig config = new JedisPoolConfig();
-        config.setMinIdle(1);
-        String host = CoinsAPI.getPlugin().getConfig().getString("Redis.Host", "localhost");
-        int port = CoinsAPI.getPlugin().getConfig().getInt("Redis.Port", 6379);
-        String password = CoinsAPI.getPlugin().getConfig().getString("Redis.Password");
-        if (Objects.nonNull(password) && !Objects.equals(password, "")) {
-            pool = new JedisPool(config, host, port, 0, password);
-        } else {
-            pool = new JedisPool(config, host, port);
-        }
         CoinsAPI.getPlugin().getBootstrap().runAsync(psl = new PubSubListener(new JedisPubSubHandler()));
     }
 
@@ -75,9 +63,6 @@ public class RedisMessaging extends AbstractMessagingService {
     @Override
     public void stop() {
         psl.poison();
-        pool.close();
-        pool.destroy();
-        pool = null;
     }
 
     @AllArgsConstructor
@@ -88,7 +73,7 @@ public class RedisMessaging extends AbstractMessagingService {
         @Override
         public void run() {
             boolean broken = false;
-            try (Jedis rsc = pool.getResource()) {
+            try (Jedis rsc = redisManager.getPool().getResource()) {
                 try {
                     rsc.subscribe(jpsh, "coins-messaging");
                 } catch (Exception e) {

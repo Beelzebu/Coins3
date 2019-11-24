@@ -18,13 +18,16 @@
  */
 package com.github.beelzebu.coins.bukkit.messaging;
 
+import com.github.beelzebu.coins.api.CoinsAPI;
+import com.github.beelzebu.coins.api.messaging.ProxyMessaging;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.gson.JsonObject;
-import com.github.beelzebu.coins.api.CoinsAPI;
-import com.github.beelzebu.coins.api.messaging.ProxyMessaging;
+import java.util.LinkedList;
+import java.util.Queue;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -34,6 +37,9 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
  * @author Beelzebu
  */
 public final class BukkitMessaging extends ProxyMessaging implements PluginMessageListener {
+
+    @Getter
+    private final Queue<String> messageQueue = new LinkedList<>();
 
     @Override
     public void onPluginMessageReceived(String channel, Player player, byte[] message) {
@@ -46,21 +52,27 @@ public final class BukkitMessaging extends ProxyMessaging implements PluginMessa
     }
 
     @Override
-    protected void sendMessage(String message, boolean wait) {
+    public void sendMessage(String message, boolean wait) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF(message);
-        Player p = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
-        if (p != null) {
-            try {
-                p.sendPluginMessage((Plugin) CoinsAPI.getPlugin().getBootstrap(), CHANNEL, out.toByteArray());
-            } catch (Exception ex) {
-                CoinsAPI.getPlugin().log("Hey, you need to install the plugin in BungeeCord if you have bungeecord enabled in spigot.yml!");
+        synchronized (messageQueue) {
+            Player p = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
+            if (p != null) {
+                try {
+                    p.sendPluginMessage((Plugin) CoinsAPI.getPlugin().getBootstrap(), CHANNEL, out.toByteArray());
+                } catch (Exception ex) {
+                    CoinsAPI.getPlugin().log("Hey, you need to install the plugin in BungeeCord if you have bungeecord enabled in spigot.yml!");
+                }
+            } else {
+                CoinsAPI.getPlugin().log("Trying to send a message without players, bungee messaging needs at " +
+                        "least one player to send messages the data of this message may be lost or can cause " +
+                        "concurrency problems, it is recommended to use redis as messaging service if you are running " +
+                        "a network, because it doesn't have this limitation and avoid this kind of problems.");
+                CoinsAPI.getPlugin().log("Message: " + message);
+                if (wait) {
+                    messageQueue.add(message);
+                }
             }
-        } else {
-            CoinsAPI.getPlugin().log("Trying to send a message without players, bungee messaging needs at least one player to send messages "
-                    + "the data of this message may be lost or can cause concurrency problems, is recommended to use Redis as "
-                    + "messaging service due it doesn't have this limitation and avoid this kind of problems.");
-            CoinsAPI.getPlugin().log("Message: " + message);
         }
     }
 

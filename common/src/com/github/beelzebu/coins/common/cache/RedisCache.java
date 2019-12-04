@@ -23,12 +23,13 @@ import com.github.beelzebu.coins.api.cache.CacheProvider;
 import com.github.beelzebu.coins.api.cache.CacheType;
 import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.common.utils.RedisManager;
-import com.google.gson.JsonSyntaxException;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import redis.clients.jedis.Jedis;
@@ -44,24 +45,44 @@ public final class RedisCache implements CacheProvider {
 
     private static final String COINS_KEY = "coins:";
     private static final String MULTIPLIER_KEY = "multiplier:";
-    private static final String QUEUE_MULTIPLIER_KEY = "qmultiplier:";
     private static final int CACHE_SECONDS = 1800;
     private final CoinsPlugin plugin;
     private final RedisManager redisManager;
 
     @Override
-    public Optional<Double> getCoins(UUID uuid) {
+    public void start() {
+        if (plugin.getConfig().isRedisLoadMultipliers()) {
+            plugin.log("Updating all multipliers from database in redis...");
+            long start = System.currentTimeMillis();
+            plugin.getStorageProvider().getMultipliers().forEach(multiplier -> {
+                Optional<Multiplier> optionalMultiplier = getMultiplier(multiplier.getId());
+                if (optionalMultiplier.isPresent() && !Objects.equals(optionalMultiplier.get(), multiplier)) {
+                    addMultiplier(multiplier);
+                }
+            });
+            long end = System.currentTimeMillis();
+            plugin.log("Updated all multipliers in redis. Took " + (start - end) + "ms");
+        }
+    }
+
+    @Override
+    public void stop() {
+    }
+
+    @Override
+    public OptionalDouble getCoins(UUID uuid) {
         try (Jedis jedis = redisManager.getPool().getResource()) {
-            return Optional.ofNullable(getDouble(jedis.get(COINS_KEY + uuid)));
+            return getDouble(jedis.get(COINS_KEY + uuid));
         } catch (JedisException ex) {
             plugin.log("An error has occurred getting coins for '" + uuid + "' from redis cache.");
             plugin.debug(ex);
         }
-        return Optional.empty();
+        return OptionalDouble.empty();
     }
 
     @Override
     public void updatePlayer(UUID uuid, double coins) {
+        Objects.requireNonNull(uuid, "UUID can't be null");
         plugin.debug("Setting coins for '" + uuid + "' to '" + coins + "' in redis.");
         try (Jedis jedis = redisManager.getPool().getResource()) {
             jedis.setex(COINS_KEY + uuid, CACHE_SECONDS, Double.toString(coins));
@@ -85,8 +106,7 @@ public final class RedisCache implements CacheProvider {
     @Override
     public Optional<Multiplier> getMultiplier(int id) {
         try (Jedis jedis = redisManager.getPool().getResource()) {
-            String multiplierString = jedis.get(MULTIPLIER_KEY + id);
-            return Optional.ofNullable(multiplierString != null ? Multiplier.fromJson(multiplierString) : null);
+            return Optional.ofNullable(getMultiplier(jedis, String.valueOf(id)));
         } catch (JedisException ex) {
             plugin.log("An error has occurred getting multiplier with id '" + id + "' from redis cache.");
             plugin.debug(ex);
@@ -94,9 +114,9 @@ public final class RedisCache implements CacheProvider {
         return Optional.empty();
     }
 
-    @Override
-    public Set<Multiplier> getMultipliers(String server) {
-        return getMultipliers().stream().filter(multiplier -> server.equals(multiplier.getServer())).collect(Collectors.toSet());
+    private Multiplier getMultiplier(Jedis jedis, String id) {
+        String multiplierString = jedis.get(MULTIPLIER_KEY + id);
+        return multiplierString != null ? Multiplier.fromJson(multiplierString) : null;
     }
 
     @Override
@@ -110,11 +130,11 @@ public final class RedisCache implements CacheProvider {
     }
 
     @Override
-    public void deleteMultiplier(Multiplier multiplier) {
+    public void deleteMultiplier(int id) {
         try (Jedis jedis = redisManager.getPool().getResource()) {
-            jedis.del(MULTIPLIER_KEY + multiplier.getServer());
+            jedis.del(MULTIPLIER_KEY + id);
         } catch (JedisException ex) {
-            plugin.log("An error has occurred removing multiplier '" + multiplier.toJson() + "' from cache.");
+            plugin.log("An error has occurred removing multiplier with id '" + id + "' from cache.");
             plugin.debug(ex);
         }
     }
@@ -123,32 +143,12 @@ public final class RedisCache implements CacheProvider {
     public void updateMultiplier(Multiplier multiplier, boolean callenable) {
         Objects.requireNonNull(multiplier, "Multiplier can't be null");
         if (callenable) {
-            multiplier.enable(true);
+            multiplier.enable();
         }
         try (Jedis jedis = redisManager.getPool().getResource()) {
-            jedis.setex(MULTIPLIER_KEY + multiplier.getServer(), multiplier.getData().getMinutes() * 60, multiplier.toJson().toString());
+            jedis.setex(MULTIPLIER_KEY + multiplier.getServer(), (int) TimeUnit.MINUTES.toSeconds(multiplier.getData().getMinutes()), multiplier.toJson().toString());
         } catch (JedisException ex) {
             plugin.log("An error has occurred updating multiplier '" + multiplier.toJson() + "' in the cache.");
-            plugin.debug(ex);
-        }
-    }
-
-    @Override
-    public void addQueueMultiplier(Multiplier multiplier) {
-        try (Jedis jedis = redisManager.getPool().getResource()) {
-            jedis.setex(QUEUE_MULTIPLIER_KEY + multiplier.getServer(), multiplier.getData().getMinutes() * 60, multiplier.toJson().toString());
-        } catch (JedisException ex) {
-            plugin.log("An error has occurred adding multiplier '" + multiplier.toJson() + "' to queue.");
-            plugin.debug(ex);
-        }
-    }
-
-    @Override
-    public void removeQueueMultiplier(Multiplier multiplier) {
-        try (Jedis jedis = redisManager.getPool().getResource()) {
-            jedis.del(QUEUE_MULTIPLIER_KEY + multiplier.getServer());
-        } catch (JedisException ex) {
-            plugin.log("An error has occurred removing multiplier '" + multiplier.toJson() + "' from queue.");
             plugin.debug(ex);
         }
     }
@@ -157,11 +157,13 @@ public final class RedisCache implements CacheProvider {
     public Set<Multiplier> getMultipliers() {
         Set<Multiplier> multipliers = new HashSet<>();
         try (Jedis jedis = redisManager.getPool().getResource()) {
-            Set<String> keys = jedis.keys(MULTIPLIER_KEY + "*");
-            if (!keys.isEmpty()) {
-                keys.forEach(key -> multipliers.add(Multiplier.fromJson(jedis.get(key))));
-            }
-        } catch (JedisException | JsonSyntaxException ex) {
+            String cursor = ScanParams.SCAN_POINTER_START;
+            ScanResult<String> scan = jedis.scan(cursor, new ScanParams().match(COINS_KEY + "*").count(Integer.MAX_VALUE));
+            do {
+                multipliers.addAll(scan.getResult().stream().map(key -> getMultiplier(jedis, key.split(":")[1])).collect(Collectors.toSet()));
+                scan = jedis.scan(cursor, new ScanParams().match(COINS_KEY + "*").count(Integer.MAX_VALUE));
+            } while (!Objects.equals(cursor = scan.getCursor(), ScanParams.SCAN_POINTER_START));
+        } catch (JedisException ex) {
             plugin.log("An error has occurred getting all multipliers from cache.");
             plugin.debug(ex);
         }
@@ -190,11 +192,11 @@ public final class RedisCache implements CacheProvider {
         return CacheType.REDIS;
     }
 
-    private Double getDouble(String string) {
+    private OptionalDouble getDouble(String string) {
         try {
-            return Double.parseDouble(string);
+            return OptionalDouble.of(Double.parseDouble(string));
         } catch (NumberFormatException | NullPointerException ignore) {
         }
-        return null;
+        return OptionalDouble.empty();
     }
 }

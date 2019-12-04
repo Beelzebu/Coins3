@@ -50,11 +50,11 @@ public class LoginListener implements Listener {
                 bukkitMessaging.sendMessage(message, true);
             }
             if (first) {
-                plugin.getBootstrap().runAsync(() -> {
-                    plugin.getMessagingService().getMultipliers();
-                    plugin.getMessagingService().getExecutors();
-                });
                 first = false;
+                plugin.getBootstrap().runAsync(() -> {
+                    plugin.getMessagingService().requestMultipliers();
+                    plugin.getMessagingService().requestExecutors();
+                });
             }
         }
     }

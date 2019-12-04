@@ -18,13 +18,10 @@
  */
 package com.github.beelzebu.coins.bukkit.menus;
 
-import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.Multiplier;
-import com.github.beelzebu.coins.api.MultiplierType;
 import com.github.beelzebu.coins.api.utils.StringUtils;
 import com.github.beelzebu.coins.bukkit.utils.CompatUtils;
 import com.github.beelzebu.coins.bukkit.utils.ItemBuilder;
-import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -40,16 +37,15 @@ public class ConfirmMenu extends CoinsMenu {
 
     private final Multiplier multiplier;
 
-    ConfirmMenu(String name, Multiplier data) {
+    ConfirmMenu(String name, Multiplier multiplier) {
         super(9, name);
-        multiplier = data;
+        this.multiplier = multiplier;
     }
 
     public void setItems(Player p) {
         ItemStack accept = ItemBuilder.newBuilder(CompatUtils.getItem(CompatUtils.MaterialItem.GREEN_STAINED_GLASS)).setDisplayName(plugin.getString("Multipliers.Menu.Confirm.Accept", CompatUtils.getLocale(p))).build();
         setItem(2, accept, player -> {
-            if (CoinsAPI.getMultipliers().stream().filter(multiplier -> !multiplier.getData().getType().equals(MultiplierType.GLOBAL) && !multiplier.getData().getType().equals(MultiplierType.PERSONAL)).collect(Collectors.toSet()).isEmpty()) {
-                multiplier.enable(false);
+            if (multiplier.enable()) {
                 String sound = plugin.getConfig().getString("Multipliers.GUI.Use.Sound");
                 if (sound != null) {
                     try {
@@ -61,7 +57,6 @@ public class ConfirmMenu extends CoinsMenu {
                     }
                 }
             } else {
-                multiplier.enable(true);
                 String sound = plugin.getConfig().getString("Multipliers.GUI.Use.Fail.Sound");
                 if (sound != null) {
                     try {

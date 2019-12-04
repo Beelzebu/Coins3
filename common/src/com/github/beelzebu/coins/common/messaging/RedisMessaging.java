@@ -35,6 +35,7 @@ import redis.clients.jedis.JedisPubSub;
 @RequiredArgsConstructor
 public class RedisMessaging extends AbstractMessagingService {
 
+    public static final String REDIS_CHANNEL = "coins-messaging";
     private final RedisManager redisManager;
     private PubSubListener psl;
 
@@ -46,7 +47,7 @@ public class RedisMessaging extends AbstractMessagingService {
     @Override
     protected void sendMessage(JsonObject message) {
         try (Jedis jedis = redisManager.getPool().getResource()) {
-            jedis.publish("coins-messaging", message.toString());
+            jedis.publish(REDIS_CHANNEL, message.toString());
         }
     }
 
@@ -75,7 +76,7 @@ public class RedisMessaging extends AbstractMessagingService {
             boolean broken = false;
             try (Jedis rsc = redisManager.getPool().getResource()) {
                 try {
-                    rsc.subscribe(jpsh, "coins-messaging");
+                    rsc.subscribe(jpsh, REDIS_CHANNEL);
                 } catch (Exception e) {
                     CoinsAPI.getPlugin().log("PubSub error, attempting to recover.");
                     try {

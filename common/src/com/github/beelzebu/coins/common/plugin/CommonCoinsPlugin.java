@@ -19,7 +19,6 @@
 package com.github.beelzebu.coins.common.plugin;
 
 import com.github.beelzebu.coins.api.CoinsAPI;
-import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.cache.CacheProvider;
 import com.github.beelzebu.coins.api.cache.CacheType;
 import com.github.beelzebu.coins.api.config.AbstractConfigFile;
@@ -45,9 +44,7 @@ import com.github.beelzebu.coins.common.storage.MySQL;
 import com.github.beelzebu.coins.common.storage.SQLite;
 import com.github.beelzebu.coins.common.utils.FileManager;
 import com.github.beelzebu.coins.common.utils.RedisManager;
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.google.gson.JsonParseException;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -62,7 +59,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -142,15 +138,15 @@ public class CommonCoinsPlugin implements CoinsPlugin {
         // try to migrate from v2 if possible
         migrateFromV2();
         // load local data
-        loadMultipliers();
         loadExecutors();
         // setup storage and start messaging service
         getStorageProvider().setup();
+        getCache().start();
         getMessagingService().start();
         motd(true);
         // now that everything is running we'll get things from other servers
-        getMessagingService().getMultipliers();
-        getMessagingService().getExecutors();
+        getMessagingService().requestMultipliers();
+        getMessagingService().requestExecutors();
     }
 
 
@@ -220,11 +216,6 @@ public class CommonCoinsPlugin implements CoinsPlugin {
     public final void loadExecutors() {
         AbstractConfigFile executorsConfig = bootstrap.getFileAsConfig(new File(bootstrap.getDataFolder(), "executors.yml"));
         executorsConfig.getConfigurationSection("Executors").forEach(id -> ExecutorManager.addExecutor(new Executor(id, executorsConfig.getString("Executors." + id + ".Displayname", id), executorsConfig.getDouble("Executors." + id + ".Cost", 0), executorsConfig.getStringList("Executors." + id + ".Command"))));
-    }
-
-    @Override
-    public final File getMultipliersFile() {
-        return new File(bootstrap.getDataFolder(), "multipliers.dat");
     }
 
     @Override
@@ -405,28 +396,6 @@ public class CommonCoinsPlugin implements CoinsPlugin {
                 log("An error has occurred moving the old database");
                 debug(ex.getMessage());
             }
-        }
-    }
-
-    private void loadMultipliers() {
-        try {
-            if (!getMultipliersFile().exists()) {
-                getMultipliersFile().createNewFile();
-            }
-            Iterator<String> lines = Files.readAllLines(getMultipliersFile().toPath()).iterator();
-            while (lines.hasNext()) {
-                String line = lines.next();
-                try {
-                    getCache().addMultiplier(Multiplier.fromJson(line));
-                } catch (JsonParseException ignore) { // Invalid line
-                    debug(line + " isn't a valid multiplier in json format.");
-                    lines.remove();
-                }
-            }
-            Files.write(getMultipliersFile().toPath(), Lists.newArrayList(lines));
-        } catch (IOException ex) {
-            log("An error has occurred loading multipliers from local storage.");
-            debug(ex.getMessage());
         }
     }
 }

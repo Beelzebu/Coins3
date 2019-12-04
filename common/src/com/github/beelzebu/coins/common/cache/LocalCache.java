@@ -25,23 +25,22 @@ import com.github.beelzebu.coins.api.cache.CacheType;
 import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.common.collect.Lists;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * @author Beelzebu
@@ -49,30 +48,56 @@ import java.util.stream.Collectors;
 public final class LocalCache implements CacheProvider {
 
     private final CoinsPlugin plugin = CoinsAPI.getPlugin();
-
     private final Cache<UUID, Double> players = Caffeine.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES).build();
-    private final List<Multiplier> queuedMultipliers = new ArrayList<>();
-    private final LoadingCache<Integer, Multiplier> multipliers = Caffeine.newBuilder().build(k -> {
-        Iterator<Multiplier> it = queuedMultipliers.iterator();
-        if (it.hasNext()) {
-            Multiplier multiplier = it.next();
-            if (multiplier.getId() == k) {
-                multiplier.enable(false);
-                it.remove();
-                return multiplier;
-            }
-        }
-        return null;
-    });
+    private final Cache<Integer, Multiplier> multipliers = Caffeine.newBuilder().build();
+    private final File multipliersFile = new File(plugin.getBootstrap().getDataFolder(), "multipliers.dat");
 
     @Override
-    public Optional<Double> getCoins(UUID uuid) {
-        return Optional.ofNullable(players.getIfPresent(uuid));
+    public void start() {
+        try {
+            if (!multipliersFile.exists()) {
+                multipliersFile.createNewFile();
+            }
+            Iterator<String> lines = Files.readAllLines(multipliersFile.toPath()).iterator();
+            while (lines.hasNext()) {
+                String line = lines.next();
+                try {
+                    plugin.getCache().addMultiplier(Multiplier.fromJson(line));
+                } catch (JsonParseException ignore) { // Invalid line
+                    plugin.debug(line + " isn't a valid multiplier in json format.");
+                    lines.remove();
+                }
+            }
+            Files.write(multipliersFile.toPath(), Lists.newArrayList(lines));
+        } catch (IOException ex) {
+            plugin.log("An error has occurred loading multipliers from local storage.");
+            plugin.debug(ex.getMessage());
+        }
+    }
+
+    @Override
+    public void stop() {
+        players.invalidateAll();
+        multipliers.invalidateAll();
+    }
+
+    @Override
+    public OptionalDouble getCoins(UUID uuid) {
+        Double coins = players.getIfPresent(uuid);
+        if (coins != null) {
+            return OptionalDouble.of(coins);
+        }
+        return OptionalDouble.empty();
     }
 
     @Override
     public void updatePlayer(UUID uuid, double coins) {
-        players.put(uuid, coins);
+        if (plugin.getBootstrap().isOnline(uuid)) { // only update data if player is online
+            CoinsAPI.getPlugin().debug("Updated local data for: " + uuid + " (" + plugin.getName(uuid, false) + ")");
+            players.put(uuid, coins);
+        } else { // remove player from cache if is offline
+            removePlayer(uuid);
+        }
     }
 
     @Override
@@ -86,19 +111,18 @@ public final class LocalCache implements CacheProvider {
     }
 
     @Override
-    public Set<Multiplier> getMultipliers(String server) {
-        return multipliers.asMap().values().stream().filter(multiplier -> multiplier.getServer().equals(server)).collect(Collectors.toSet());
-    }
-
-    @Override
     public void addMultiplier(Multiplier multiplier) {
-        multipliers.put(multiplier.getId(), multiplier); // put the multiplier in the cache
+        if (!multiplier.getServer().equals(plugin.getConfig().getServerName())) {
+            return;
+        }
+        // put the multiplier in the cache
+        multipliers.put(multiplier.getId(), multiplier);
         // store it in a local storage to load them again without querying the database if the server is restarted
         try {
-            if (!plugin.getMultipliersFile().exists()) {
-                plugin.getMultipliersFile().createNewFile();
+            if (!multipliersFile.exists()) {
+                multipliersFile.createNewFile();
             }
-            Iterator<String> lines = Files.readAllLines(plugin.getMultipliersFile().toPath()).iterator();
+            Iterator<String> lines = Files.readAllLines(multipliersFile.toPath()).iterator();
             boolean exists = false;
             // check if the multiplier was already stored in this server
             while (lines.hasNext()) {
@@ -111,7 +135,7 @@ public final class LocalCache implements CacheProvider {
             }
             if (!exists) {
                 try {
-                    Files.write(plugin.getMultipliersFile().toPath(), Collections.singletonList(multiplier.toJson().toString() + "\n"), StandardOpenOption.APPEND);
+                    Files.write(multipliersFile.toPath(), Collections.singletonList(multiplier.toJson().toString() + "\n"), StandardOpenOption.APPEND);
                 } catch (IOException ex) {
                     plugin.log("An error has occurred saving a multiplier in the local storage.");
                     plugin.debug(ex.getMessage());
@@ -124,44 +148,33 @@ public final class LocalCache implements CacheProvider {
     }
 
     @Override
-    public void deleteMultiplier(Multiplier multiplier) {
-        Objects.requireNonNull(multiplier, "Multiplier can't be null");
+    public void deleteMultiplier(int id) {
         try { // remove it from local multiplier storage
-            Iterator<String> lines = Files.readAllLines(plugin.getMultipliersFile().toPath()).iterator();
+            Iterator<String> lines = Files.readAllLines(multipliersFile.toPath()).iterator();
             while (lines.hasNext()) {
-                if (Objects.requireNonNull(Multiplier.fromJson(lines.next())).getId() == multiplier.getId()) {
-                    multipliers.invalidate(multiplier.getServer());
+                if (Objects.requireNonNull(Multiplier.fromJson(lines.next())).getId() == id) {
+                    multipliers.invalidate(id);
                     lines.remove();
                     break;
                 }
             }
-            Files.write(plugin.getMultipliersFile().toPath(), Lists.newArrayList(lines));
+            Files.write(multipliersFile.toPath(), Lists.newArrayList(lines));
         } catch (IOException | NullPointerException | JsonSyntaxException ex) {
             plugin.log("An error has occurred removing a multiplier from local storage.");
             plugin.debug(ex.getMessage());
         }
-        multipliers.invalidate(multiplier.getServer());
+        multipliers.invalidate(id);
     }
 
     @Override
     public void updateMultiplier(Multiplier multiplier, boolean callenable) {
         Objects.requireNonNull(multiplier, "Multiplier can't be null");
         if (callenable) {
-            multiplier.enable(true);
+            multiplier.enable();
             plugin.getMessagingService().enableMultiplier(multiplier);
         } else {
             plugin.getMessagingService().updateMultiplier(multiplier);
         }
-    }
-
-    @Override
-    public void addQueueMultiplier(Multiplier multiplier) {
-        queuedMultipliers.add(multiplier);
-    }
-
-    @Override
-    public void removeQueueMultiplier(Multiplier multiplier) {
-        queuedMultipliers.remove(multiplier);
     }
 
     @Override

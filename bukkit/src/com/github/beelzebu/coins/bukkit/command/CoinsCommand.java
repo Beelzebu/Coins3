@@ -21,7 +21,7 @@ package com.github.beelzebu.coins.bukkit.command;
 import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.CoinsResponse;
 import com.github.beelzebu.coins.api.Multiplier;
-import com.github.beelzebu.coins.api.MultiplierType;
+import com.github.beelzebu.coins.api.MultiplierData;
 import com.github.beelzebu.coins.api.executor.Executor;
 import com.github.beelzebu.coins.api.executor.ExecutorManager;
 import com.github.beelzebu.coins.api.storage.StorageType;
@@ -35,8 +35,8 @@ import com.github.beelzebu.coins.common.importer.PluginToImport;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -176,9 +176,9 @@ public class CoinsCommand extends AbstractCoinsCommand {
             String multiplier = "";
             if (plugin.getBootstrap().isOnline(plugin.getUniqueId(args[1], false)) && multiply) {
                 Player target = Bukkit.getPlayer(args[1]);
-                Optional<Multiplier> multiplierOptional = CoinsAPI.getMultipliers().stream().filter(multiplier1 -> multiplier1.getData().getType() == MultiplierType.SERVER && multiplier1.getData().getEnablerUUID() != null && multiplier1.getData().getEnablerName() != null).findFirst();
-                if (multiplierOptional.isPresent()) {
-                    multiplier = plugin.getString("Multipliers.Format", CompatUtils.getLocale(target)).replace("%multiplier%", df.format(multiplierOptional.get().getData().getAmount())).replace("%enabler%", multiplierOptional.get().getData().getEnablerName());
+                int multiplyAmmount = CoinsAPI.getUsableMultipliers(target.getUniqueId()).stream().mapToInt(m -> m.getData().getAmount()).sum();
+                if (multiplyAmmount >= 0) {
+                    multiplier = plugin.getString("Multipliers.Format", CompatUtils.getLocale(target)).replace("%multiplier%", df.format(multiplyAmmount)).replace("%enabler%", CoinsAPI.getUsableMultipliers(target.getUniqueId()).stream().map(Multiplier::getData).map(MultiplierData::getEnablerName).collect(Collectors.joining(", ")));
                 }
             }
             if (!plugin.getString("Coins.Give", lang).equals("")) {
@@ -384,20 +384,19 @@ public class CoinsCommand extends AbstractCoinsCommand {
 
     private void reload(CommandSender sender) {
         if (sender.hasPermission(getPermission() + ".admin.reload")) {
-            if (plugin.getConfig().getBoolean("Vault.Use", false)) {
-                new CoinsEconomy((CoinsBukkitMain) plugin.getBootstrap()).shutdown();
+            if (plugin.getCoinsEconomy() != null) {
+                plugin.getCoinsEconomy().shutdown();
             }
             plugin.getConfig().reload();
             plugin.reloadMessages();
             if (plugin.getConfig().getBoolean("Vault.Use", false)) {
-                new CoinsEconomy((CoinsBukkitMain) plugin.getBootstrap()).setup();
+                plugin.setCoinsEconomy(new CoinsEconomy((CoinsBukkitMain) plugin.getBootstrap()));
+                plugin.getCoinsEconomy().setup();
             }
             ExecutorManager.getExecutors().clear();
             plugin.getBootstrap().getPlugin().loadExecutors();
-            if (plugin.getConfig().useBungee()) {
-                plugin.getMessagingService().getMultipliers();
-                plugin.getMessagingService().getExecutors();
-            }
+            plugin.getMessagingService().requestMultipliers();
+            plugin.getMessagingService().requestExecutors();
             sender.sendMessage(StringUtils.rep("%prefix% Reloaded config and all loaded messages files. If you want reload the command, you need to restart the server."));
         }
     }
@@ -409,6 +408,8 @@ public class CoinsCommand extends AbstractCoinsCommand {
         if (sender.hasPermission("coins.admin.info") || sender.getName().equals("Beelzebu")) {
             sender.sendMessage(StringUtils.rep(" &cExecutors:&7 " + ExecutorManager.getExecutors().size()));
             sender.sendMessage(StringUtils.rep(" &cStorage Type:&7 " + plugin.getStorageProvider().getStorageType()));
+            sender.sendMessage(StringUtils.rep(" &cCache Type:&7 " + plugin.getCache().getCacheType()));
+            sender.sendMessage(StringUtils.rep(" &cMessaging Service:&7 " + plugin.getMessagingService().getType()));
             sender.sendMessage(StringUtils.rep(" &cMultipliers in cache:&7 " + plugin.getCache().getMultipliers()));
             sender.sendMessage(StringUtils.rep(" &cPlayers in cache:&7 " + plugin.getCache().getPlayers().size()));
             sender.sendMessage("");

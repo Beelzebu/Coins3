@@ -68,9 +68,9 @@ public class MultipliersCommand extends AbstractCoinsCommand {
             } else {
                 sender.sendMessage(plugin.getString("Errors.Console", lang));
             }
-            return;
         } else {
             if (!sender.hasPermission(getPermission() + ".admin.multiplier")) {
+                sender.sendMessage(plugin.getString("Errors.No permissions", lang));
                 return;
             }
             switch (args[0].toLowerCase()) {
@@ -94,9 +94,6 @@ public class MultipliersCommand extends AbstractCoinsCommand {
                     break;
                 }
             }
-        }
-        if (args[0].equalsIgnoreCase("get")) {
-            sender.sendMessage(CoinsAPI.getMultipliers().stream().findFirst().get().getMultiplierTimeFormatted());
         }
     }
 

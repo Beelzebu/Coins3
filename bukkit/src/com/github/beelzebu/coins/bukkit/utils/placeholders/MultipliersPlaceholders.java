@@ -25,7 +25,6 @@ import com.github.beelzebu.coins.api.MultiplierType;
 import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.bukkit.utils.CompatUtils;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
@@ -70,9 +69,8 @@ public class MultipliersPlaceholders extends PlaceholderExpansion {
         try {
             String server = placeholder.split("_")[1];
             List<Multiplier> multipliers = CoinsAPI.getMultipliers(server, true).stream()
-                    .filter(multiplier -> !multiplier.isCustom())
                     .filter(multiplier -> multiplier.getData().getType() != MultiplierType.PERSONAL)
-                    .filter(multiplier -> !multiplier.getData().isServer()).collect(Collectors.toList());
+                    .filter(multiplier -> !multiplier.getData().isServerEnabler()).collect(Collectors.toList());
             if (placeholder.startsWith("enabler_")) {
                 if (multipliers.isEmpty()) {
                     return plugin.getString("Multipliers.Placeholders.Enabler.Anyone", CompatUtils.getLocale(p));
@@ -82,21 +80,17 @@ public class MultipliersPlaceholders extends PlaceholderExpansion {
                 }
             }
             if (placeholder.startsWith("amount_")) {
-                AtomicInteger amount = new AtomicInteger();
-                multipliers.stream().map(Multiplier::getData).map(MultiplierData::getAmount).forEach(amount::addAndGet);
-                return String.valueOf(multipliers.isEmpty() ? 1 : amount.get());
+                int multiplyTotal = multipliers.stream().mapToInt(multiplier -> multiplier.getData().getAmount()).sum();
+                return String.valueOf(multiplyTotal);
             }
             if (placeholder.startsWith("time_")) {
                 Multiplier less = null;
                 for (Multiplier multiplier : multipliers) {
-                    if (less == null) {
-                        less = multiplier;
-                    }
-                    if (less.getEndTime() > multiplier.getEndTime()) {
+                    if (less == null || less.getEndTime() < multiplier.getEndTime()) {
                         less = multiplier;
                     }
                 }
-                return less != null ? less.getMultiplierTimeFormatted() : "";
+                return less != null ? less.getEndTimeFormatted() : "";
             }
         } catch (NullPointerException ex) {
             ex.printStackTrace();

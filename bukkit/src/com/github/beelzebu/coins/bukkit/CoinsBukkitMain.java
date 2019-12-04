@@ -37,6 +37,7 @@ import java.util.UUID;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -122,12 +123,14 @@ public class CoinsBukkitMain extends JavaPlugin implements CoinsBootstrap {
 
     @Override
     public UUID getUUID(String name) {
-        return Bukkit.getPlayer(name) != null ? Bukkit.getPlayer(name).getUniqueId() : null;
+        Player player = Bukkit.getPlayer(name);
+        return player != null ? player.getUniqueId() : null;
     }
 
     @Override
     public String getName(UUID uuid) {
-        return Bukkit.getPlayer(uuid) != null ? Bukkit.getPlayer(uuid).getName() : null;
+        Player player = Bukkit.getPlayer(uuid);
+        return player != null ? player.getName() : null;
     }
 
     @Override
@@ -143,8 +146,9 @@ public class CoinsBukkitMain extends JavaPlugin implements CoinsBootstrap {
     @Override
     public List<String> getPermissions(UUID uuid) {
         List<String> permissions = new ArrayList<>();
-        if (isOnline(uuid)) {
-            Bukkit.getPlayer(uuid).getEffectivePermissions().stream().map(PermissionAttachmentInfo::getPermission).forEach(permissions::add);
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null) {
+            player.getEffectivePermissions().stream().map(PermissionAttachmentInfo::getPermission).forEach(permissions::add);
         }
         return permissions;
     }

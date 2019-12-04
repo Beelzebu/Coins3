@@ -8,6 +8,7 @@
     </JAVADOC>
     <SOURCES>
       <root url="jar://$MAVEN_REPOSITORY$/com/github/beelzebu/coins3-api/3.0-SNAPSHOT/coins3-api-3.0-SNAPSHOT-sources.jar!/" />
+      <root url="file://$PROJECT_DIR$/../coins3api/src" />
     </SOURCES>
   </library>
 </component>

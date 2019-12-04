@@ -31,6 +31,8 @@ import com.github.beelzebu.coins.bukkit.utils.placeholders.CoinsPlaceholders;
 import com.github.beelzebu.coins.bukkit.utils.placeholders.MultipliersPlaceholders;
 import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import java.util.stream.Stream;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -42,6 +44,9 @@ import org.bukkit.event.server.PluginEnableEvent;
 public class CoinsBukkitPlugin extends CommonCoinsPlugin {
 
     private boolean vault = false, placeholderapi = false, leaderheads = false;
+    @Getter
+    @Setter
+    private CoinsEconomy coinsEconomy;
 
     CoinsBukkitPlugin(CoinsBukkitMain bootstrap, CoinsConfig config) {
         super(bootstrap, config);
@@ -78,8 +83,8 @@ public class CoinsBukkitPlugin extends CommonCoinsPlugin {
     @Override
     public void disable() {
         super.disable();
-        if (getConfig().getBoolean("Vault.Use", false) && vault) {
-            new CoinsEconomy((CoinsBukkitMain) getBootstrap()).shutdown();
+        if (coinsEconomy != null) {
+            coinsEconomy.shutdown();
         }
         CoinsMenu.getInventoriesByUUID().values().forEach(CoinsMenu::delete);
         ((CoinsBukkitMain) getBootstrap()).getCommandManager().unregisterCommand();
@@ -92,7 +97,8 @@ public class CoinsBukkitPlugin extends CommonCoinsPlugin {
             if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
                 if (!vault) {
                     log("Vault found, hooking into it.");
-                    new CoinsEconomy((CoinsBukkitMain) getBootstrap()).setup();
+                    coinsEconomy = new CoinsEconomy((CoinsBukkitMain) getBootstrap());
+                    coinsEconomy.setup();
                     vault = true;
                 }
             } else {

@@ -18,10 +18,9 @@
  */
 package com.github.beelzebu.coins.common.messaging;
 
-import com.google.gson.JsonObject;
 import com.github.beelzebu.coins.api.messaging.AbstractMessagingService;
 import com.github.beelzebu.coins.api.messaging.MessagingServiceType;
-import java.util.UUID;
+import com.google.gson.JsonObject;
 
 /**
  * @author Beelzebu
@@ -29,11 +28,8 @@ import java.util.UUID;
 public class DummyMessaging extends AbstractMessagingService {
 
     @Override
-    public void publishUser(UUID uuid, double coins) {
-    }
-
-    @Override
     protected void sendMessage(JsonObject message) {
+        handleMessage(message);
     }
 
     @Override

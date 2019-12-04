@@ -289,6 +289,6 @@ public class CoinsAPI {
      * @return The active multiplier for this server.
      */
     public static Multiplier getMultiplier() {
-        return com.github.beelzebu.coins.api.CoinsAPI.getMultipliers().stream().findFirst().orElse(null);
+        return com.github.beelzebu.coins.api.CoinsAPI.getMultipliers(com.github.beelzebu.coins.api.CoinsAPI.getPlugin().getConfig().getServerName()).stream().findFirst().orElse(null);
     }
 }

@@ -95,6 +95,7 @@ public class CommandManager {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, Command> getKnownCommandsMap() {
         try {
             return (Map<String, Command>) getPrivateField(getCommandMap(), "knownCommands", CompatUtils.is113orHigher());

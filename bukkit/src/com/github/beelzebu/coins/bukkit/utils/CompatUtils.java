@@ -40,6 +40,7 @@ import org.bukkit.potion.PotionType;
 /**
  * @author Beelzebu
  */
+@SuppressWarnings("deprecation")
 public final class CompatUtils {
 
     private static final Map<MaterialItem, ItemStack> materials = new EnumMap<>(MaterialItem.class);
@@ -95,7 +96,9 @@ public final class CompatUtils {
         if (is1_13) {
             meta.setBasePotionData(new PotionData(type));
         } else {
-            meta.setMainEffect(type.getEffectType()); // it was deprecated in 1.13
+            if (type.getEffectType() != null) {
+                meta.setMainEffect(type.getEffectType()); // it was deprecated in 1.13
+            }
         }
     }
 

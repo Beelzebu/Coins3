@@ -12,7 +12,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>coins-bungee</artifactId>
+    <artifactId>coins3-bungee</artifactId>
 
     <repositories>
         <repository>
@@ -24,7 +24,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>coins-common</artifactId>
+            <artifactId>coins3-common</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
@@ -54,8 +54,11 @@
                             <minimizeJar>false</minimizeJar>
                             <artifactSet>
                                 <includes>
-                                    <include>com.github.beelzebu:coins-common</include>
+                                    <include>com.github.beelzebu:coins3-common</include>
                                 </includes>
+                                <excludes>
+                                    <exclude>com.github.beelzebu:coins3-api</exclude>
+                                </excludes>
                             </artifactSet>
                         </configuration>
                     </execution>

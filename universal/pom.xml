@@ -12,19 +12,19 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>coins-universal</artifactId>
+    <artifactId>coins3-universal</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>coins-bukkit</artifactId>
+            <artifactId>coins3-bukkit</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>coins-bungee</artifactId>
+            <artifactId>coins3-bungee</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
@@ -48,8 +48,8 @@
                             <minimizeJar>false</minimizeJar>
                             <artifactSet>
                                 <includes>
-                                    <include>com.github.beelzebu:coins-bukkit</include>
-                                    <include>com.github.beelzebu:coins-bungee</include>
+                                    <include>com.github.beelzebu:coins3-bukkit</include>
+                                    <include>com.github.beelzebu:coins3-bungee</include>
                                 </includes>
                             </artifactSet>
                         </configuration>

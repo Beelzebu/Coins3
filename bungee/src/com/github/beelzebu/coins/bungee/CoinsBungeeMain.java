@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -89,6 +90,16 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
     @Override
     public void runSync(Runnable rn) {
         rn.run();
+    }
+
+    @Override
+    public void schedule(Runnable rn, long interval) {
+        ProxyServer.getInstance().getScheduler().schedule(this, rn, interval * 50 /* 1 tick = 50 ms*/, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    public void scheduleAsync(Runnable rn, long interval) {
+        ProxyServer.getInstance().getScheduler().schedule(this, rn, interval * 50 /* 1 tick = 50 ms*/, TimeUnit.MILLISECONDS);
     }
 
     @Override

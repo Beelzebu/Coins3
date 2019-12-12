@@ -28,9 +28,11 @@ import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Beelzebu
@@ -43,6 +45,7 @@ public final class MySQL extends SQLDatabase {
 
     @Override
     public void setup() {
+        int maxPoolSize = plugin.getConfig().getInt("MySQL.Connection Pool", 8);
         HikariConfig hc = new HikariConfig();
         hc.setPoolName("Coins MySQL Connection Pool");
         String urlprefix = "jdbc:mysql://";
@@ -63,10 +66,10 @@ public final class MySQL extends SQLDatabase {
         hc.setUsername(plugin.getConfig().getString("MySQL.User"));
         hc.setPassword(plugin.getConfig().getString("MySQL.Password"));
         hc.setMaxLifetime(60000);
-        hc.setMinimumIdle(4);
+        hc.setMinimumIdle(Math.max(4, maxPoolSize));
         hc.setIdleTimeout(30000);
         hc.setConnectionTimeout(10000);
-        hc.setMaximumPoolSize(plugin.getConfig().getInt("MySQL.Connection Pool", 8));
+        hc.setMaximumPoolSize(maxPoolSize);
         hc.setLeakDetectionThreshold(30000);
         hc.validate();
         try {
@@ -76,7 +79,6 @@ public final class MySQL extends SQLDatabase {
             plugin.debug(ex);
             plugin.log("We will change your storage type to SQLite.");
             plugin.setStorageType(StorageType.SQLITE);
-            plugin.getStorageProvider().setup();
             return;
         }
         updateDatabase();
@@ -90,36 +92,43 @@ public final class MySQL extends SQLDatabase {
     @Override
     protected void updateDatabase() {
         try (Connection c = ds.getConnection(); Statement st = c.createStatement()) {
-            String data
-                    = "CREATE TABLE IF NOT EXISTS `" + DATA_TABLE + "`"
-                    + "(`id` INT NOT NULL AUTO_INCREMENT,"
-                    + "`uuid` VARCHAR(50) NOT NULL,"
-                    + "`name` VARCHAR(50) NOT NULL,"
-                    + "`balance` DOUBLE NOT NULL,"
-                    + "`lastlogin` LONG NOT NULL,"
-                    + "PRIMARY KEY (`id`));";
-            String multiplier = "CREATE TABLE IF NOT EXISTS `" + MULTIPLIERS_TABLE + "`"
-                    + "(`id` INT NOT NULL AUTO_INCREMENT,"
-                    + "`server` VARCHAR(50),"
-                    + "`uuid` VARCHAR(50) NOT NULL,"
-                    + "`type` VARCHAR(20) NOT NULL,"
-                    + "`amount` INT,"
-                    + "`minutes` INT,"
-                    + "`endtime` LONG,"
-                    + "`queue` INT,"
-                    + "`enabled` BOOLEAN,"
-                    + "PRIMARY KEY (`id`));";
+            String data = "CREATE TABLE IF NOT EXISTS `" + DATA_TABLE + "` (" +
+                    "  `id` INT NOT NULL AUTO_INCREMENT," +
+                    "  `uuid` CHAR(36) NOT NULL," +
+                    "  `name` VARCHAR(16) NOT NULL," +
+                    "  `balance` DOUBLE NOT NULL DEFAULT 0," +
+                    "  `lastlogin` BIGINT(19) UNSIGNED NOT NULL DEFAULT 0," +
+                    "  PRIMARY KEY (`id`)," +
+                    "  UNIQUE INDEX `uuid_name_UQ` (`uuid` ASC, `name` ASC));";
+            String multiplier = "CREATE TABLE IF NOT EXISTS `" + MULTIPLIERS_TABLE + "` (" +
+                    "  `id` INT NOT NULL AUTO_INCREMENT," +
+                    "  `server` VARCHAR(50) NOT NULL," +
+                    "  `type` CHAR(8) NOT NULL," +
+                    "  `amount` INT NOT NULL," +
+                    "  `minutes` INT NOT NULL," +
+                    "  `start` BIGINT(19) UNSIGNED NOT NULL," +
+                    "  `enabled` TINYINT NOT NULL," +
+                    "  `queue` TINYINT NOT NULL," +
+                    "  `data_id` INT NOT NULL," +
+                    "  PRIMARY KEY (`id`, `data_id`)," +
+                    "  INDEX `fk_coins_multiplier_data_idx` (`data_id` ASC)," +
+                    "  CONSTRAINT `fk_coins_multiplier_coins_data`" +
+                    "    FOREIGN KEY (`data_id`)" +
+                    "    REFERENCES `" + DATA_TABLE + "` (`id`));";
             st.executeUpdate(data);
             st.executeUpdate(multiplier);
             if (plugin.getConfig().getInt("Database Version", 1) < 2) {
-                try {
-                    if (c.prepareStatement("SELECT * FROM " + prefix + "Data;").executeQuery().next() && !c.prepareStatement("SELECT * FROM " + DATA_TABLE + ";").executeQuery().next()) {
+                try (PreparedStatement ps = c.prepareStatement("SELECT uuid,nick,balance,lastlogin FROM " + prefix + "Data;"); ResultSet res = ps.executeQuery()) {
+                    if (res.next() && !c.prepareStatement("SELECT id FROM " + DATA_TABLE + " LIMIT 1;").executeQuery().next()) {
+                        res.previous(); // we used next to verify that this result set isn't empty
                         plugin.log("Seems that your database is outdated, we'll try to update it...");
-                        ResultSet res = c.prepareStatement("SELECT * FROM " + prefix + "Data;").executeQuery();
-                        while (res.next()) {
+                        int migrated = 0;
+                        while (res.next()) { // start migrating data
                             DatabaseUtils.prepareStatement(c, SQLQuery.CREATE_USER, res.getString("uuid"), res.getString("nick"), res.getDouble("balance"), res.getLong("lastlogin")).executeUpdate();
-                            plugin.debug("Migrated the data for " + res.getString("name") + " (" + res.getString("uuid") + ")");
+                            plugin.debug("Migrated the data for " + res.getString("nick") + " (" + res.getString("uuid") + ")");
+                            migrated++;
                         }
+                        plugin.log("Migrated " + migrated + " accounts!");
                         plugin.log("Successfully updated database to version 2");
                     }
                     ((CommonCoinsPlugin) CoinsAPI.getPlugin()).getFileManager().updateDatabaseVersion(2);
@@ -132,7 +141,7 @@ public final class MySQL extends SQLDatabase {
                 }
             }
             if (plugin.getConfig().getBoolean("General.Purge.Enabled", true) && plugin.getConfig().getInt("General.Purge.Days") > 0) {
-                st.executeUpdate("DELETE FROM " + DATA_TABLE + " WHERE lastlogin < " + (System.currentTimeMillis() - (plugin.getConfig().getInt("General.Purge.Days", 60) * 86400000L)) + ";");
+                st.executeUpdate("DELETE FROM " + DATA_TABLE + " WHERE lastlogin < " + (System.currentTimeMillis() - TimeUnit.DAYS.toMillis(plugin.getConfig().getInt("General.Purge.Days", 60))) + ";");
                 plugin.debug("Inactive users were removed from the database.");
             }
         } catch (SQLException ex) {

@@ -51,7 +51,7 @@ public class CoinsBukkitMain extends JavaPlugin implements CoinsBootstrap {
 
     @Override
     public void onLoad() {
-        plugin = new CoinsBukkitPlugin(this, new BukkitConfig(null));
+        plugin = new CoinsBukkitPlugin(this, new BukkitConfig(getConfig(), null));
         plugin.load();
     }
 
@@ -84,6 +84,16 @@ public class CoinsBukkitMain extends JavaPlugin implements CoinsBootstrap {
     @Override
     public void runSync(Runnable rn) {
         Bukkit.getScheduler().runTask(this, rn);
+    }
+
+    @Override
+    public void schedule(Runnable rn, long interval) {
+        Bukkit.getScheduler().runTaskTimer(this, rn, 0, interval);
+    }
+
+    @Override
+    public void scheduleAsync(Runnable rn, long interval) {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, rn, 0, interval);
     }
 
     @Override

@@ -18,18 +18,25 @@
  */
 package com.github.beelzebu.coins.common.utils;
 
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.api.utils.StringUtils;
+import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Queue;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
@@ -41,14 +48,18 @@ import lombok.Getter;
 @Getter
 public class FileManager {
 
-    private final CoinsPlugin plugin;
+    private final CommonCoinsPlugin plugin;
     private final File messagesFolder;
     private final File logsFolder;
     private final File configFile;
     private final Map<String, File> messagesFiles = new HashMap<>();
     private final int configVersion = 16;
+    private final Queue<String> logQueue = new LinkedList<>();
+    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
+    private final File logFile;
+    private final ReadWriteLock rwl = new ReentrantReadWriteLock();
 
-    public FileManager(CoinsPlugin plugin) {
+    public FileManager(CommonCoinsPlugin plugin) {
         this.plugin = plugin;
         messagesFolder = new File(plugin.getBootstrap().getDataFolder(), "messages");
         logsFolder = new File(plugin.getBootstrap().getDataFolder(), "logs");
@@ -59,9 +70,10 @@ public class FileManager {
         messagesFiles.put("cz", new File(messagesFolder, "messages_cz.yml"));
         messagesFiles.put("hu", new File(messagesFolder, "messages_hu.yml"));
         messagesFiles.put("ru", new File(messagesFolder, "messages_ru.yml"));
+        logFile = new File(plugin.getBootstrap().getDataFolder(), "/logs/latest.log");
     }
 
-    public void copyFiles() throws IOException {
+    public void onLoad() throws IOException {
         if (plugin.getConfig() != null && plugin.getConfig().isDebugFile() && !logsFolder.exists()) {
             logsFolder.mkdirs();
         } else {
@@ -105,10 +117,35 @@ public class FileManager {
         }
     }
 
-    public void updateFiles() {
+    public void onEnable() {
         updateConfig();
         checkLogs();
         messagesFiles.clear();
+        // write to log files async
+        String logFormat = "[%time] %msg";
+        plugin.getBootstrap().scheduleAsync(() -> {
+            try {
+                rwl.writeLock().lock();
+                String line;
+                while ((line = logQueue.poll()) != null) {
+                    if (!logFile.exists()) {
+                        try {
+                            logFile.createNewFile();
+                        } catch (IOException ex) {
+                            Logger.getLogger(FileManager.class.getName()).log(Level.SEVERE, "Can''t create log file", ex);
+                        }
+                    }
+                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile, true))) {
+                        writer.write(logFormat.replace("%time", simpleDateFormat.format(System.currentTimeMillis())).replace("%msg", line));
+                        writer.newLine();
+                    } catch (IOException ex) {
+                        Logger.getLogger(FileManager.class.getName()).log(Level.WARNING, "Can''t save the debug to the file", ex);
+                    }
+                }
+            } finally {
+                rwl.writeLock().unlock();
+            }
+        }, 1);
     }
 
     public void updateDatabaseVersion(int version) {
@@ -124,6 +161,13 @@ public class FileManager {
                 plugin.debug(ex.getMessage());
             }
         }
+    }
+
+    public void logToFile(Object msg) {
+        if (!plugin.isLogEnabled()) {
+            return;
+        }
+        logQueue.add(StringUtils.removeColor(msg.toString()));
     }
 
     private void updateConfig() {

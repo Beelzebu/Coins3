@@ -32,9 +32,9 @@ public class BukkitConfig extends CoinsConfig {
 
     private final FileConfiguration config;
 
-    public BukkitConfig(File file) {
+    public BukkitConfig(FileConfiguration config, File file) {
         super(file);
-        config = CoinsBukkitMain.getProvidingPlugin(CoinsBukkitMain.class).getConfig();
+        this.config = config;
         reload();
     }
 

@@ -69,20 +69,22 @@ public final class SQLite extends SQLDatabase {
             String data
                     = "CREATE TABLE IF NOT EXISTS `" + DATA_TABLE + "`"
                     + "(`id` INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + "`uuid` VARCHAR(50),"
-                    + "`name` VARCHAR(50),"
+                    + "`uuid` CHAR,"
+                    + "`name` VARCHAR,"
                     + "`balance` DOUBLE,"
-                    + "`lastlogin` LONG);";
+                    + "`lastlogin` LONG);" +
+                    "CREATE UNIQUE INDEX IF NOT EXISTS `uuid_name_UQ` ON `" + DATA_TABLE + "` (`uuid`, `name`);";
             String multiplier = "CREATE TABLE IF NOT EXISTS `" + MULTIPLIERS_TABLE + "`"
                     + "(`id` INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + "`server` VARCHAR(50),"
-                    + "`uuid` VARCHAR(50),"
-                    + "`type` VARCHAR(20),"
+                    + "`server` VARCHAR"
+                    + "`type` VARCHAR,"
                     + "`amount` INTEGER,"
                     + "`minutes` INTEGER,"
-                    + "`endtime` LONG,"
-                    + "`queue` INT,"
-                    + "`enabled` BOOLEAN);";
+                    + "`start` LONG,"
+                    + "`queue` BOOLEAN,"
+                    + "`enabled` BOOLEAN,"
+                    + "`data_id` INTEGER," +
+                    " FOREIGN KEY(data_id) REFERENCES " + DATA_TABLE + "(id));";
             st.executeUpdate(data);
             st.executeUpdate(multiplier);
             if (plugin.getConfig().getInt("Database Version", 1) < 2) {

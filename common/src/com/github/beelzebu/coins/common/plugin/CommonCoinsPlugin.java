@@ -45,16 +45,13 @@ import com.github.beelzebu.coins.common.storage.SQLite;
 import com.github.beelzebu.coins.common.utils.FileManager;
 import com.github.beelzebu.coins.common.utils.RedisManager;
 import com.google.gson.Gson;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
 import java.nio.file.Files;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -64,8 +61,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
@@ -75,7 +70,6 @@ import net.md_5.bungee.api.ChatColor;
  */
 public class CommonCoinsPlugin implements CoinsPlugin {
 
-    @Getter
     private final CoinsConfig config;
     @Getter
     private final FileManager fileManager;
@@ -90,7 +84,6 @@ public class CommonCoinsPlugin implements CoinsPlugin {
     @Setter
     private AbstractMessagingService messagingService;
     private boolean logEnabled = false;
-    @Setter
     private StorageType storageType;
     @Setter
     private StorageProvider storageProvider;
@@ -111,7 +104,7 @@ public class CommonCoinsPlugin implements CoinsPlugin {
     @Override
     public void load() {
         try {
-            fileManager.copyFiles();
+            fileManager.onLoad();
         } catch (IOException ex) {
             log("An exception has occurred copying default files.");
             debug(ex);
@@ -122,7 +115,7 @@ public class CommonCoinsPlugin implements CoinsPlugin {
     public void enable() { // now the plugin is enabled and we can read config files
         Arrays.asList(Objects.requireNonNull(fileManager.getMessagesFolder().listFiles())).forEach(file -> messagesMap.put((file.getName().split("_").length == 2 ? file.getName().split("_")[1] : "default").split(".yml")[0], bootstrap.getFileAsConfig(file)));
         // update files before we read something
-        fileManager.updateFiles();
+        fileManager.onEnable();
         logEnabled = getConfig().isDebugFile();
         // identify storage, messaging service and cache types and load dependencies
         storageType = getConfig().getStorageType();
@@ -213,6 +206,15 @@ public class CommonCoinsPlugin implements CoinsPlugin {
     }
 
     @Override
+    public void setStorageType(StorageType storageType) {
+        if (!Objects.equals(storageType, this.storageType)) {
+            storageProvider = null;
+            this.storageType = storageType;
+            getStorageProvider().setup();
+        }
+    }
+
+    @Override
     public final void loadExecutors() {
         AbstractConfigFile executorsConfig = bootstrap.getFileAsConfig(new File(bootstrap.getDataFolder(), "executors.yml"));
         executorsConfig.getConfigurationSection("Executors").forEach(id -> ExecutorManager.addExecutor(new Executor(id, executorsConfig.getString("Executors." + id + ".Displayname", id), executorsConfig.getDouble("Executors." + id + ".Cost", 0), executorsConfig.getStringList("Executors." + id + ".Command"))));
@@ -220,16 +222,16 @@ public class CommonCoinsPlugin implements CoinsPlugin {
 
     @Override
     public final void log(String message, Object... replace) {
-        bootstrap.log(String.format(message, replace));
-        logToFile(message);
+        bootstrap.log(message);
+        fileManager.logToFile(message);
     }
 
     @Override
     public final void debug(String message, Object... replace) {
         if (getConfig().isDebug()) {
-            bootstrap.sendMessage(bootstrap.getConsole(), StringUtils.rep("&8[&cCoins&8] &cDebug: &7" + String.format(message, replace)));
+            bootstrap.sendMessage(bootstrap.getConsole(), StringUtils.rep("&8[&cCoins&8] &cDebug: &7" + message));
         }
-        logToFile(message);
+        fileManager.logToFile(message);
     }
 
     @Override
@@ -280,6 +282,11 @@ public class CommonCoinsPlugin implements CoinsPlugin {
     }
 
     @Override
+    public CoinsConfig getConfig() {
+        return config;
+    }
+
+    @Override
     public final AbstractConfigFile getMessages(String locale) {
         return Optional.ofNullable(messagesMap.get(locale.split("_")[0])).orElse(messagesMap.get("default"));
     }
@@ -309,6 +316,10 @@ public class CommonCoinsPlugin implements CoinsPlugin {
         return ChatColor.stripColor(string);
     }
 
+    public boolean isLogEnabled() {
+        return logEnabled;
+    }
+
     private void motd(boolean enable) {
         bootstrap.sendMessage(bootstrap.getConsole(), StringUtils.rep(""));
         bootstrap.sendMessage(bootstrap.getConsole(), StringUtils.rep("&6-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"));
@@ -325,7 +336,7 @@ public class CommonCoinsPlugin implements CoinsPlugin {
         bootstrap.sendMessage(bootstrap.getConsole(), StringUtils.rep(""));
         // Only send this in the onEnable
         if (enable) {
-            logToFile("Enabled Coins v: " + bootstrap.getVersion());
+            fileManager.logToFile("Enabled Coins v: " + bootstrap.getVersion());
             debug("Debug mode is enabled.");
             if (!logEnabled) {
                 debug("Logging to file is disabled, all debug messages will be sent to the console.");
@@ -352,26 +363,6 @@ public class CommonCoinsPlugin implements CoinsPlugin {
         }
     }
 
-    private void logToFile(Object msg) {
-        if (!logEnabled) {
-            return;
-        }
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-        File log = new File(bootstrap.getDataFolder(), "/logs/latest.log");
-        if (!log.exists()) {
-            try {
-                log.createNewFile();
-            } catch (IOException ex) {
-                Logger.getLogger(CoinsPlugin.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(log, true))) {
-            writer.write("[" + sdf.format(System.currentTimeMillis()) + "] " + StringUtils.removeColor(msg.toString()));
-            writer.newLine();
-        } catch (IOException ex) {
-            Logger.getLogger(CoinsPlugin.class.getName()).log(Level.WARNING, "Can''t save the debug to the file", ex);
-        }
-    }
 
     private String getFromURL(String surl) {
         String response = null;

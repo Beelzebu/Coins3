@@ -98,7 +98,7 @@ public class CommandManager {
     @SuppressWarnings("unchecked")
     private Map<String, Command> getKnownCommandsMap() {
         try {
-            return (Map<String, Command>) getPrivateField(getCommandMap(), "knownCommands", CompatUtils.is113orHigher());
+            return (Map<String, Command>) getPrivateField(getCommandMap(), "knownCommands", CompatUtils.VERSION.isAfterOrEq(CompatUtils.MinecraftVersion.MINECRAFT_1_13));
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
             return new HashMap<>();

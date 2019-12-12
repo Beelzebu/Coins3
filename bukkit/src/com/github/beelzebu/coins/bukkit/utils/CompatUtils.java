@@ -20,6 +20,7 @@ package com.github.beelzebu.coins.bukkit.utils;
 
 import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.bukkit.CoinsBukkitMain;
+import java.lang.reflect.Method;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
@@ -28,7 +29,6 @@ import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
@@ -43,37 +43,68 @@ import org.bukkit.potion.PotionType;
 @SuppressWarnings("deprecation")
 public final class CompatUtils {
 
+    public enum MinecraftVersion {
+        MINECRAFT_1_8(1),
+        MINECRAFT_1_9(2),
+        MINECRAFT_1_10(3),
+        MINECRAFT_1_11(4),
+        MINECRAFT_1_12(5),
+        MINECRAFT_1_13(6),
+        MINECRAFT_1_14(7);
+
+        private final int id;
+
+        MinecraftVersion(int id) {
+            this.id = id;
+        }
+
+        public boolean isAfterOrEq(MinecraftVersion another) {
+            return id >= another.id;
+        }
+    }
+
+    public static MinecraftVersion VERSION;
     private static final Map<MaterialItem, ItemStack> materials = new EnumMap<>(MaterialItem.class);
-    private static boolean is1_8 = false;
-    private static boolean is1_13 = false;
+    private static Method localeMethod;
 
     public static void setup() {
         CoinsAPI.getPlugin().log("Detected " + getRawVersion() + " server version.");
-        if (is18()) {
-            CoinsAPI.getPlugin().log("Enabled compat mode for 1.8");
-            is1_8 = true;
-        } else if (is113orHigher()) {
-            is1_13 = true;
+        switch (getMinorVersion()) {
+            case 8:
+                VERSION = MinecraftVersion.MINECRAFT_1_8;
+            case 9:
+                VERSION = MinecraftVersion.MINECRAFT_1_9;
+            case 10:
+                VERSION = MinecraftVersion.MINECRAFT_1_10;
+            case 11:
+                VERSION = MinecraftVersion.MINECRAFT_1_11;
+            case 12:
+                VERSION = MinecraftVersion.MINECRAFT_1_12;
+            case 13:
+                VERSION = MinecraftVersion.MINECRAFT_1_13;
+            case 14:
+                VERSION = MinecraftVersion.MINECRAFT_1_14;
         }
+
     }
 
     public static ItemStack getItem(MaterialItem materialItem) {
         return materials.computeIfAbsent(materialItem, mi -> {
             switch (materialItem) {
                 case MAGENTA_STAINED_GLASS_PANE:
-                    if (is1_13) {
+                    if (VERSION.isAfterOrEq(MinecraftVersion.MINECRAFT_1_13)) {
                         return new ItemStack(Material.MAGENTA_STAINED_GLASS_PANE);
                     } else {
                         return new ItemStack(Material.valueOf("STAINED_GLASS_PANE"), 1, (short) 2);
                     }
                 case GREEN_STAINED_GLASS:
-                    if (is1_13) {
+                    if (VERSION.isAfterOrEq(MinecraftVersion.MINECRAFT_1_13)) {
                         return new ItemStack(Material.GREEN_STAINED_GLASS);
                     } else {
                         return new ItemStack(Material.valueOf("STAINED_GLASS"), 1, (short) 13);
                     }
                 case RED_STAINED_GLASS:
-                    if (is1_13) {
+                    if (VERSION.isAfterOrEq(MinecraftVersion.MINECRAFT_1_13)) {
                         return new ItemStack(Material.RED_STAINED_GLASS);
                     } else {
                         return new ItemStack(Material.valueOf("STAINED_GLASS"), 1, (short) 14);
@@ -85,15 +116,27 @@ public final class CompatUtils {
     }
 
     public static String getLocale(Player player) {
-        if (is1_8) {
-            return player.spigot().getLocale();
-        } else { // this doesn't exists in 1.8
+        if (VERSION.isAfterOrEq(MinecraftVersion.MINECRAFT_1_12)) {
             return player.getLocale();
+        } else { // this doesn't exists in 1.8
+            if (localeMethod != null) {
+                try {
+                    return (String) localeMethod.invoke(player);
+                } catch (ReflectiveOperationException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                return (String) (localeMethod = Player.Spigot.class.getMethod("getLocale")).invoke(player);
+            } catch (ReflectiveOperationException e) {
+                e.printStackTrace();
+            }
         }
+        return "en";
     }
 
     public static void setPotionType(PotionMeta meta, PotionType type) {
-        if (is1_13) {
+        if (VERSION.isAfterOrEq(MinecraftVersion.MINECRAFT_1_13)) {
             meta.setBasePotionData(new PotionData(type));
         } else {
             if (type.getEffectType() != null) {
@@ -103,7 +146,7 @@ public final class CompatUtils {
     }
 
     public static Enchantment getEnchantment(@NonNull String string) {
-        if (is1_13) {
+        if (VERSION.isAfterOrEq(MinecraftVersion.MINECRAFT_1_13)) {
             Optional<Enchantment> enchantmentOptional = Stream.of(Enchantment.values()).filter(enchantment -> enchantment.getKey().getKey().equalsIgnoreCase(string)).findFirst();
             if (enchantmentOptional.isPresent()) {
                 return enchantmentOptional.get();
@@ -117,35 +160,20 @@ public final class CompatUtils {
     }
 
     public static ItemStack setDamage(ItemStack itemStack, int damage) {
-        if (is1_13) {
+        if (VERSION.isAfterOrEq(MinecraftVersion.MINECRAFT_1_13)) {
             if (itemStack.getItemMeta() instanceof Damageable) {
                 Damageable meta = (Damageable) itemStack.getItemMeta();
                 meta.setDamage(damage);
                 itemStack.setItemMeta((ItemMeta) meta);
             }
-            return itemStack;
         } else {
             itemStack.setDurability((short) damage);
-            return itemStack;
         }
+        return itemStack;
     }
 
     public enum MaterialItem {
         MAGENTA_STAINED_GLASS_PANE, GREEN_STAINED_GLASS, RED_STAINED_GLASS
-    }
-
-    private static boolean is18() {
-        try {
-            ArmorStand.class.getMethod("setCollidable", boolean.class);
-            return false;
-        } catch (ReflectiveOperationException ex) {
-            ex.printStackTrace();
-            return true;
-        }
-    }
-
-    public static boolean is113orHigher() {
-        return getMinorVersion() > 13;
     }
 
     private static String getRawVersion() {

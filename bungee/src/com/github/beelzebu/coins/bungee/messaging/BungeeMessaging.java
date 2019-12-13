@@ -37,8 +37,6 @@ import net.md_5.bungee.event.EventHandler;
  */
 public final class BungeeMessaging extends ProxyMessaging implements Listener {
 
-    // TODO: handle multiplier changes
-
     @EventHandler
     public void onMessageReceive(PluginMessageEvent e) {
         if (!e.getTag().equals(CHANNEL)) {
@@ -50,11 +48,6 @@ public final class BungeeMessaging extends ProxyMessaging implements Listener {
         ByteArrayDataInput in = ByteStreams.newDataInput(e.getData());
         JsonObject data = CoinsAPI.getPlugin().getGson().fromJson(in.readUTF(), JsonObject.class);
         handleMessage(data);
-    }
-
-    @Override
-    protected void sendMessage(JsonObject message) {
-        sendMessage(message.toString(), message.get("type").getAsString().equalsIgnoreCase("USER_UPDATE"));
     }
 
     @Override

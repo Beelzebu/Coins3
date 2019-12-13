@@ -77,11 +77,6 @@ public final class BukkitMessaging extends ProxyMessaging implements PluginMessa
     }
 
     @Override
-    protected void sendMessage(JsonObject message) {
-        sendMessage(message.toString(), false);
-    }
-
-    @Override
     public void start() {
         Bukkit.getMessenger().registerOutgoingPluginChannel((Plugin) CoinsAPI.getPlugin().getBootstrap(), CHANNEL);
         Bukkit.getMessenger().registerIncomingPluginChannel((Plugin) CoinsAPI.getPlugin().getBootstrap(), CHANNEL, this);

@@ -122,7 +122,7 @@ public final class RedisCache implements CacheProvider {
     @Override
     public void addMultiplier(Multiplier multiplier) {
         try (Jedis jedis = redisManager.getPool().getResource()) {
-            jedis.setex(MULTIPLIER_KEY + multiplier.getId(), multiplier.getData().getMinutes() * 60, multiplier.toJson().toString());
+            jedis.setex(MULTIPLIER_KEY + multiplier.getId(), (int) TimeUnit.MINUTES.toSeconds(multiplier.getData().getMinutes()), multiplier.toJson().toString());
         } catch (JedisException ex) {
             plugin.log("An error has occurred adding multiplier '" + multiplier.toJson() + "' to cache.");
             plugin.debug(ex);
@@ -135,20 +135,6 @@ public final class RedisCache implements CacheProvider {
             jedis.del(MULTIPLIER_KEY + id);
         } catch (JedisException ex) {
             plugin.log("An error has occurred removing multiplier with id '" + id + "' from cache.");
-            plugin.debug(ex);
-        }
-    }
-
-    @Override
-    public void updateMultiplier(Multiplier multiplier, boolean callenable) {
-        Objects.requireNonNull(multiplier, "Multiplier can't be null");
-        if (callenable) {
-            multiplier.enable();
-        }
-        try (Jedis jedis = redisManager.getPool().getResource()) {
-            jedis.setex(MULTIPLIER_KEY + multiplier.getServer(), (int) TimeUnit.MINUTES.toSeconds(multiplier.getData().getMinutes()), multiplier.toJson().toString());
-        } catch (JedisException ex) {
-            plugin.log("An error has occurred updating multiplier '" + multiplier.toJson() + "' in the cache.");
             plugin.debug(ex);
         }
     }

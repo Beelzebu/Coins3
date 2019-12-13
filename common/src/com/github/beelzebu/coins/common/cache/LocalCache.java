@@ -167,17 +167,6 @@ public final class LocalCache implements CacheProvider {
     }
 
     @Override
-    public void updateMultiplier(Multiplier multiplier, boolean callenable) {
-        Objects.requireNonNull(multiplier, "Multiplier can't be null");
-        if (callenable) {
-            multiplier.enable();
-            plugin.getMessagingService().enableMultiplier(multiplier);
-        } else {
-            plugin.getMessagingService().updateMultiplier(multiplier);
-        }
-    }
-
-    @Override
     public Set<Multiplier> getMultipliers() {
         return new HashSet<>(multipliers.asMap().values());
     }

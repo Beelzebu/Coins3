@@ -23,6 +23,7 @@ import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.cache.CacheProvider;
 import com.github.beelzebu.coins.api.cache.CacheType;
 import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.Lists;
@@ -32,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -47,10 +49,17 @@ import java.util.concurrent.TimeUnit;
  */
 public final class LocalCache implements CacheProvider {
 
-    private final CoinsPlugin plugin = CoinsAPI.getPlugin();
+    private final CoinsPlugin plugin;
     private final Cache<UUID, Double> players = Caffeine.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES).build();
     private final Cache<Integer, Multiplier> multipliers = Caffeine.newBuilder().build();
-    private final File multipliersFile = new File(plugin.getBootstrap().getDataFolder(), "multipliers.dat");
+    private final File multipliersFile;
+    private final MultiplierPoller multiplierPoller;
+
+    public LocalCache(CommonCoinsPlugin plugin) {
+        this.plugin = plugin;
+        multipliersFile = new File(plugin.getBootstrap().getDataFolder(), "multipliers.dat");
+        multiplierPoller = new MultiplierPoller(plugin);
+    }
 
     @Override
     public void start() {
@@ -112,7 +121,7 @@ public final class LocalCache implements CacheProvider {
 
     @Override
     public void addMultiplier(Multiplier multiplier) {
-        if (!multiplier.getServer().equals(plugin.getConfig().getServerName())) {
+        if (!multiplier.getServer().equals(plugin.getMultipliersConfig().getServerName())) {
             return;
         }
         // put the multiplier in the cache
@@ -172,12 +181,17 @@ public final class LocalCache implements CacheProvider {
     }
 
     @Override
-    public Set<UUID> getPlayers() {
+    public Collection<UUID> getPlayers() {
         return new HashSet<>(players.asMap().keySet());
     }
 
     @Override
     public CacheType getCacheType() {
         return CacheType.LOCAL;
+    }
+
+    @Override
+    public MultiplierPoller getMultiplierPoller() {
+        return multiplierPoller;
     }
 }

@@ -32,7 +32,6 @@ public class BukkitMessages extends AbstractConfigFile {
     private YamlConfiguration messages;
 
     public BukkitMessages(File file) {
-        super(file);
         messages = YamlConfiguration.loadConfiguration(langFile = file);
     }
 

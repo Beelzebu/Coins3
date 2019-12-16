@@ -23,6 +23,7 @@ import com.github.beelzebu.coins.api.cache.CacheProvider;
 import com.github.beelzebu.coins.api.cache.CacheType;
 import com.github.beelzebu.coins.api.config.AbstractConfigFile;
 import com.github.beelzebu.coins.api.config.CoinsConfig;
+import com.github.beelzebu.coins.api.config.MultipliersConfig;
 import com.github.beelzebu.coins.api.executor.Executor;
 import com.github.beelzebu.coins.api.executor.ExecutorManager;
 import com.github.beelzebu.coins.api.messaging.AbstractMessagingService;
@@ -34,6 +35,7 @@ import com.github.beelzebu.coins.api.storage.StorageType;
 import com.github.beelzebu.coins.api.utils.StringUtils;
 import com.github.beelzebu.coins.common.cache.LocalCache;
 import com.github.beelzebu.coins.common.cache.RedisCache;
+import com.github.beelzebu.coins.common.config.MultipliersConfigImpl;
 import com.github.beelzebu.coins.common.dependency.Dependency;
 import com.github.beelzebu.coins.common.dependency.DependencyManager;
 import com.github.beelzebu.coins.common.dependency.DependencyRegistry;
@@ -71,6 +73,7 @@ import net.md_5.bungee.api.ChatColor;
 public class CommonCoinsPlugin implements CoinsPlugin {
 
     private final CoinsConfig config;
+    private final MultipliersConfig multipliersConfig;
     @Getter
     private final FileManager fileManager;
     @Getter
@@ -96,8 +99,8 @@ public class CommonCoinsPlugin implements CoinsPlugin {
     public CommonCoinsPlugin(CoinsBootstrap bootstrap, CoinsConfig config) {
         this.config = config;
         this.bootstrap = bootstrap;
+        multipliersConfig = new MultipliersConfigImpl(this, bootstrap.getFileAsConfig(new File(bootstrap.getDataFolder(), "multipliers.yml")));
         dependencyManager = new DependencyManager(this, new ReflectionClassLoader(bootstrap), new DependencyRegistry(this));
-        CoinsAPI.setPlugin(this);
         fileManager = new FileManager(this);
     }
 
@@ -125,7 +128,7 @@ public class CommonCoinsPlugin implements CoinsPlugin {
         if (messagingServiceType.equals(MessagingServiceType.REDIS) || cacheType.equals(CacheType.REDIS)) {
             log("Loading JEDIS dependency for redis connections...");
             dependencyManager.loadDependencies(Collections.singleton(Dependency.JEDIS));
-            redisManager = new RedisManager();
+            redisManager = new RedisManager(this);
             redisManager.start();
         }
         // try to migrate from v2 if possible
@@ -140,6 +143,7 @@ public class CommonCoinsPlugin implements CoinsPlugin {
         // now that everything is running we'll get things from other servers
         getMessagingService().requestMultipliers();
         getMessagingService().requestExecutors();
+        CoinsAPI.setPlugin(this);
     }
 
 
@@ -166,12 +170,12 @@ public class CommonCoinsPlugin implements CoinsPlugin {
         }
         switch (messagingServiceType) {
             case BUNGEECORD:
-                return messagingService = bootstrap.getBungeeMessaging();
+                return messagingService = bootstrap.getBungeeMessaging(this);
             case REDIS:
-                return messagingService = new RedisMessaging(redisManager);
+                return messagingService = new RedisMessaging(this, redisManager);
             case NONE:
             default:
-                return messagingService = new DummyMessaging();
+                return messagingService = new DummyMessaging(this);
         }
     }
 
@@ -186,7 +190,7 @@ public class CommonCoinsPlugin implements CoinsPlugin {
             case LOCAL:
             default:
                 dependencyManager.loadDependencies(EnumSet.of(Dependency.CAFFEINE));
-                return cache = new LocalCache();
+                return cache = new LocalCache(this);
         }
     }
 
@@ -287,6 +291,11 @@ public class CommonCoinsPlugin implements CoinsPlugin {
     }
 
     @Override
+    public MultipliersConfig getMultipliersConfig() {
+        return multipliersConfig;
+    }
+
+    @Override
     public final AbstractConfigFile getMessages(String locale) {
         return Optional.ofNullable(messagesMap.get(locale.split("_")[0])).orElse(messagesMap.get("default"));
     }
@@ -304,11 +313,6 @@ public class CommonCoinsPlugin implements CoinsPlugin {
     @Override
     public final void reloadMessages() {
         messagesMap.keySet().forEach(lang -> messagesMap.get(lang).reload());
-    }
-
-    @Override
-    public final String translateColor(String string) {
-        return ChatColor.translateAlternateColorCodes('&', string);
     }
 
     @Override

@@ -18,7 +18,6 @@
  */
 package com.github.beelzebu.coins.bukkit.command;
 
-import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.bukkit.CoinsBukkitPlugin;
 import java.math.BigDecimal;
 import org.bukkit.command.Command;
@@ -28,10 +27,11 @@ import org.bukkit.command.Command;
  */
 public abstract class AbstractCoinsCommand extends Command {
 
-    protected final CoinsBukkitPlugin plugin = (CoinsBukkitPlugin) CoinsAPI.getPlugin();
+    protected final CoinsBukkitPlugin plugin;
 
-    AbstractCoinsCommand(String name) {
+    AbstractCoinsCommand(CoinsBukkitPlugin plugin, String name) {
         super(name);
+        this.plugin = plugin;
     }
 
     protected boolean isNumber(String number) {

@@ -156,6 +156,7 @@ public class FileManager {
                 lines.set(index, "Database Version: " + version);
                 Files.write(configFile.toPath(), lines);
                 plugin.getConfig().reload();
+                plugin.log("Successfully updated database to version " + version);
             } catch (IOException ex) {
                 plugin.log("An unexpected error occurred while updating the config file.");
                 plugin.debug(ex.getMessage());

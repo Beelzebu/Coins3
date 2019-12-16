@@ -26,16 +26,19 @@ import com.github.beelzebu.coins.common.storage.MySQL;
 import com.github.beelzebu.coins.common.storage.SQLite;
 import java.util.Map;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
 
 /**
  * @author Beelzebu
  */
-@RequiredArgsConstructor
 public class ImportManager {
 
-    private final CoinsPlugin plugin = CoinsAPI.getPlugin();
+    private final CoinsPlugin plugin;
     private final Importer importer;
+
+    public ImportManager(CoinsPlugin plugin, Importer importer) {
+        this.plugin = plugin;
+        this.importer = importer;
+    }
 
     public void importFrom(PluginToImport plugin) {
         if (importer != null) {

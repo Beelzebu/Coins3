@@ -18,8 +18,8 @@
  */
 package com.github.beelzebu.coins.bungee.messaging;
 
-import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.messaging.ProxyMessaging;
+import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -37,6 +37,10 @@ import net.md_5.bungee.event.EventHandler;
  */
 public final class BungeeMessaging extends ProxyMessaging implements Listener {
 
+    public BungeeMessaging(CoinsPlugin coinsPlugin) {
+        super(coinsPlugin);
+    }
+
     @EventHandler
     public void onMessageReceive(PluginMessageEvent e) {
         if (!e.getTag().equals(CHANNEL)) {
@@ -46,14 +50,14 @@ public final class BungeeMessaging extends ProxyMessaging implements Listener {
             return;
         }
         ByteArrayDataInput in = ByteStreams.newDataInput(e.getData());
-        JsonObject data = CoinsAPI.getPlugin().getGson().fromJson(in.readUTF(), JsonObject.class);
+        JsonObject data = coinsPlugin.getGson().fromJson(in.readUTF(), JsonObject.class);
         handleMessage(data);
     }
 
     @Override
     public void start() {
         ProxyServer.getInstance().registerChannel(CHANNEL);
-        ProxyServer.getInstance().getPluginManager().registerListener((Plugin) CoinsAPI.getPlugin().getBootstrap(), this);
+        ProxyServer.getInstance().getPluginManager().registerListener((Plugin) coinsPlugin.getBootstrap(), this);
     }
 
     @Override

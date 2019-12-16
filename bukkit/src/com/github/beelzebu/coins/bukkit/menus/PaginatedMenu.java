@@ -100,7 +100,7 @@ public class PaginatedMenu {
             if (contents.size() <= 0) {
                 setItem(22, ItemBuilder.newBuilder(Material.POTION).setDisplayName(plugin.getString("Multipliers.Menu.No Multipliers.Name", CompatUtils.getLocale(player))).setLore(StringUtils.rep(plugin.getMessages(CompatUtils.getLocale(player)).getStringList("Multipliers.Menu.No Multipliers.Lore"))).addItemFlag(ItemFlag.HIDE_POTION_EFFECTS).build());
             } else {
-                for (int i = 0; i <= (contents.size() - 1 < 35 ? contents.size() - 1 : 35); i++) {
+                for (int i = 0; i <= (Math.min(contents.size() - 1, 35)); i++) {
                     Multiplier multiplier = contents.get(start + i);
                     setItem(i, getMultiplier(player, multiplier), p -> new ConfirmMenu(plugin.getString("Multipliers.Menu.Confirm.Title", CompatUtils.getLocale(p)), multiplier).open(p));
                 }

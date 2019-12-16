@@ -20,7 +20,6 @@ package com.github.beelzebu.coins.bungee;
 
 import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.config.AbstractConfigFile;
-import com.github.beelzebu.coins.api.config.CoinsConfig;
 import com.github.beelzebu.coins.api.messaging.ProxyMessaging;
 import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
 import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
@@ -57,7 +56,7 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
 
     @Override
     public void onEnable() {
-        plugin = new CoinsBungeePlugin(this, new BungeeConfig(new File(getDataFolder(), "config.yml")));
+        plugin = new CoinsBungeePlugin(this, config = new BungeeConfig(getPlugin(), new File(getDataFolder(), "config.yml")));
         plugin.load();
         plugin.enable();
     }
@@ -70,11 +69,6 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
     @Override
     public CoinsPlugin getPlugin() {
         return plugin;
-    }
-
-    @Override
-    public CoinsConfig getPluginConfig() {
-        return config;
     }
 
     @Override
@@ -118,8 +112,8 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
     }
 
     @Override
-    public void sendMessage(Object commandsender, String msg) {
-        ((CommandSender) commandsender).sendMessage(TextComponent.fromLegacyText(msg));
+    public void sendMessage(Object commandSender, String msg) {
+        ((CommandSender) commandSender).sendMessage(TextComponent.fromLegacyText(msg));
     }
 
     @Override
@@ -172,7 +166,7 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
     }
 
     @Override
-    public ProxyMessaging getBungeeMessaging() {
-        return messaging == null ? messaging = new BungeeMessaging() : messaging;
+    public ProxyMessaging getBungeeMessaging(CoinsPlugin coinsPlugin) {
+        return messaging == null ? messaging = new BungeeMessaging(coinsPlugin) : messaging;
     }
 }

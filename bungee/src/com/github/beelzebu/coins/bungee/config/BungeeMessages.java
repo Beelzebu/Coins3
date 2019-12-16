@@ -36,7 +36,6 @@ public class BungeeMessages extends AbstractConfigFile {
     private net.md_5.bungee.config.Configuration messages;
 
     public BungeeMessages(File file) {
-        super(file);
         load(langFile = file);
     }
 

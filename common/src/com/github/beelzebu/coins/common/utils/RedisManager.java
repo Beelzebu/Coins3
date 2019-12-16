@@ -18,7 +18,7 @@
  */
 package com.github.beelzebu.coins.common.utils;
 
-import com.github.beelzebu.coins.api.CoinsAPI;
+import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import java.util.Objects;
 import lombok.Getter;
 import redis.clients.jedis.JedisPool;
@@ -32,10 +32,10 @@ public class RedisManager {
     @Getter
     private JedisPool pool;
 
-    public RedisManager() {
-        host = CoinsAPI.getPlugin().getConfig().getString("Redis.Host", "localhost");
-        port = CoinsAPI.getPlugin().getConfig().getInt("Redis.Port", 6379);
-        password = CoinsAPI.getPlugin().getConfig().getString("Redis.Password");
+    public RedisManager(CommonCoinsPlugin commonCoinsPlugin) {
+        host = commonCoinsPlugin.getConfig().getString("Redis.Host", "localhost");
+        port = commonCoinsPlugin.getConfig().getInt("Redis.Port", 6379);
+        password = commonCoinsPlugin.getConfig().getString("Redis.Password");
     }
 
     public void start() {

@@ -43,11 +43,10 @@ Menus:
         - 'player: say I love this server <3'
   Multipliers:
     Global:
-      # If you keep these options in false we will only include global (multipliers that are active in every server)
-      # multipliers in this menu, it doesn't matters if the multiplier is personal, as long the multiplier can be used
-      # in every server that has this plugin installed.
-      Include personal: false # If we should include server-specific personal multipliers
-      Include server: false # If we should include server specific multipliers
+      # Here you can define which multiplier types will be shown in this menu, valid multiplier types:
+      # GLOBAL, SERVER, PERSONAL
+      Types:
+      - 'GLOBAL'
       Multiplier: # Item to represent a multiplier inside the menu
         # As the items above you can set the name and description here or in the messages file
         #Name: '&6Multiplier &cx%amount%'
@@ -71,6 +70,9 @@ Menus:
         Amount: 1
         Damage: 0
     Local:
+      Types:
+      - 'SERVER'
+      - 'PERSONAL'
       Multiplier:
         #Name: '&6Multiplier &cx%amount%'
         #Lore:

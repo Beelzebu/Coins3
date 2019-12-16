@@ -18,10 +18,9 @@
  */
 package com.github.beelzebu.coins.bukkit.command;
 
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.bukkit.CoinsBukkitPlugin;
 import com.github.beelzebu.coins.bukkit.utils.CompatUtils;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -35,17 +34,17 @@ import org.bukkit.plugin.Plugin;
  */
 public class CommandManager {
 
-    private final CoinsPlugin plugin;
+    private final CoinsBukkitPlugin plugin;
     private SimpleCommandMap commandMap;
     private final Command coinsCommand;
     private final Command multiplier;
 
-    public CommandManager(CoinsPlugin plugin) {
+    public CommandManager(CoinsBukkitPlugin plugin) {
         this.plugin = plugin;
-        coinsCommand = new CoinsCommand(plugin.getConfig().getString("General.Command.Coins.Name", "coins")).setDescription(plugin.getConfig().getString("General.Command.Coins.Description", "Base command of the Coins plugin")).setAliases(plugin.getConfig().getStringList("General.Command.Coins.Aliases", new ArrayList<>())).setUsage(plugin.getConfig().getString("General.Command.Coins.Usage", "/coins"));
+        coinsCommand = new CoinsCommand(plugin, plugin.getConfig().getCommand()).setDescription(plugin.getConfig().getCommandDescription()).setAliases(plugin.getConfig().getCommandAliases()).setUsage(plugin.getConfig().getCommandUsage());
         coinsCommand.setPermission(plugin.getConfig().getString("General.Command.Coins.Permission", "coins.use"));
 
-        multiplier = new MultipliersCommand(plugin.getConfig().getString("General.Command.Multiplier.Name", "multiplier")).setDescription(plugin.getConfig().getString("General.Command.Multiplier.Description", "Command to manage coins multipliers")).setAliases(plugin.getConfig().getStringList("General.Command.Multiplier.Aliases", new ArrayList<>())).setUsage(plugin.getConfig().getString("General.Command.Multiplier.Usage", "/multiplier"));
+        multiplier = new MultipliersCommand(plugin, plugin.getMultipliersConfig().getCommand()).setDescription(plugin.getMultipliersConfig().getCommandDescription()).setAliases(plugin.getMultipliersConfig().getCommandAliases()).setUsage(plugin.getMultipliersConfig().getCommandUsage());
         multiplier.setPermission(plugin.getConfig().getString("General.Command.Multiplier.Permission", "coins.multiplier"));
 
     }

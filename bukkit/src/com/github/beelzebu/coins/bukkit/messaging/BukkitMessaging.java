@@ -18,8 +18,8 @@
  */
 package com.github.beelzebu.coins.bukkit.messaging;
 
-import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.messaging.ProxyMessaging;
+import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
@@ -41,13 +41,17 @@ public final class BukkitMessaging extends ProxyMessaging implements PluginMessa
     @Getter
     private final Queue<String> messageQueue = new LinkedList<>();
 
+    public BukkitMessaging(CoinsPlugin coinsPlugin) {
+        super(coinsPlugin);
+    }
+
     @Override
     public void onPluginMessageReceived(String channel, Player player, byte[] message) {
         if (!channel.equals(CHANNEL)) {
             return;
         }
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
-        JsonObject data = CoinsAPI.getPlugin().getGson().fromJson(in.readUTF(), JsonObject.class);
+        JsonObject data = coinsPlugin.getGson().fromJson(in.readUTF(), JsonObject.class);
         handleMessage(data);
     }
 
@@ -59,16 +63,16 @@ public final class BukkitMessaging extends ProxyMessaging implements PluginMessa
             Player p = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
             if (p != null) {
                 try {
-                    p.sendPluginMessage((Plugin) CoinsAPI.getPlugin().getBootstrap(), CHANNEL, out.toByteArray());
+                    p.sendPluginMessage((Plugin) coinsPlugin.getBootstrap(), CHANNEL, out.toByteArray());
                 } catch (Exception ex) {
-                    CoinsAPI.getPlugin().log("Hey, you need to install the plugin in BungeeCord if you have bungeecord enabled in spigot.yml!");
+                    coinsPlugin.log("Hey, you need to install the plugin in BungeeCord if you have bungeecord enabled in spigot.yml!");
                 }
             } else {
-                CoinsAPI.getPlugin().log("Trying to send a message without players, bungee messaging needs at " +
+                coinsPlugin.log("Trying to send a message without players, bungee messaging needs at " +
                         "least one player to send messages the data of this message may be lost or can cause " +
                         "concurrency problems, it is recommended to use redis as messaging service if you are running " +
                         "a network, because it doesn't have this limitation and avoid this kind of problems.");
-                CoinsAPI.getPlugin().log("Message: " + message);
+                coinsPlugin.log("Message: " + message);
                 if (wait) {
                     messageQueue.add(message);
                 }
@@ -78,13 +82,13 @@ public final class BukkitMessaging extends ProxyMessaging implements PluginMessa
 
     @Override
     public void start() {
-        Bukkit.getMessenger().registerOutgoingPluginChannel((Plugin) CoinsAPI.getPlugin().getBootstrap(), CHANNEL);
-        Bukkit.getMessenger().registerIncomingPluginChannel((Plugin) CoinsAPI.getPlugin().getBootstrap(), CHANNEL, this);
+        Bukkit.getMessenger().registerOutgoingPluginChannel((Plugin) coinsPlugin.getBootstrap(), CHANNEL);
+        Bukkit.getMessenger().registerIncomingPluginChannel((Plugin) coinsPlugin.getBootstrap(), CHANNEL, this);
     }
 
     @Override
     public void stop() {
-        Bukkit.getMessenger().unregisterIncomingPluginChannel((Plugin) CoinsAPI.getPlugin().getBootstrap(), CHANNEL, this);
-        Bukkit.getMessenger().unregisterOutgoingPluginChannel((Plugin) CoinsAPI.getPlugin().getBootstrap(), CHANNEL);
+        Bukkit.getMessenger().unregisterIncomingPluginChannel((Plugin) coinsPlugin.getBootstrap(), CHANNEL, this);
+        Bukkit.getMessenger().unregisterOutgoingPluginChannel((Plugin) coinsPlugin.getBootstrap(), CHANNEL);
     }
 }

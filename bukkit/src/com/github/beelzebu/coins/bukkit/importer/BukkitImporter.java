@@ -18,13 +18,14 @@
  */
 package com.github.beelzebu.coins.bukkit.importer;
 
+import com.github.beelzebu.coins.api.CoinsAPI;
+import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.common.importer.Importer;
+import com.github.beelzebu.coins.common.importer.PluginToImport;
 import com.twanl.tokens.commands.Commands;
 import com.twanl.tokens.lib.Lib;
 import com.twanl.tokens.sql.SQLlib;
 import com.twanl.tokens.utils.ConfigManager;
-import com.github.beelzebu.coins.api.CoinsAPI;
-import com.github.beelzebu.coins.common.importer.Importer;
-import com.github.beelzebu.coins.common.importer.PluginToImport;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
@@ -46,7 +47,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 /**
  * @author Beelzebu
  */
-public class BukkitImporter implements Importer {
+public class BukkitImporter extends Importer {
+
+    public BukkitImporter(CoinsPlugin plugin) {
+        super(plugin);
+    }
 
     @Override
     public void importFrom(PluginToImport pluginToImport) {
@@ -67,10 +72,10 @@ public class BukkitImporter implements Importer {
 
     private void importFromPlayerPoints() {
         if (Bukkit.getPluginManager().getPlugin("PlayerPoints") == null) {
-            Importer.plugin.log("Seems that PlayerPoints is not installed in this server, you need to have this plugin installed to start the migration, you can remove it when it is finished.");
+            plugin.log("Seems that PlayerPoints is not installed in this server, you need to have this plugin installed to start the migration, you can remove it when it is finished.");
             return;
         }
-        Importer.plugin.log("Starting the migration of playerpoints data to coins, this may take a moment.");
+        plugin.log("Starting the migration of playerpoints data to coins, this may take a moment.");
         FileConfiguration ppConfig = JavaPlugin.getPlugin(PlayerPoints.class).getConfig();
         String storageType = ppConfig.getString("storage");
         switch (storageType.toUpperCase()) {
@@ -97,16 +102,16 @@ public class BukkitImporter implements Importer {
                                 double balance = res.getInt("points");
                                 migrate(uuid, "unknown_from_pp", balance);
                             } catch (SQLException ex) {
-                                Importer.plugin.log("An error has occurred while migrating the data for: " + res.getString("playername"));
-                                Importer.plugin.debug(ex);
+                                plugin.log("An error has occurred while migrating the data for: " + res.getString("playername"));
+                                plugin.debug(ex);
                             }
                         }
                     } catch (SQLException ex) {
-                        Importer.plugin.log("An error has occurred while migrating the data from PlayerPoints");
-                        Importer.plugin.debug(ex);
+                        plugin.log("An error has occurred while migrating the data from PlayerPoints");
+                        plugin.debug(ex);
                     }
                 } catch (ReflectiveOperationException ex) {
-                    Importer.plugin.log(Importer.plugin.getStackTrace(ex));
+                    plugin.log(plugin.getStackTrace(ex));
                 }
                 break;
             case "MYSQL":
@@ -122,38 +127,38 @@ public class BukkitImporter implements Importer {
                                 double balance = res.getInt("points");
                                 migrate(uuid, "unknown_from_pp", balance);
                             } catch (SQLException ex) {
-                                Importer.plugin.log("An error has occurred while migrating the data for: " + res.getString("playername"));
-                                Importer.plugin.debug(ex);
+                                plugin.log("An error has occurred while migrating the data for: " + res.getString("playername"));
+                                plugin.debug(ex);
                             }
                         }
                     } catch (SQLException ex) {
-                        Importer.plugin.log("An error has occurred while migrating the data from PlayerPoints");
-                        Importer.plugin.debug(ex);
+                        plugin.log("An error has occurred while migrating the data from PlayerPoints");
+                        plugin.debug(ex);
                     }
                 } catch (ReflectiveOperationException ex) {
-                    Importer.plugin.log(Importer.plugin.getStackTrace(ex));
+                    plugin.log(plugin.getStackTrace(ex));
                 }
                 break;
         }
-        Importer.plugin.log("The migration was completed, check the plugin logs for more information.");
+        plugin.log("The migration was completed, check the plugin logs for more information.");
     }
 
     private void importFromDKCoins() {
         if (Bukkit.getPluginManager().getPlugin("DKCoins") == null) {
-            Importer.plugin.log("Seems that DKCoins is not installed in this server, you need to have this plugin installed to start the migration, you can remove it when it is finished.");
+            plugin.log("Seems that DKCoins is not installed in this server, you need to have this plugin installed to start the migration, you can remove it when it is finished.");
             return;
         }
-        Importer.plugin.log("Starting the migration of DKCoins data to coins, this may take a moment.");
+        plugin.log("Starting the migration of DKCoins data to coins, this may take a moment.");
         ch.dkrieger.coinsystem.core.CoinSystem.getInstance().getPlayerManager().getPlayers().stream().filter(coinPlayer -> coinPlayer != null && coinPlayer.getUUID() != null && coinPlayer.getName() != null).forEach(coinPlayer -> migrate(coinPlayer.getUUID(), coinPlayer.getName(), coinPlayer.getCoins()));
-        Importer.plugin.log("The migration was completed, check the plugin logs for more information.");
+        plugin.log("The migration was completed, check the plugin logs for more information.");
     }
 
     private void importFromTokensEconomy() {
         if (Bukkit.getPluginManager().getPlugin("Tokens") == null) {
-            Importer.plugin.log("Seems that Tokens is not installed in this server, you need to have this plugin installed to start the migration, you can remove it when it is finished.");
+            plugin.log("Seems that Tokens is not installed in this server, you need to have this plugin installed to start the migration, you can remove it when it is finished.");
             return;
         }
-        Importer.plugin.log("Starting the migration of Tokens data to coins, this may take a moment.");
+        plugin.log("Starting the migration of Tokens data to coins, this may take a moment.");
         ConfigManager configManager = new ConfigManager();
         SQLlib sqLlib = new SQLlib();
         Lib lib = new Lib();
@@ -162,7 +167,7 @@ public class BukkitImporter implements Importer {
                 sqLlib.getAllRowstoHashMap();
                 Commands.map.forEach((uuid, integer) -> migrate(uuid, "unknown_from_te", integer));
             } catch (Exception ex) {
-                Importer.plugin.debug(ex);
+                plugin.debug(ex);
             }
         } else {
             configManager.getPlayers().getKeys(false).stream().map(key -> {
@@ -173,7 +178,7 @@ public class BukkitImporter implements Importer {
                 }
             }).filter(Objects::nonNull).forEach(uuid -> migrate(uuid, "unknown_from_te", configManager.getPlayers().getInt(uuid + ".tokens")));
         }
-        Importer.plugin.log("The migration was completed, check the plugin logs for more information.");
+        plugin.log("The migration was completed, check the plugin logs for more information.");
     }
 
     private void migrate(UUID uuid, String name, Number balance) {
@@ -185,10 +190,10 @@ public class BukkitImporter implements Importer {
             } else {
                 CoinsAPI.createPlayer(name, uuid, balance.doubleValue());
             }
-            Importer.plugin.debug("Migrated the data for: '" + uuid + "' (" + name + ")");
+            plugin.debug("Migrated the data for: '" + uuid + "' (" + name + ")");
         } catch (Exception ex) {
-            Importer.plugin.log("There is an error migrating data for: '" + uuid + "' (" + name + "), check logs for more information.");
-            Importer.plugin.debug(ex);
+            plugin.log("There is an error migrating data for: '" + uuid + "' (" + name + "), check logs for more information.");
+            plugin.debug(ex);
         }
     }
 }

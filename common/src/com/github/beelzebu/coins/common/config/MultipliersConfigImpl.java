@@ -16,37 +16,34 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.beelzebu.coins.common.messaging;
+package com.github.beelzebu.coins.common.config;
 
-import com.github.beelzebu.coins.api.messaging.AbstractMessagingService;
-import com.github.beelzebu.coins.api.messaging.MessagingServiceType;
+import com.github.beelzebu.coins.api.config.AbstractConfigFile;
+import com.github.beelzebu.coins.api.config.MultipliersConfig;
 import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
-import com.google.gson.JsonObject;
+import java.util.Set;
 
-/**
- * @author Beelzebu
- */
-public class DummyMessaging extends AbstractMessagingService {
+public class MultipliersConfigImpl extends MultipliersConfig {
 
-    public DummyMessaging(CoinsPlugin coinsPlugin) {
+    private final AbstractConfigFile configFile;
+
+    public MultipliersConfigImpl(CoinsPlugin coinsPlugin, AbstractConfigFile configFile) {
         super(coinsPlugin);
+        this.configFile = configFile;
     }
 
     @Override
-    protected void sendMessage(JsonObject message) {
-        handleMessage(message);
+    public Object get(String path) {
+        return configFile.get(path);
     }
 
     @Override
-    public void start() {
+    public Set<String> getConfigurationSection(String path) {
+        return configFile.getConfigurationSection(path);
     }
 
     @Override
-    public MessagingServiceType getType() {
-        return MessagingServiceType.NONE;
-    }
-
-    @Override
-    public void stop() {
+    public void reload() {
+        configFile.reload();
     }
 }

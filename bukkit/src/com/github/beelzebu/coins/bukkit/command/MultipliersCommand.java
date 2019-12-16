@@ -23,18 +23,21 @@ import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.MultiplierType;
 import com.github.beelzebu.coins.api.config.AbstractConfigFile;
 import com.github.beelzebu.coins.api.utils.UUIDUtil;
+import com.github.beelzebu.coins.bukkit.CoinsBukkitPlugin;
 import com.github.beelzebu.coins.bukkit.menus.CoinsMenu;
 import com.github.beelzebu.coins.bukkit.menus.PaginatedMenu;
 import com.github.beelzebu.coins.bukkit.utils.CompatUtils;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 /**
@@ -44,10 +47,10 @@ public class MultipliersCommand extends AbstractCoinsCommand {
 
     // TODO: update messages files to match new menus
 
-    private final AbstractConfigFile multipliersConfig = plugin.getBootstrap().getFileAsConfig(new File(plugin.getBootstrap().getDataFolder(), "multipliers.yml"));
+    private final AbstractConfigFile multipliersConfig = plugin.getMultipliersConfig();
 
-    MultipliersCommand(String command) {
-        super(command);
+    MultipliersCommand(CoinsBukkitPlugin plugin, String command) {
+        super(plugin, command);
     }
 
     @Override
@@ -80,16 +83,21 @@ public class MultipliersCommand extends AbstractCoinsCommand {
                 case "create":
                     _create(sender, lang, args);
                     break;
-                case "enable": // add a command to enable any multiplier by the ID
+                case "enable": // TODO: add a command to enable any multiplier by the ID
                     break;
-                case "disable":
+                case "disable": // TODO: add a command to disable any multiplier by the ID
                     break;
-                case "edit": // add a command to edit existing multipliers
+                case "edit": // TODO: add a command to edit existing multipliers
                     break;
                 default: {
+                    if (sender instanceof ConsoleCommandSender) {
+                        sender.sendMessage(plugin.getString("Errors.Console", lang));
+                        return;
+                    }
+                    Player player = (Player) sender;
                     String name = args[0];
                     if (CoinsAPI.isindb(name)) {
-                        createMultipliersMenu(true, UUIDUtil.getUniqueId(name), lang);
+                        createMultipliersMenu(true, UUIDUtil.getUniqueId(name), lang).open(player);
                     }
                     break;
                 }
@@ -109,7 +117,7 @@ public class MultipliersCommand extends AbstractCoinsCommand {
             }
             int multiplier = Integer.parseInt(args[2]);
             int minutes = Integer.parseInt(args[3]);
-            String server = args.length == 5 && !args[4].equals("") ? args[4] : plugin.getConfig().getServerName();
+            String server = args.length == 5 && !args[4].equals("") ? args[4] : CoinsAPI.getServerName();
             MultiplierType type = args.length == 6 && args[5] != null && Stream.of(MultiplierType.values()).map(Enum::toString).anyMatch(mtype -> mtype.equalsIgnoreCase(args[5])) ? MultiplierType.valueOf(args[5].toUpperCase()) : MultiplierType.SERVER;
             CoinsAPI.createMultiplier(plugin.getUniqueId(args[1], false), multiplier, minutes, server, type);
             sender.sendMessage(plugin.getString("Multipliers.Created", lang).replaceAll("%player%", args[1]));
@@ -134,12 +142,17 @@ public class MultipliersCommand extends AbstractCoinsCommand {
                     p.closeInventory();
                     String menu = multipliersConfig.getString(section + "." + key + ".Menu");
                     if (menu != null && (Objects.equals(menu.toLowerCase(), "local") || Objects.equals(menu.toLowerCase(), "global"))) {
-                        Collection<Multiplier> multipliers;
+                        Collection<Multiplier> multipliers = CoinsAPI.getMultipliersFor(target);
                         boolean global = menu.toLowerCase().equals("global");
+                        String path = "Menus.Multipliers." + (global ? "Global" : "Local");
+                        Set<MultiplierType> multiplierTypes = multipliersConfig.getStringList(path + ".Types").stream().map(String::toUpperCase).filter(s -> Stream.of(MultiplierType.values()).anyMatch(multiplierType -> multiplierType.toString().equals(s))).map(MultiplierType::valueOf).collect(Collectors.toSet());
                         if (global) {
-                            multipliers = CoinsAPI.getMultipliersFor(target);
+                            multiplierTypes.add(MultiplierType.GLOBAL);
+                            multipliers = multipliers.stream().filter(multiplier -> multiplierTypes.contains(multiplier.getData().getType())).collect(Collectors.toSet());
                         } else {
-                            multipliers = CoinsAPI.getMultipliersFor(target, true);
+                            multiplierTypes.add(MultiplierType.SERVER);
+                            multipliers = CoinsAPI.getMultipliersFor(uuid, CoinsAPI.getServerName());
+                            multipliers = multipliers.stream().filter(multiplier -> multiplierTypes.contains(multiplier.getData().getType())).collect(Collectors.toSet());
                         }
                         PaginatedMenu.createPaginatedGUI(p, global, multipliers, extraTitle).open(p);
                     }
@@ -155,7 +168,8 @@ public class MultipliersCommand extends AbstractCoinsCommand {
             }
 
             private String normalizeCommand(String command) {
-                command = command.split(":")[1];
+                String[] cmdSplit = command.split(":");
+                command = cmdSplit[cmdSplit.length >= 1 ? 1 : 0];
                 while (command.startsWith(" ")) {
                     command = command.replaceFirst(" ", "");
                 }

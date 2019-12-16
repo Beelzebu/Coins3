@@ -27,6 +27,7 @@ import com.github.beelzebu.coins.api.executor.ExecutorManager;
 import com.github.beelzebu.coins.api.storage.StorageType;
 import com.github.beelzebu.coins.api.utils.StringUtils;
 import com.github.beelzebu.coins.bukkit.CoinsBukkitMain;
+import com.github.beelzebu.coins.bukkit.CoinsBukkitPlugin;
 import com.github.beelzebu.coins.bukkit.importer.BukkitImporter;
 import com.github.beelzebu.coins.bukkit.utils.CoinsEconomy;
 import com.github.beelzebu.coins.bukkit.utils.CompatUtils;
@@ -50,8 +51,8 @@ public class CoinsCommand extends AbstractCoinsCommand {
 
     private final DecimalFormat df = new DecimalFormat("#.#");
 
-    CoinsCommand(String command) {
-        super(command);
+    CoinsCommand(CoinsBukkitPlugin plugin, String command) {
+        super(plugin, command);
     }
 
     @Override
@@ -339,7 +340,7 @@ public class CoinsCommand extends AbstractCoinsCommand {
         }
         if (args.length == 2) {
             boolean worked = false;
-            ImportManager importManager = new ImportManager(new BukkitImporter());
+            ImportManager importManager = new ImportManager(plugin, new BukkitImporter(plugin));
             for (PluginToImport pluginToImport : PluginToImport.values()) {
                 if (pluginToImport.toString().equals(args[1].toUpperCase())) {
                     worked = true;
@@ -364,7 +365,7 @@ public class CoinsCommand extends AbstractCoinsCommand {
         }
         if (args.length == 2) {
             boolean worked = false;
-            ImportManager importManager = new ImportManager(new BukkitImporter());
+            ImportManager importManager = new ImportManager(plugin, new BukkitImporter(plugin));
             for (StorageType storage : StorageType.values()) {
                 if (storage.toString().equals(args[1].toUpperCase())) {
                     worked = true;
@@ -404,13 +405,14 @@ public class CoinsCommand extends AbstractCoinsCommand {
     private void about(CommandSender sender) {
         sender.sendMessage(StringUtils.rep("%prefix% Coins plugin by Beelzebu, plugin info:"));
         sender.sendMessage("");
+        sender.sendMessage(StringUtils.rep(" &cAPI Version:&7 " + CoinsAPI.API_VERSION));
         sender.sendMessage(StringUtils.rep(" &cVersion:&7 " + plugin.getBootstrap().getVersion()));
         if (sender.hasPermission("coins.admin.info") || sender.getName().equals("Beelzebu")) {
             sender.sendMessage(StringUtils.rep(" &cExecutors:&7 " + ExecutorManager.getExecutors().size()));
             sender.sendMessage(StringUtils.rep(" &cStorage Type:&7 " + plugin.getStorageProvider().getStorageType()));
             sender.sendMessage(StringUtils.rep(" &cCache Type:&7 " + plugin.getCache().getCacheType()));
             sender.sendMessage(StringUtils.rep(" &cMessaging Service:&7 " + plugin.getMessagingService().getType()));
-            sender.sendMessage(StringUtils.rep(" &cMultipliers in cache:&7 " + plugin.getCache().getMultipliers()));
+            sender.sendMessage(StringUtils.rep(" &cMultipliers in cache:&7 " + plugin.getCache().getMultipliers().size()));
             sender.sendMessage(StringUtils.rep(" &cPlayers in cache:&7 " + plugin.getCache().getPlayers().size()));
             sender.sendMessage("");
         }

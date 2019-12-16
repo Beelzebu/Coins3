@@ -18,8 +18,8 @@
  */
 package com.github.beelzebu.coins.bukkit.utils;
 
-import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.bukkit.CoinsBukkitMain;
+import com.github.beelzebu.coins.bukkit.CoinsBukkitPlugin;
 import java.lang.reflect.Method;
 import java.util.EnumMap;
 import java.util.Map;
@@ -42,6 +42,8 @@ import org.bukkit.potion.PotionType;
  */
 @SuppressWarnings("deprecation")
 public final class CompatUtils {
+
+    private static final CoinsBukkitPlugin PLUGIN = CoinsBukkitMain.getPlugin(CoinsBukkitMain.class).getPlugin();
 
     public enum MinecraftVersion {
         MINECRAFT_1_8(1),
@@ -68,7 +70,7 @@ public final class CompatUtils {
     private static Method localeMethod;
 
     public static void setup() {
-        CoinsAPI.getPlugin().log("Detected " + getRawVersion() + " server version.");
+        PLUGIN.log("Detected " + getRawVersion() + " server version.");
         switch (getMinorVersion()) {
             case 8:
                 VERSION = MinecraftVersion.MINECRAFT_1_8;

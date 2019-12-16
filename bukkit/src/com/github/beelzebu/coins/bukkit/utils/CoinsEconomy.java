@@ -188,7 +188,7 @@ public class CoinsEconomy implements Economy {
     @Override
     @Deprecated
     public EconomyResponse depositPlayer(String string, double d) {
-        CoinsResponse response = CoinsAPI.addCoins(string, d, plugin.getPluginConfig().vaultMultipliers());
+        CoinsResponse response = CoinsAPI.addCoins(string, d, plugin.getPlugin().getConfig().vaultMultipliers());
         if (response.isSuccess()) {
             return new EconomyResponse(d, getBalance(string), ResponseType.SUCCESS, "");
         } else {
@@ -198,7 +198,7 @@ public class CoinsEconomy implements Economy {
 
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer op, double d) {
-        CoinsResponse response = CoinsAPI.addCoins(op.getUniqueId(), d, plugin.getPluginConfig().vaultMultipliers());
+        CoinsResponse response = CoinsAPI.addCoins(op.getUniqueId(), d, plugin.getPlugin().getConfig().vaultMultipliers());
         if (response.isSuccess()) {
             return new EconomyResponse(d, getBalance(op), ResponseType.SUCCESS, "");
         } else {

@@ -23,6 +23,7 @@ import com.github.beelzebu.coins.api.cache.CacheProvider;
 import com.github.beelzebu.coins.api.cache.CacheType;
 import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.common.utils.RedisManager;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,7 +32,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
@@ -40,7 +40,6 @@ import redis.clients.jedis.exceptions.JedisException;
 /**
  * @author Beelzebu
  */
-@RequiredArgsConstructor
 public final class RedisCache implements CacheProvider {
 
     private static final String COINS_KEY = "coins:";
@@ -48,20 +47,29 @@ public final class RedisCache implements CacheProvider {
     private static final int CACHE_SECONDS = 1800;
     private final CoinsPlugin plugin;
     private final RedisManager redisManager;
+    private final MultiplierPoller multiplierPoller;
+
+    public RedisCache(CoinsPlugin coinsPlugin, RedisManager redisManager) {
+        plugin = coinsPlugin;
+        this.redisManager = redisManager;
+        multiplierPoller = new MultiplierPoller(plugin);
+    }
 
     @Override
     public void start() {
         if (plugin.getConfig().isRedisLoadMultipliers()) {
-            plugin.log("Updating all multipliers from database in redis...");
-            long start = System.currentTimeMillis();
-            plugin.getStorageProvider().getMultipliers().forEach(multiplier -> {
-                Optional<Multiplier> optionalMultiplier = getMultiplier(multiplier.getId());
-                if (optionalMultiplier.isPresent() && !Objects.equals(optionalMultiplier.get(), multiplier)) {
-                    addMultiplier(multiplier);
-                }
+            plugin.getBootstrap().runAsync(() -> {
+                plugin.log("Updating all multipliers from database in redis...");
+                long start = System.currentTimeMillis();
+                plugin.getStorageProvider().getMultipliers().forEach(multiplier -> {
+                    Optional<Multiplier> optionalMultiplier = getMultiplier(multiplier.getId());
+                    if (optionalMultiplier.isPresent() && !Objects.equals(optionalMultiplier.get(), multiplier)) {
+                        addMultiplier(multiplier);
+                    }
+                });
+                long end = System.currentTimeMillis();
+                plugin.log("Updated all multipliers in redis. Took " + (start - end) + "ms");
             });
-            long end = System.currentTimeMillis();
-            plugin.log("Updated all multipliers in redis. Took " + (start - end) + "ms");
         }
     }
 
@@ -157,7 +165,7 @@ public final class RedisCache implements CacheProvider {
     }
 
     @Override
-    public Set<UUID> getPlayers() {
+    public Collection<UUID> getPlayers() {
         Set<UUID> players = new HashSet<>();
         try (Jedis jedis = redisManager.getPool().getResource()) {
             String cursor = ScanParams.SCAN_POINTER_START;
@@ -176,6 +184,11 @@ public final class RedisCache implements CacheProvider {
     @Override
     public CacheType getCacheType() {
         return CacheType.REDIS;
+    }
+
+    @Override
+    public MultiplierPoller getMultiplierPoller() {
+        return multiplierPoller;
     }
 
     private OptionalDouble getDouble(String string) {

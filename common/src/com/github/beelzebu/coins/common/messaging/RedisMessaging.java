@@ -18,30 +18,33 @@
  */
 package com.github.beelzebu.coins.common.messaging;
 
-import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.messaging.AbstractMessagingService;
 import com.github.beelzebu.coins.api.messaging.MessagingServiceType;
+import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.common.utils.RedisManager;
 import com.google.gson.JsonObject;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 
 /**
  * @author Beelzebu
  */
-@RequiredArgsConstructor
 public class RedisMessaging extends AbstractMessagingService {
 
     public static final String REDIS_CHANNEL = "coins-messaging";
     private final RedisManager redisManager;
     private PubSubListener psl;
 
+    public RedisMessaging(CoinsPlugin coinsPlugin, RedisManager redisManager) {
+        super(coinsPlugin);
+        this.redisManager = redisManager;
+    }
+
     @Override
     public void publishUser(UUID uuid, double coins) {
-        CoinsAPI.getPlugin().getCache().updatePlayer(uuid, coins);
+        coinsPlugin.getCache().updatePlayer(uuid, coins);
     }
 
     @Override
@@ -53,7 +56,7 @@ public class RedisMessaging extends AbstractMessagingService {
 
     @Override
     public void start() {
-        CoinsAPI.getPlugin().getBootstrap().runAsync(psl = new PubSubListener(new JedisPubSubHandler()));
+        coinsPlugin.getBootstrap().runAsync(psl = new PubSubListener(new JedisPubSubHandler()));
     }
 
     @Override
@@ -78,7 +81,7 @@ public class RedisMessaging extends AbstractMessagingService {
                 try {
                     rsc.subscribe(jpsh, REDIS_CHANNEL);
                 } catch (Exception e) {
-                    CoinsAPI.getPlugin().log("PubSub error, attempting to recover.");
+                    coinsPlugin.log("PubSub error, attempting to recover.");
                     try {
                         jpsh.unsubscribe();
                     } catch (Exception ignore) {
@@ -100,7 +103,7 @@ public class RedisMessaging extends AbstractMessagingService {
 
         @Override
         public void onMessage(String channel, String message) {
-            handleMessage(CoinsAPI.getPlugin().getGson().fromJson(message, JsonObject.class));
+            handleMessage(coinsPlugin.getGson().fromJson(message, JsonObject.class));
         }
     }
 }

@@ -52,7 +52,8 @@ public final class CompatUtils {
         MINECRAFT_1_11(4),
         MINECRAFT_1_12(5),
         MINECRAFT_1_13(6),
-        MINECRAFT_1_14(7);
+        MINECRAFT_1_14(7),
+        MINECRAFT_1_15(8);
 
         private final int id;
 
@@ -86,6 +87,11 @@ public final class CompatUtils {
                 VERSION = MinecraftVersion.MINECRAFT_1_13;
             case 14:
                 VERSION = MinecraftVersion.MINECRAFT_1_14;
+            case 15:
+                VERSION = MinecraftVersion.MINECRAFT_1_15;
+            default:
+                PLUGIN.log("We don't have official support for: " + getRawVersion() + " using support for 1.15");
+                VERSION = MinecraftVersion.MINECRAFT_1_15;
         }
 
     }

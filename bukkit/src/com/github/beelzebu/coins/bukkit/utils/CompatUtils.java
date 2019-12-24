@@ -75,25 +75,33 @@ public final class CompatUtils {
         switch (getMinorVersion()) {
             case 8:
                 VERSION = MinecraftVersion.MINECRAFT_1_8;
+                break;
             case 9:
                 VERSION = MinecraftVersion.MINECRAFT_1_9;
+                break;
             case 10:
                 VERSION = MinecraftVersion.MINECRAFT_1_10;
+                break;
             case 11:
                 VERSION = MinecraftVersion.MINECRAFT_1_11;
+                break;
             case 12:
                 VERSION = MinecraftVersion.MINECRAFT_1_12;
+                break;
             case 13:
                 VERSION = MinecraftVersion.MINECRAFT_1_13;
+                break;
             case 14:
                 VERSION = MinecraftVersion.MINECRAFT_1_14;
+                break;
             case 15:
                 VERSION = MinecraftVersion.MINECRAFT_1_15;
+                break;
             default:
                 PLUGIN.log("We don't have official support for: " + getRawVersion() + " using support for 1.15");
                 VERSION = MinecraftVersion.MINECRAFT_1_15;
+                break;
         }
-
     }
 
     public static ItemStack getItem(MaterialItem materialItem) {

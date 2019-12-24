@@ -30,7 +30,6 @@ import com.github.beelzebu.coins.bukkit.utils.leaderheads.LeaderHeadsHook;
 import com.github.beelzebu.coins.bukkit.utils.placeholders.CoinsPlaceholders;
 import com.github.beelzebu.coins.bukkit.utils.placeholders.MultipliersPlaceholders;
 import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
-import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -60,8 +59,8 @@ public class CoinsBukkitPlugin extends CommonCoinsPlugin {
 
     @Override
     public void enable() {
-        CompatUtils.setup();
         super.enable();
+        CompatUtils.setup();
         hookOptionalDependencies();
         // Create the command
         ((CoinsBukkitMain) getBootstrap()).getCommandManager().registerCommand();
@@ -73,7 +72,7 @@ public class CoinsBukkitPlugin extends CommonCoinsPlugin {
         Bukkit.getPluginManager().registerEvents(new Listener() {
             @EventHandler
             public void onPluginEnable(PluginEnableEvent e) { // keep trying to hook with optional dependencies
-                if (Stream.of("Vault", "PlaceholderAPI", "LeaderHeads").anyMatch(hook -> e.getPlugin().getName().equalsIgnoreCase(hook))) {
+                if (((CoinsBukkitMain) getBootstrap()).getDescription().getSoftDepend().stream().anyMatch(hook -> e.getPlugin().getName().equalsIgnoreCase(hook))) {
                     hookOptionalDependencies();
                 }
             }

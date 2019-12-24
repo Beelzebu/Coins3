@@ -22,13 +22,10 @@ import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.config.AbstractConfigFile;
 import com.github.beelzebu.coins.api.messaging.ProxyMessaging;
 import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.api.utils.StringUtils;
 import com.github.beelzebu.coins.bukkit.command.CommandManager;
 import com.github.beelzebu.coins.bukkit.config.BukkitConfig;
 import com.github.beelzebu.coins.bukkit.config.BukkitMessages;
-import com.github.beelzebu.coins.bukkit.events.CoinsChangeEvent;
-import com.github.beelzebu.coins.bukkit.events.MultiplierEnableEvent;
 import com.github.beelzebu.coins.bukkit.messaging.BukkitMessaging;
 import java.io.File;
 import java.util.ArrayList;
@@ -140,12 +137,14 @@ public class CoinsBukkitMain extends JavaPlugin implements CoinsBootstrap {
 
     @Override
     public void callCoinsChangeEvent(UUID uuid, double oldCoins, double newCoins) {
-        runAsync(() -> Bukkit.getPluginManager().callEvent(new CoinsChangeEvent(uuid, oldCoins, newCoins)));
+        // TODO: re add
+        //runAsync(() -> Bukkit.getPluginManager().callEvent(new CoinsChangeEvent(uuid, oldCoins, newCoins)));
     }
 
     @Override
     public void callMultiplierEnableEvent(Multiplier multiplier) {
-        runAsync(() -> Bukkit.getPluginManager().callEvent(new MultiplierEnableEvent(multiplier)));
+        // TODO: re add
+        //runAsync(() -> Bukkit.getPluginManager().callEvent(new MultiplierEnableEvent(multiplier)));
     }
 
     @Override
@@ -159,7 +158,7 @@ public class CoinsBukkitMain extends JavaPlugin implements CoinsBootstrap {
     }
 
     @Override
-    public ProxyMessaging getBungeeMessaging(CoinsPlugin coinsPlugin) {
-        return messaging == null ? messaging = new BukkitMessaging(coinsPlugin) : messaging;
+    public ProxyMessaging getProxyMessaging() {
+        return messaging == null ? messaging = new BukkitMessaging(plugin) : messaging;
     }
 }

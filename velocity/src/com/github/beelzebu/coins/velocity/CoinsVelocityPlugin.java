@@ -16,19 +16,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.beelzebu.coins.bungee.events;
+package com.github.beelzebu.coins.velocity;
 
-import com.github.beelzebu.coins.api.Multiplier;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import net.md_5.bungee.api.plugin.Event;
+import com.github.beelzebu.coins.api.config.CoinsConfig;
+import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
+import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
+import com.github.beelzebu.coins.velocity.listener.LoginListener;
 
 /**
  * @author Beelzebu
  */
-@Getter
-@AllArgsConstructor
-public class MultiplierEnableEvent extends Event {
+public class CoinsVelocityPlugin extends CommonCoinsPlugin {
 
-    private final Multiplier multiplier;
+    public CoinsVelocityPlugin(CoinsBootstrap bootstrap, CoinsConfig config) {
+        super(bootstrap, config);
+    }
+
+    @Override
+    public void enable() {
+        super.enable();
+        CoinsVelocityMain coinsVelocityMain = (CoinsVelocityMain) getBootstrap();
+        coinsVelocityMain.getProxyServer().getEventManager().register(coinsVelocityMain, new LoginListener(this));
+    }
 }

@@ -16,49 +16,53 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.beelzebu.coins.bungee.config;
+package com.github.beelzebu.coins.velocity.config;
 
 import com.github.beelzebu.coins.api.config.CoinsConfig;
 import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
-import java.io.File;
-import java.io.IOException;
-import java.util.LinkedHashSet;
+import com.github.beelzebu.coins.common.config.ConfigurateAbstractConfigFile;
+import java.nio.file.Path;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import net.md_5.bungee.config.ConfigurationProvider;
-import net.md_5.bungee.config.YamlConfiguration;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
+import ninja.leaping.configurate.yaml.YAMLConfigurationLoader;
 
 /**
  * @author Beelzebu
  */
-public class BungeeConfig extends CoinsConfig {
+public class VelocityConfig extends CoinsConfig {
 
-    private final File configFile;
-    private net.md_5.bungee.config.Configuration config;
+    private final ConfigurateConfig configurateConfig;
 
-    public BungeeConfig(CoinsPlugin coinsPlugin, File file) {
+    public VelocityConfig(CoinsPlugin coinsPlugin, Path path) {
         super(coinsPlugin);
-        configFile = file;
-        reload();
+        configurateConfig = new ConfigurateConfig(path);
     }
 
     @Override
     public Object get(String path) {
-        return config.get(path);
+        return configurateConfig.get(path);
     }
 
     @Override
     public Set<String> getConfigurationSection(String path) {
-        return new LinkedHashSet<>(config.getSection(path).getKeys());
+        return configurateConfig.getConfigurationSection(path);
     }
 
     @Override
-    public final void reload() {
-        try {
-            config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
-        } catch (IOException ex) {
-            Logger.getLogger(BungeeConfig.class.getName()).log(Level.SEVERE, "An unexpected error has occurred reloading the config. {0}", ex.getMessage());
+    public void reload() {
+        configurateConfig.reload();
+    }
+
+    private class ConfigurateConfig extends ConfigurateAbstractConfigFile {
+
+        public ConfigurateConfig(Path path) {
+            super(path);
+        }
+
+        @Override
+        protected ConfigurationLoader<? extends ConfigurationNode> getLoader(Path path) {
+            return YAMLConfigurationLoader.builder().setPath(path).build();
         }
     }
 }

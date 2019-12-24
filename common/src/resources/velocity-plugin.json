@@ -1,0 +1,10 @@
+{
+  "id": "coins",
+  "name": "Coins3",
+  "version": "${project.version}",
+  "url": "https://www.spigotmc.org/resources/48536/",
+  "authors": [
+    "Beelzebu"
+  ],
+  "main": "${project.groupId}.coins.velocity.CoinsVelocityMain"
+}

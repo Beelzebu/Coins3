@@ -148,9 +148,9 @@ public class CommonCoinsPlugin implements CoinsPlugin {
 
 
     @Override
-    public void reload() {
-        disable();
-        enable();
+    public void reload() { // use instances from bootstrap
+        getBootstrap().getPlugin().disable();
+        getBootstrap().getPlugin().enable();
     }
 
     @Override
@@ -170,7 +170,7 @@ public class CommonCoinsPlugin implements CoinsPlugin {
         }
         switch (messagingServiceType) {
             case BUNGEECORD:
-                return messagingService = bootstrap.getBungeeMessaging(this);
+                return messagingService = bootstrap.getProxyMessaging();
             case REDIS:
                 return messagingService = new RedisMessaging(this, redisManager);
             case NONE:

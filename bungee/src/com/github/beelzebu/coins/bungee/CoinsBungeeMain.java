@@ -26,8 +26,6 @@ import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.api.utils.StringUtils;
 import com.github.beelzebu.coins.bungee.config.BungeeConfig;
 import com.github.beelzebu.coins.bungee.config.BungeeMessages;
-import com.github.beelzebu.coins.bungee.events.CoinsChangeEvent;
-import com.github.beelzebu.coins.bungee.events.MultiplierEnableEvent;
 import com.github.beelzebu.coins.bungee.messaging.BungeeMessaging;
 import java.io.File;
 import java.io.InputStream;
@@ -38,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 
 /**
@@ -46,7 +45,6 @@ import net.md_5.bungee.api.plugin.Plugin;
 public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
 
     private CoinsBungeePlugin plugin;
-    private BungeeConfig config;
     private BungeeMessaging messaging;
 
     @Override
@@ -56,7 +54,7 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
 
     @Override
     public void onEnable() {
-        plugin = new CoinsBungeePlugin(this, config = new BungeeConfig(getPlugin(), new File(getDataFolder(), "config.yml")));
+        plugin = new CoinsBungeePlugin(this, new BungeeConfig(getPlugin(), new File(getDataFolder(), "config.yml")));
         plugin.load();
         plugin.enable();
     }
@@ -138,22 +136,26 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
 
     @Override
     public UUID getUUID(String name) {
-        return ProxyServer.getInstance().getPlayer(name) != null ? ProxyServer.getInstance().getPlayer(name).getUniqueId() : null;
+        ProxiedPlayer proxiedPlayer = ProxyServer.getInstance().getPlayer(name);
+        return proxiedPlayer != null ? proxiedPlayer.getUniqueId() : null;
     }
 
     @Override
     public String getName(UUID uuid) {
-        return ProxyServer.getInstance().getPlayer(uuid) != null ? ProxyServer.getInstance().getPlayer(uuid).getName() : null;
+        ProxiedPlayer proxiedPlayer = ProxyServer.getInstance().getPlayer(uuid);
+        return proxiedPlayer != null ? proxiedPlayer.getName() : null;
     }
 
     @Override
     public void callCoinsChangeEvent(UUID uuid, double oldCoins, double newCoins) {
-        ProxyServer.getInstance().getPluginManager().callEvent(new CoinsChangeEvent(uuid, oldCoins, newCoins));
+        // TODO: re add
+        //ProxyServer.getInstance().getPluginManager().callEvent(new CoinsChangeEvent(uuid, oldCoins, newCoins));
     }
 
     @Override
     public void callMultiplierEnableEvent(Multiplier multiplier) {
-        ProxyServer.getInstance().getPluginManager().callEvent(new MultiplierEnableEvent(multiplier));
+        // TODO: re add
+        //ProxyServer.getInstance().getPluginManager().callEvent(new MultiplierEnableEvent(multiplier));
     }
 
     @Override
@@ -166,7 +168,7 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
     }
 
     @Override
-    public ProxyMessaging getBungeeMessaging(CoinsPlugin coinsPlugin) {
-        return messaging == null ? messaging = new BungeeMessaging(coinsPlugin) : messaging;
+    public ProxyMessaging getProxyMessaging() {
+        return messaging == null ? messaging = new BungeeMessaging(plugin) : messaging;
     }
 }

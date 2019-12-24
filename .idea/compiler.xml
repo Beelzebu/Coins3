@@ -7,21 +7,23 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="coins-bungee" />
-        <module name="coins-common" />
-        <module name="coins-bukkit" />
-        <module name="coins-universal" />
+        <module name="common" />
+        <module name="velocity" />
+        <module name="bukkit" />
+        <module name="universal" />
+        <module name="bungee" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="bukkit" target="1.8" />
+      <module name="bungee" target="1.8" />
       <module name="coins-api" target="1.8" />
-      <module name="coins-bukkit" target="1.8" />
-      <module name="coins-bungee" target="1.8" />
-      <module name="coins-common" target="1.8" />
       <module name="coins-parent" target="1.8" />
-      <module name="coins-universal" target="1.8" />
       <module name="coins-velocity" target="1.8" />
       <module name="coins3" target="1.8" />
+      <module name="common" target="1.8" />
+      <module name="universal" target="1.8" />
+      <module name="velocity" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

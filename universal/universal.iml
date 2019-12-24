@@ -8,8 +8,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="coins-bukkit" />
-    <orderEntry type="module" module-name="coins-common" />
+    <orderEntry type="module" module-name="bukkit" />
+    <orderEntry type="module" module-name="common" />
     <orderEntry type="module-library">
       <library name="Maven: me.robin:leaderheads:1.0.0">
         <CLASSES>
@@ -28,7 +28,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="coins-bungee" />
+    <orderEntry type="module" module-name="bungee" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.github.beelzebu:coins3-api:3.0-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.projectlombok:lombok:1.18.8" level="project" />
   </component>

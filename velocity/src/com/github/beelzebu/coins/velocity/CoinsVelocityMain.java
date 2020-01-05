@@ -64,7 +64,7 @@ public class CoinsVelocityMain implements CoinsBootstrap {
         this.proxyServer = proxyServer;
         this.logger = logger;
         this.configDirectory = configDirectory;
-        plugin = new CoinsVelocityPlugin(this, new VelocityConfig(getPlugin(), new File(getDataFolder(), "config.yml").toPath()));
+        plugin = new CoinsVelocityPlugin(this, new VelocityConfig(new File(getDataFolder(), "config.yml").toPath()));
     }
 
     @Subscribe(order = PostOrder.FIRST)

@@ -19,7 +19,6 @@
 package com.github.beelzebu.coins.bungee.config;
 
 import com.github.beelzebu.coins.api.config.CoinsConfig;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashSet;
@@ -37,8 +36,7 @@ public class BungeeConfig extends CoinsConfig {
     private final File configFile;
     private net.md_5.bungee.config.Configuration config;
 
-    public BungeeConfig(CoinsPlugin coinsPlugin, File file) {
-        super(coinsPlugin);
+    public BungeeConfig(File file) {
         configFile = file;
         reload();
     }

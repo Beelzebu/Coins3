@@ -21,7 +21,8 @@ package com.github.beelzebu.coins.common.cache;
 import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.cache.CacheProvider;
 import com.github.beelzebu.coins.api.cache.CacheType;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
+import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import com.github.beelzebu.coins.common.utils.RedisManager;
 import java.util.Collection;
 import java.util.HashSet;
@@ -42,14 +43,14 @@ import redis.clients.jedis.exceptions.JedisException;
  */
 public final class RedisCache implements CacheProvider {
 
-    private static final String COINS_KEY = "coins:";
-    private static final String MULTIPLIER_KEY = "multiplier:";
+    private static final String COINS_KEY_PREFIX = "coins:";
+    private static final String MULTIPLIER_KEY_PREFIX = "multiplier:";
     private static final int CACHE_SECONDS = 1800;
-    private final CoinsPlugin plugin;
+    private final CommonCoinsPlugin<? extends CoinsBootstrap> plugin;
     private final RedisManager redisManager;
     private final MultiplierPoller multiplierPoller;
 
-    public RedisCache(CoinsPlugin coinsPlugin, RedisManager redisManager) {
+    public RedisCache(CommonCoinsPlugin<? extends CoinsBootstrap> coinsPlugin, RedisManager redisManager) {
         plugin = coinsPlugin;
         this.redisManager = redisManager;
         multiplierPoller = new MultiplierPoller(plugin);
@@ -78,22 +79,28 @@ public final class RedisCache implements CacheProvider {
     }
 
     @Override
-    public OptionalDouble getCoins(UUID uuid) {
+    public synchronized OptionalDouble getCoins(UUID uuid) {
+        Objects.requireNonNull(uuid, "uuid can't be null");
         try (Jedis jedis = redisManager.getPool().getResource()) {
-            return getDouble(jedis.get(COINS_KEY + uuid));
+            return getDouble(jedis.get(COINS_KEY_PREFIX + uuid));
         } catch (JedisException ex) {
             plugin.log("An error has occurred getting coins for '" + uuid + "' from redis cache.");
             plugin.debug(ex);
+            removePlayer(uuid);
+        } catch (ClassCastException ex) { // Jedis concurrency error
+            plugin.log("An error with jedis (lib used by the plugin) has occurred getting coins for '" + uuid + "' from redis cache, this should fallback to a database query.");
+            plugin.debug(ex);
+            removePlayer(uuid);
         }
         return OptionalDouble.empty();
     }
 
     @Override
-    public void updatePlayer(UUID uuid, double coins) {
+    public synchronized void updatePlayer(UUID uuid, double coins) {
         Objects.requireNonNull(uuid, "UUID can't be null");
         plugin.debug("Setting coins for '" + uuid + "' to '" + coins + "' in redis.");
         try (Jedis jedis = redisManager.getPool().getResource()) {
-            jedis.setex(COINS_KEY + uuid, CACHE_SECONDS, Double.toString(coins));
+            jedis.setex(COINS_KEY_PREFIX + uuid, CACHE_SECONDS, Double.toString(coins));
         } catch (JedisException ex) {
             plugin.log("An error has occurred adding user '" + uuid + "' to cache.");
             plugin.debug(ex);
@@ -101,10 +108,10 @@ public final class RedisCache implements CacheProvider {
     }
 
     @Override
-    public void removePlayer(UUID uuid) {
+    public synchronized void removePlayer(UUID uuid) {
         plugin.log("Removing '" + uuid + "' from redis.");
         try (Jedis jedis = redisManager.getPool().getResource()) {
-            jedis.del(COINS_KEY + uuid);
+            jedis.del(COINS_KEY_PREFIX + uuid);
         } catch (JedisException ex) {
             plugin.log("An error has occurred removing user '" + uuid + "' from redis.");
             plugin.debug(ex);
@@ -112,7 +119,7 @@ public final class RedisCache implements CacheProvider {
     }
 
     @Override
-    public Optional<Multiplier> getMultiplier(int id) {
+    public synchronized Optional<Multiplier> getMultiplier(int id) {
         try (Jedis jedis = redisManager.getPool().getResource()) {
             return Optional.ofNullable(getMultiplier(jedis, String.valueOf(id)));
         } catch (JedisException ex) {
@@ -122,15 +129,15 @@ public final class RedisCache implements CacheProvider {
         return Optional.empty();
     }
 
-    private Multiplier getMultiplier(Jedis jedis, String id) {
-        String multiplierString = jedis.get(MULTIPLIER_KEY + id);
+    private synchronized Multiplier getMultiplier(Jedis jedis, String id) {
+        String multiplierString = jedis.get(MULTIPLIER_KEY_PREFIX + id);
         return multiplierString != null ? Multiplier.fromJson(multiplierString) : null;
     }
 
     @Override
-    public void addMultiplier(Multiplier multiplier) {
+    public synchronized void addMultiplier(Multiplier multiplier) {
         try (Jedis jedis = redisManager.getPool().getResource()) {
-            jedis.setex(MULTIPLIER_KEY + multiplier.getId(), (int) TimeUnit.MINUTES.toSeconds(multiplier.getData().getMinutes()), multiplier.toJson().toString());
+            jedis.setex(MULTIPLIER_KEY_PREFIX + multiplier.getId(), (int) TimeUnit.MINUTES.toSeconds(multiplier.getData().getMinutes()), multiplier.toJson().toString());
         } catch (JedisException ex) {
             plugin.log("An error has occurred adding multiplier '" + multiplier.toJson() + "' to cache.");
             plugin.debug(ex);
@@ -138,9 +145,9 @@ public final class RedisCache implements CacheProvider {
     }
 
     @Override
-    public void deleteMultiplier(int id) {
+    public synchronized void deleteMultiplier(int id) {
         try (Jedis jedis = redisManager.getPool().getResource()) {
-            jedis.del(MULTIPLIER_KEY + id);
+            jedis.del(MULTIPLIER_KEY_PREFIX + id);
         } catch (JedisException ex) {
             plugin.log("An error has occurred removing multiplier with id '" + id + "' from cache.");
             plugin.debug(ex);
@@ -148,14 +155,19 @@ public final class RedisCache implements CacheProvider {
     }
 
     @Override
-    public Set<Multiplier> getMultipliers() {
+    public synchronized Set<Multiplier> getMultipliers() {
         Set<Multiplier> multipliers = new HashSet<>();
         try (Jedis jedis = redisManager.getPool().getResource()) {
             String cursor = ScanParams.SCAN_POINTER_START;
-            ScanResult<String> scan = jedis.scan(cursor, new ScanParams().match(COINS_KEY + "*").count(Integer.MAX_VALUE));
+            ScanResult<String> scan = jedis.scan(cursor, new ScanParams().match(MULTIPLIER_KEY_PREFIX + "*").count(Integer.MAX_VALUE));
             do {
-                multipliers.addAll(scan.getResult().stream().map(key -> getMultiplier(jedis, key.split(":")[1])).collect(Collectors.toSet()));
-                scan = jedis.scan(cursor, new ScanParams().match(COINS_KEY + "*").count(Integer.MAX_VALUE));
+                scan.getResult().forEach(key -> {
+                    Multiplier multiplier = getMultiplier(jedis, key.split(":")[1]);
+                    if (multiplier != null) {
+                        multipliers.add(multiplier);
+                    }
+                });
+                scan = jedis.scan(cursor, new ScanParams().match(MULTIPLIER_KEY_PREFIX + "*").count(Integer.MAX_VALUE));
             } while (!Objects.equals(cursor = scan.getCursor(), ScanParams.SCAN_POINTER_START));
         } catch (JedisException ex) {
             plugin.log("An error has occurred getting all multipliers from cache.");
@@ -165,14 +177,14 @@ public final class RedisCache implements CacheProvider {
     }
 
     @Override
-    public Collection<UUID> getPlayers() {
+    public synchronized Collection<UUID> getPlayers() {
         Set<UUID> players = new HashSet<>();
         try (Jedis jedis = redisManager.getPool().getResource()) {
             String cursor = ScanParams.SCAN_POINTER_START;
-            ScanResult<String> scan = jedis.scan(cursor, new ScanParams().match(COINS_KEY + "*").count(Integer.MAX_VALUE));
+            ScanResult<String> scan = jedis.scan(cursor, new ScanParams().match(COINS_KEY_PREFIX + "*").count(Integer.MAX_VALUE));
             do {
                 players.addAll(scan.getResult().stream().map(key -> UUID.fromString(key.split(":")[1])).collect(Collectors.toSet()));
-                scan = jedis.scan(cursor, new ScanParams().match(COINS_KEY + "*").count(Integer.MAX_VALUE));
+                scan = jedis.scan(cursor, new ScanParams().match(COINS_KEY_PREFIX + "*").count(Integer.MAX_VALUE));
             } while (!Objects.equals(cursor = scan.getCursor(), ScanParams.SCAN_POINTER_START));
         } catch (JedisException ex) {
             plugin.log("An error has occurred getting all players from cache.");

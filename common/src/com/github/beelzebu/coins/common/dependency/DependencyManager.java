@@ -24,12 +24,13 @@
  */
 package com.github.beelzebu.coins.common.dependency;
 
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
 import com.github.beelzebu.coins.api.storage.StorageType;
 import com.github.beelzebu.coins.common.dependency.classloader.IsolatedClassLoader;
 import com.github.beelzebu.coins.common.dependency.classloader.ReflectionClassLoader;
 import com.github.beelzebu.coins.common.dependency.relocation.Relocation;
 import com.github.beelzebu.coins.common.dependency.relocation.RelocationHandler;
+import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import java.io.File;
@@ -51,7 +52,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public final class DependencyManager {
 
-    private final CoinsPlugin plugin;
+    private final CommonCoinsPlugin<? extends CoinsBootstrap> plugin;
     private final ReflectionClassLoader reflectionClassLoader;
     private final DependencyRegistry registry;
     private final Map<Dependency, Path> loaded = new EnumMap<>(Dependency.class);

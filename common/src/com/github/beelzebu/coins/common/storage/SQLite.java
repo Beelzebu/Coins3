@@ -18,7 +18,7 @@
  */
 package com.github.beelzebu.coins.common.storage;
 
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
 import com.github.beelzebu.coins.api.storage.StorageType;
 import com.github.beelzebu.coins.api.storage.sql.SQLDatabase;
 import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
@@ -36,7 +36,7 @@ import java.sql.Statement;
  */
 public final class SQLite extends SQLDatabase {
 
-    public SQLite(CoinsPlugin plugin) {
+    public SQLite(CommonCoinsPlugin<? extends CoinsBootstrap> plugin) {
         super(plugin);
     }
 

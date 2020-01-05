@@ -123,23 +123,23 @@ public class FileManager {
         messagesFiles.clear();
         // write to log files async
         String logFormat = "[%time] %msg";
+        if (!logFile.exists()) {
+            try {
+                logFile.createNewFile();
+            } catch (IOException ex) {
+                Logger.getLogger(FileManager.class.getName()).log(Level.SEVERE, "Can't create log file", ex);
+            }
+        }
         plugin.getBootstrap().scheduleAsync(() -> {
             try {
                 rwl.writeLock().lock();
                 String line;
                 while ((line = logQueue.poll()) != null) {
-                    if (!logFile.exists()) {
-                        try {
-                            logFile.createNewFile();
-                        } catch (IOException ex) {
-                            Logger.getLogger(FileManager.class.getName()).log(Level.SEVERE, "Can''t create log file", ex);
-                        }
-                    }
                     try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile, true))) {
                         writer.write(logFormat.replace("%time", simpleDateFormat.format(System.currentTimeMillis())).replace("%msg", line));
                         writer.newLine();
                     } catch (IOException ex) {
-                        Logger.getLogger(FileManager.class.getName()).log(Level.WARNING, "Can''t save the debug to the file", ex);
+                        Logger.getLogger(FileManager.class.getName()).log(Level.WARNING, "Can't save the debug to the file", ex);
                     }
                 }
             } finally {

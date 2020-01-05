@@ -19,7 +19,7 @@
 package com.github.beelzebu.coins.bukkit.messaging;
 
 import com.github.beelzebu.coins.api.messaging.ProxyMessaging;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.bukkit.CoinsBukkitPlugin;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
@@ -41,7 +41,7 @@ public final class BukkitMessaging extends ProxyMessaging implements PluginMessa
     @Getter
     private final Queue<String> messageQueue = new LinkedList<>();
 
-    public BukkitMessaging(CoinsPlugin coinsPlugin) {
+    public BukkitMessaging(CoinsBukkitPlugin coinsPlugin) {
         super(coinsPlugin);
     }
 

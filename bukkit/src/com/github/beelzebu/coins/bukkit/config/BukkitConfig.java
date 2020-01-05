@@ -19,7 +19,6 @@
 package com.github.beelzebu.coins.bukkit.config;
 
 import com.github.beelzebu.coins.api.config.CoinsConfig;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.bukkit.CoinsBukkitMain;
 import java.util.Collections;
 import java.util.Set;
@@ -32,8 +31,7 @@ public class BukkitConfig extends CoinsConfig {
 
     private final FileConfiguration config;
 
-    public BukkitConfig(CoinsPlugin coinsPlugin, FileConfiguration config) {
-        super(coinsPlugin);
+    public BukkitConfig(FileConfiguration config) {
         this.config = config;
         reload();
     }

@@ -40,15 +40,15 @@ import org.bukkit.event.server.PluginEnableEvent;
 /**
  * @author Beelzebu
  */
-public class CoinsBukkitPlugin extends CommonCoinsPlugin {
+public class CoinsBukkitPlugin extends CommonCoinsPlugin<CoinsBukkitMain> {
 
     private boolean vault = false, placeholderapi = false, leaderheads = false;
     @Getter
     @Setter
     private CoinsEconomy coinsEconomy;
 
-    CoinsBukkitPlugin(CoinsBukkitMain bootstrap, CoinsConfig config) {
-        super(bootstrap, config);
+    CoinsBukkitPlugin(CoinsBukkitMain bootstrap, CoinsConfig coinsConfig) {
+        super(bootstrap, coinsConfig);
     }
 
     @Override
@@ -60,34 +60,40 @@ public class CoinsBukkitPlugin extends CommonCoinsPlugin {
     @Override
     public void enable() {
         super.enable();
+        if (getConfig() == null) {
+            return;
+        }
         CompatUtils.setup();
         hookOptionalDependencies();
         // Create the command
-        ((CoinsBukkitMain) getBootstrap()).getCommandManager().registerCommand();
+        getBootstrap().getCommandManager().registerCommand();
         // Register listeners
-        Bukkit.getPluginManager().registerEvents(new CommandListener(this), (CoinsBukkitMain) getBootstrap());
-        Bukkit.getPluginManager().registerEvents(new GUIListener(), (CoinsBukkitMain) getBootstrap());
-        Bukkit.getPluginManager().registerEvents(new LoginListener(this), (CoinsBukkitMain) getBootstrap());
-        Bukkit.getPluginManager().registerEvents(new SignListener(this), (CoinsBukkitMain) getBootstrap());
+        Bukkit.getPluginManager().registerEvents(new CommandListener(this), getBootstrap());
+        Bukkit.getPluginManager().registerEvents(new GUIListener(), getBootstrap());
+        Bukkit.getPluginManager().registerEvents(new LoginListener(this), getBootstrap());
+        Bukkit.getPluginManager().registerEvents(new SignListener(this), getBootstrap());
         Bukkit.getPluginManager().registerEvents(new Listener() {
             @EventHandler
             public void onPluginEnable(PluginEnableEvent e) { // keep trying to hook with optional dependencies
-                if (((CoinsBukkitMain) getBootstrap()).getDescription().getSoftDepend().stream().anyMatch(hook -> e.getPlugin().getName().equalsIgnoreCase(hook))) {
+                if (getBootstrap().getDescription().getSoftDepend().stream().anyMatch(hook -> e.getPlugin().getName().equalsIgnoreCase(hook))) {
                     hookOptionalDependencies();
                 }
             }
-        }, (CoinsBukkitMain) getBootstrap());
+        }, getBootstrap());
     }
 
     @Override
     public void disable() {
         super.disable();
+        if (getConfig() == null) {
+            return;
+        }
         if (coinsEconomy != null) {
             coinsEconomy.shutdown();
         }
         CoinsMenu.getInventoriesByUUID().values().forEach(CoinsMenu::delete);
-        ((CoinsBukkitMain) getBootstrap()).getCommandManager().unregisterCommand();
-        Bukkit.getScheduler().cancelTasks((CoinsBukkitMain) getBootstrap());
+        getBootstrap().getCommandManager().unregisterCommand();
+        Bukkit.getScheduler().cancelTasks(getBootstrap());
     }
 
     private void hookOptionalDependencies() {
@@ -96,7 +102,7 @@ public class CoinsBukkitPlugin extends CommonCoinsPlugin {
             if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
                 if (!vault) {
                     log("Vault found, hooking into it.");
-                    coinsEconomy = new CoinsEconomy((CoinsBukkitMain) getBootstrap());
+                    coinsEconomy = new CoinsEconomy(getBootstrap());
                     coinsEconomy.setup();
                     vault = true;
                 }
@@ -108,7 +114,7 @@ public class CoinsBukkitPlugin extends CommonCoinsPlugin {
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI") && !placeholderapi) {
             getBootstrap().log("PlaceholderAPI found, hooking into it.");
             new CoinsPlaceholders().register();
-            new MultipliersPlaceholders().register();
+            new MultipliersPlaceholders(this).register();
             placeholderapi = true;
         }
         // Hook with LeaderHeads

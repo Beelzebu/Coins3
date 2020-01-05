@@ -19,21 +19,28 @@
 package com.github.beelzebu.coins.bungee;
 
 import com.github.beelzebu.coins.api.config.CoinsConfig;
+import com.github.beelzebu.coins.bungee.listener.CommandListener;
 import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import net.md_5.bungee.api.ProxyServer;
 
 /**
  * @author Beelzebu
  */
-public class CoinsBungeePlugin extends CommonCoinsPlugin {
+public class CoinsBungeePlugin extends CommonCoinsPlugin<CoinsBungeeMain> {
 
     CoinsBungeePlugin(CoinsBungeeMain bootstrap, CoinsConfig config) {
         super(bootstrap, config);
     }
 
     @Override
+    public void enable() {
+        super.enable();
+        ProxyServer.getInstance().getPluginManager().registerListener(getBootstrap(), new CommandListener(this));
+    }
+
+    @Override
     public void disable() {
         super.disable();
-        ProxyServer.getInstance().getScheduler().cancel((CoinsBungeeMain) getBootstrap());
+        ProxyServer.getInstance().getScheduler().cancel(getBootstrap());
     }
 }

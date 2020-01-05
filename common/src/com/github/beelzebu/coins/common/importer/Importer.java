@@ -18,16 +18,17 @@
  */
 package com.github.beelzebu.coins.common.importer;
 
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
+import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 
 /**
  * @author Beelzebu
  */
 public abstract class Importer {
 
-    protected CoinsPlugin plugin;
+    protected CommonCoinsPlugin<? extends CoinsBootstrap> plugin;
 
-    public Importer(CoinsPlugin plugin) {
+    public Importer(CommonCoinsPlugin<? extends CoinsBootstrap> plugin) {
         this.plugin = plugin;
     }
 

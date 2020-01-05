@@ -21,8 +21,8 @@ package com.github.beelzebu.coins.bukkit.menus;
 import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.config.AbstractConfigFile;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.api.utils.StringUtils;
+import com.github.beelzebu.coins.bukkit.CoinsBukkitPlugin;
 import com.github.beelzebu.coins.bukkit.utils.CompatUtils;
 import com.github.beelzebu.coins.bukkit.utils.ItemBuilder;
 import java.io.File;
@@ -44,7 +44,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PaginatedMenu {
 
-    private static final CoinsPlugin PLUGIN = CoinsAPI.getPlugin();
+    private static final CoinsBukkitPlugin PLUGIN = (CoinsBukkitPlugin) CoinsAPI.getPlugin();
     private static final AbstractConfigFile MULTIPLIERS_CONFIG = PLUGIN.getBootstrap().getFileAsConfig(new File(PLUGIN.getBootstrap().getDataFolder(), "multipliers.yml"));
 
     public static CoinsMenu createPaginatedGUI(Player player, boolean global, Collection<Multiplier> multipliers, String extraTitle) {

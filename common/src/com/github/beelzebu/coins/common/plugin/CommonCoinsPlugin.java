@@ -46,7 +46,6 @@ import com.github.beelzebu.coins.common.storage.MySQL;
 import com.github.beelzebu.coins.common.storage.SQLite;
 import com.github.beelzebu.coins.common.utils.FileManager;
 import com.github.beelzebu.coins.common.utils.RedisManager;
-import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -58,10 +57,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -70,17 +71,15 @@ import net.md_5.bungee.api.ChatColor;
 /**
  * @author Beelzebu
  */
-public class CommonCoinsPlugin implements CoinsPlugin {
+public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin<T> {
 
     private final CoinsConfig config;
     private final MultipliersConfig multipliersConfig;
     @Getter
     private final FileManager fileManager;
     @Getter
-    private final CoinsBootstrap bootstrap;
+    private final T bootstrap;
     private final HashMap<String, AbstractConfigFile> messagesMap = new HashMap<>();
-    @Getter
-    private final Gson gson = new Gson();
     private final DependencyManager dependencyManager;
     @Setter
     private MessagingServiceType messagingServiceType;
@@ -96,11 +95,11 @@ public class CommonCoinsPlugin implements CoinsPlugin {
     private CacheProvider cache;
     private RedisManager redisManager;
 
-    public CommonCoinsPlugin(CoinsBootstrap bootstrap, CoinsConfig config) {
+    public CommonCoinsPlugin(T bootstrap, CoinsConfig config) {
         this.config = config;
         this.bootstrap = bootstrap;
         multipliersConfig = new MultipliersConfigImpl(this, bootstrap.getFileAsConfig(new File(bootstrap.getDataFolder(), "multipliers.yml")));
-        dependencyManager = new DependencyManager(this, new ReflectionClassLoader(bootstrap), new DependencyRegistry(this));
+        dependencyManager = new DependencyManager(this, new ReflectionClassLoader(bootstrap), new DependencyRegistry());
         fileManager = new FileManager(this);
     }
 
@@ -116,6 +115,7 @@ public class CommonCoinsPlugin implements CoinsPlugin {
 
     @Override
     public void enable() { // now the plugin is enabled and we can read config files
+        Objects.requireNonNull(config, "Config file is null");
         Arrays.asList(Objects.requireNonNull(fileManager.getMessagesFolder().listFiles())).forEach(file -> messagesMap.put((file.getName().split("_").length == 2 ? file.getName().split("_")[1] : "default").split(".yml")[0], bootstrap.getFileAsConfig(file)));
         // update files before we read something
         fileManager.onEnable();
@@ -123,11 +123,13 @@ public class CommonCoinsPlugin implements CoinsPlugin {
         // identify storage, messaging service and cache types and load dependencies
         storageType = getConfig().getStorageType();
         dependencyManager.loadStorageDependencies(storageType);
-        messagingServiceType = getConfig().getMessagingService();
+        messagingServiceType = getConfig().getMessagingServiceType();
         cacheType = getConfig().getCacheType();
         if (messagingServiceType.equals(MessagingServiceType.REDIS) || cacheType.equals(CacheType.REDIS)) {
             log("Loading JEDIS dependency for redis connections...");
-            dependencyManager.loadDependencies(Collections.singleton(Dependency.JEDIS));
+            Set<Dependency> jedisDependency = new HashSet<>();
+            jedisDependency.add(Dependency.JEDIS);
+            dependencyManager.loadDependencies(jedisDependency);
             redisManager = new RedisManager(this);
             redisManager.start();
         }
@@ -155,10 +157,17 @@ public class CommonCoinsPlugin implements CoinsPlugin {
 
     @Override
     public void disable() {
-        getStorageProvider().shutdown();
-        messagingService.stop();
-        if (redisManager != null) {
+        if (getCache() != null) { // stop cache
+            getCache().stop();
+        }
+        if (getMessagingService() != null) { // stop messaging service
+            getMessagingService().stop();
+        }
+        if (redisManager != null) { // stop redis manager if was in use by cache or messaging service
             redisManager.stop();
+        }
+        if (getStorageProvider() != null) { // stop storage provider
+            getStorageProvider().shutdown();
         }
         motd(false);
     }
@@ -169,7 +178,7 @@ public class CommonCoinsPlugin implements CoinsPlugin {
             return messagingService;
         }
         switch (messagingServiceType) {
-            case BUNGEECORD:
+            case PROXY:
                 return messagingService = bootstrap.getProxyMessaging();
             case REDIS:
                 return messagingService = new RedisMessaging(this, redisManager);
@@ -202,10 +211,10 @@ public class CommonCoinsPlugin implements CoinsPlugin {
         switch (storageType) {
             case MARIADB:
             case MYSQL:
-                return storageProvider = new MySQL(bootstrap.getPlugin());
+                return storageProvider = new MySQL(this);
             case SQLITE:
             default:
-                return storageProvider = new SQLite(bootstrap.getPlugin());
+                return storageProvider = new SQLite(this);
         }
     }
 

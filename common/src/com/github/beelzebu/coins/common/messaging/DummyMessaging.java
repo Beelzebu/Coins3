@@ -20,7 +20,8 @@ package com.github.beelzebu.coins.common.messaging;
 
 import com.github.beelzebu.coins.api.messaging.AbstractMessagingService;
 import com.github.beelzebu.coins.api.messaging.MessagingServiceType;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
+import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import com.google.gson.JsonObject;
 
 /**
@@ -28,7 +29,7 @@ import com.google.gson.JsonObject;
  */
 public class DummyMessaging extends AbstractMessagingService {
 
-    public DummyMessaging(CoinsPlugin coinsPlugin) {
+    public DummyMessaging(CommonCoinsPlugin<? extends CoinsBootstrap> coinsPlugin) {
         super(coinsPlugin);
     }
 

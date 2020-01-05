@@ -19,9 +19,10 @@
 package com.github.beelzebu.coins.common.importer;
 
 import com.github.beelzebu.coins.api.CoinsAPI;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
 import com.github.beelzebu.coins.api.storage.StorageType;
 import com.github.beelzebu.coins.api.storage.sql.SQLDatabase;
+import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import com.github.beelzebu.coins.common.storage.MySQL;
 import com.github.beelzebu.coins.common.storage.SQLite;
 import java.util.Map;
@@ -32,10 +33,10 @@ import java.util.UUID;
  */
 public class ImportManager {
 
-    private final CoinsPlugin plugin;
+    private final CommonCoinsPlugin<? extends CoinsBootstrap> plugin;
     private final Importer importer;
 
-    public ImportManager(CoinsPlugin plugin, Importer importer) {
+    public ImportManager(CommonCoinsPlugin<? extends CoinsBootstrap> plugin, Importer importer) {
         this.plugin = plugin;
         this.importer = importer;
     }

@@ -21,8 +21,8 @@ package com.github.beelzebu.coins.bukkit.listener;
 import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.executor.Executor;
 import com.github.beelzebu.coins.api.executor.ExecutorManager;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.api.utils.StringUtils;
+import com.github.beelzebu.coins.bukkit.CoinsBukkitPlugin;
 import com.github.beelzebu.coins.bukkit.utils.CompatUtils;
 import com.github.beelzebu.coins.bukkit.utils.LocationUtils;
 import java.io.File;
@@ -44,11 +44,11 @@ import org.bukkit.event.player.PlayerInteractEvent;
  */
 public class SignListener implements Listener {
 
-    private final CoinsPlugin plugin;
+    private final CoinsBukkitPlugin plugin;
     private final File signsFile;
     private final FileConfiguration signs;
 
-    public SignListener(CoinsPlugin plugin) {
+    public SignListener(CoinsBukkitPlugin plugin) {
         this.plugin = plugin;
         signsFile = new File(plugin.getBootstrap().getDataFolder(), "signs.yml");
         if (!signsFile.exists()) {

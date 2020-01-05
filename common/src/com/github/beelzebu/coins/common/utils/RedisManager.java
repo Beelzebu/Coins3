@@ -40,6 +40,8 @@ public class RedisManager {
 
     public void start() {
         JedisPoolConfig config = new JedisPoolConfig();
+        config.setBlockWhenExhausted(true);
+        config.setTestOnBorrow(true);
         config.setMinIdle(1);
         if (Objects.nonNull(password) && !Objects.equals(password, "")) {
             pool = new JedisPool(config, host, port, 0, password);

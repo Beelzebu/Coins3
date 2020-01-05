@@ -20,14 +20,15 @@ package com.github.beelzebu.coins.common.config;
 
 import com.github.beelzebu.coins.api.config.AbstractConfigFile;
 import com.github.beelzebu.coins.api.config.MultipliersConfig;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
+import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import java.util.Set;
 
 public class MultipliersConfigImpl extends MultipliersConfig {
 
     private final AbstractConfigFile configFile;
 
-    public MultipliersConfigImpl(CoinsPlugin coinsPlugin, AbstractConfigFile configFile) {
+    public MultipliersConfigImpl(CommonCoinsPlugin<? extends CoinsBootstrap> coinsPlugin, AbstractConfigFile configFile) {
         super(coinsPlugin);
         this.configFile = configFile;
     }

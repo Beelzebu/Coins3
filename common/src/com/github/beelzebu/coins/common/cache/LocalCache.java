@@ -22,7 +22,7 @@ import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.cache.CacheProvider;
 import com.github.beelzebu.coins.api.cache.CacheType;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
 import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -49,13 +49,13 @@ import java.util.concurrent.TimeUnit;
  */
 public final class LocalCache implements CacheProvider {
 
-    private final CoinsPlugin plugin;
+    private final CommonCoinsPlugin<? extends CoinsBootstrap> plugin;
     private final Cache<UUID, Double> players = Caffeine.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES).build();
     private final Cache<Integer, Multiplier> multipliers = Caffeine.newBuilder().build();
     private final File multipliersFile;
     private final MultiplierPoller multiplierPoller;
 
-    public LocalCache(CommonCoinsPlugin plugin) {
+    public LocalCache(CommonCoinsPlugin<? extends CoinsBootstrap> plugin) {
         this.plugin = plugin;
         multipliersFile = new File(plugin.getBootstrap().getDataFolder(), "multipliers.dat");
         multiplierPoller = new MultiplierPoller(plugin);
@@ -121,58 +121,66 @@ public final class LocalCache implements CacheProvider {
 
     @Override
     public void addMultiplier(Multiplier multiplier) {
-        if (!multiplier.getServer().equals(plugin.getMultipliersConfig().getServerName())) {
-            return;
-        }
-        // put the multiplier in the cache
-        multipliers.put(multiplier.getId(), multiplier);
-        // store it in a local storage to load them again without querying the database if the server is restarted
-        try {
-            if (!multipliersFile.exists()) {
-                multipliersFile.createNewFile();
-            }
-            Iterator<String> lines = Files.readAllLines(multipliersFile.toPath()).iterator();
-            boolean exists = false;
-            // check if the multiplier was already stored in this server
-            while (lines.hasNext()) {
-                String line = lines.next();
-                if (Objects.requireNonNull(Multiplier.fromJson(line)).getId() == multiplier.getId()) {
-                    exists = true;
-                    plugin.debug("Trying to add an existent multiplier: " + line);
-                    break;
+        plugin.getBootstrap().runAsync(() -> {
+            synchronized (multipliersFile) {
+                if (!multiplier.getServer().equals(plugin.getMultipliersConfig().getServerName())) {
+                    return;
                 }
-            }
-            if (!exists) {
+                // put the multiplier in the cache
+                multipliers.put(multiplier.getId(), multiplier);
+                // store it in a local storage to load them again without querying the database if the server is restarted
                 try {
-                    Files.write(multipliersFile.toPath(), Collections.singletonList(multiplier.toJson().toString() + "\n"), StandardOpenOption.APPEND);
+                    if (!multipliersFile.exists()) {
+                        multipliersFile.createNewFile();
+                    }
+                    Iterator<String> lines = Files.readAllLines(multipliersFile.toPath()).iterator();
+                    boolean exists = false;
+                    // check if the multiplier was already stored in this server
+                    while (lines.hasNext()) {
+                        String line = lines.next();
+                        if (Objects.requireNonNull(Multiplier.fromJson(line)).getId() == multiplier.getId()) {
+                            exists = true;
+                            plugin.debug("Trying to add an existent multiplier: " + line);
+                            break;
+                        }
+                    }
+                    if (!exists) {
+                        try {
+                            Files.write(multipliersFile.toPath(), Collections.singletonList(multiplier.toJson().toString() + "\n"), StandardOpenOption.APPEND);
+                        } catch (IOException ex) {
+                            plugin.log("An error has occurred saving a multiplier in the local storage.");
+                            plugin.debug(ex.getMessage());
+                        }
+                    }
                 } catch (IOException ex) {
                     plugin.log("An error has occurred saving a multiplier in the local storage.");
                     plugin.debug(ex.getMessage());
                 }
             }
-        } catch (IOException ex) {
-            plugin.log("An error has occurred saving a multiplier in the local storage.");
-            plugin.debug(ex.getMessage());
-        }
+        });
     }
 
     @Override
     public void deleteMultiplier(int id) {
-        try { // remove it from local multiplier storage
-            Iterator<String> lines = Files.readAllLines(multipliersFile.toPath()).iterator();
-            while (lines.hasNext()) {
-                if (Objects.requireNonNull(Multiplier.fromJson(lines.next())).getId() == id) {
-                    multipliers.invalidate(id);
-                    lines.remove();
-                    break;
+        plugin.getBootstrap().runAsync(() -> {
+            synchronized (multipliersFile) {
+                try { // remove it from local multiplier storage
+                    Iterator<String> lines = Files.readAllLines(multipliersFile.toPath()).iterator();
+                    while (lines.hasNext()) {
+                        if (Objects.requireNonNull(Multiplier.fromJson(lines.next())).getId() == id) {
+                            multipliers.invalidate(id);
+                            lines.remove();
+                            break;
+                        }
+                    }
+                    Files.write(multipliersFile.toPath(), Lists.newArrayList(lines));
+                } catch (IOException | NullPointerException | JsonSyntaxException ex) {
+                    plugin.log("An error has occurred removing a multiplier from local storage.");
+                    plugin.debug(ex.getMessage());
                 }
+                multipliers.invalidate(id);
             }
-            Files.write(multipliersFile.toPath(), Lists.newArrayList(lines));
-        } catch (IOException | NullPointerException | JsonSyntaxException ex) {
-            plugin.log("An error has occurred removing a multiplier from local storage.");
-            plugin.debug(ex.getMessage());
-        }
-        multipliers.invalidate(id);
+        });
     }
 
     @Override

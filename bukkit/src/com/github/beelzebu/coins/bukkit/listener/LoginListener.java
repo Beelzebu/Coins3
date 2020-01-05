@@ -20,7 +20,7 @@ package com.github.beelzebu.coins.bukkit.listener;
 
 import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.messaging.MessagingServiceType;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.bukkit.CoinsBukkitPlugin;
 import com.github.beelzebu.coins.bukkit.messaging.BukkitMessaging;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.event.EventHandler;
@@ -35,20 +35,15 @@ import org.bukkit.event.player.PlayerQuitEvent;
 @RequiredArgsConstructor
 public class LoginListener implements Listener {
 
-    private final CoinsPlugin plugin;
+    private final CoinsBukkitPlugin plugin;
     private boolean first = true;
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent e) {
         if (plugin.getConfig().getBoolean("General.Create Join", false)) {
-            CoinsAPI.createPlayer(e.getPlayer().getName(), e.getPlayer().getUniqueId());
+            plugin.getBootstrap().runAsync(() -> CoinsAPI.createPlayer(e.getPlayer().getName(), e.getPlayer().getUniqueId()));
         }
         if (plugin.getConfig().useBungee()) {
-            BukkitMessaging bukkitMessaging = (BukkitMessaging) plugin.getMessagingService();
-            String message = bukkitMessaging.getMessageQueue().poll();
-            if (message != null) {
-                bukkitMessaging.sendMessage(message, true);
-            }
             if (first) {
                 first = false;
                 plugin.getBootstrap().runAsync(() -> {
@@ -56,14 +51,26 @@ public class LoginListener implements Listener {
                     plugin.getMessagingService().requestExecutors();
                 });
             }
+            BukkitMessaging bukkitMessaging = (BukkitMessaging) plugin.getMessagingService();
+            if (bukkitMessaging.getMessageQueue().isEmpty()) {
+                return;
+            }
+            plugin.getBootstrap().runAsync(() -> {
+                String message;
+                while ((message = bukkitMessaging.getMessageQueue().poll()) != null) {
+                    bukkitMessaging.sendMessage(message, true);
+                }
+            });
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent e) {
-        if (!plugin.getMessagingService().getType().equals(MessagingServiceType.REDIS)) {
-            plugin.getCache().removePlayer(e.getPlayer().getUniqueId());
-        }
-        plugin.getStorageProvider().updatePlayer(e.getPlayer().getUniqueId(), e.getPlayer().getName());
+        plugin.getBootstrap().runAsync(() -> {
+            if (!plugin.getMessagingService().getType().equals(MessagingServiceType.REDIS)) {
+                plugin.getCache().removePlayer(e.getPlayer().getUniqueId());
+            }
+            plugin.getStorageProvider().updatePlayer(e.getPlayer().getUniqueId(), e.getPlayer().getName());
+        });
     }
 }

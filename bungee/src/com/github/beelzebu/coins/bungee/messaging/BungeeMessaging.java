@@ -19,7 +19,7 @@
 package com.github.beelzebu.coins.bungee.messaging;
 
 import com.github.beelzebu.coins.api.messaging.ProxyMessaging;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.bungee.CoinsBungeePlugin;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -37,7 +37,7 @@ import net.md_5.bungee.event.EventHandler;
  */
 public final class BungeeMessaging extends ProxyMessaging implements Listener {
 
-    public BungeeMessaging(CoinsPlugin coinsPlugin) {
+    public BungeeMessaging(CoinsBungeePlugin coinsPlugin) {
         super(coinsPlugin);
     }
 

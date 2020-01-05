@@ -19,7 +19,6 @@
 package com.github.beelzebu.coins.velocity.config;
 
 import com.github.beelzebu.coins.api.config.CoinsConfig;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.common.config.ConfigurateAbstractConfigFile;
 import java.nio.file.Path;
 import java.util.Set;
@@ -34,8 +33,7 @@ public class VelocityConfig extends CoinsConfig {
 
     private final ConfigurateConfig configurateConfig;
 
-    public VelocityConfig(CoinsPlugin coinsPlugin, Path path) {
-        super(coinsPlugin);
+    public VelocityConfig(Path path) {
         configurateConfig = new ConfigurateConfig(path);
     }
 

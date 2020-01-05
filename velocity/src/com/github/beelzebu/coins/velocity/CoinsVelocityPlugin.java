@@ -19,23 +19,22 @@
 package com.github.beelzebu.coins.velocity;
 
 import com.github.beelzebu.coins.api.config.CoinsConfig;
-import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
 import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import com.github.beelzebu.coins.velocity.listener.LoginListener;
 
 /**
  * @author Beelzebu
  */
-public class CoinsVelocityPlugin extends CommonCoinsPlugin {
+public class CoinsVelocityPlugin extends CommonCoinsPlugin<CoinsVelocityMain> {
 
-    public CoinsVelocityPlugin(CoinsBootstrap bootstrap, CoinsConfig config) {
+    public CoinsVelocityPlugin(CoinsVelocityMain bootstrap, CoinsConfig config) {
         super(bootstrap, config);
     }
 
     @Override
     public void enable() {
         super.enable();
-        CoinsVelocityMain coinsVelocityMain = (CoinsVelocityMain) getBootstrap();
+        CoinsVelocityMain coinsVelocityMain = getBootstrap();
         coinsVelocityMain.getProxyServer().getEventManager().register(coinsVelocityMain, new LoginListener(this));
     }
 }

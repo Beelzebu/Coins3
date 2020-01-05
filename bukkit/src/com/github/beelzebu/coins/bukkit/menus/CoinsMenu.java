@@ -18,11 +18,11 @@
  */
 package com.github.beelzebu.coins.bukkit.menus;
 
-import com.github.beelzebu.coins.bukkit.utils.CompatUtils;
 import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.config.AbstractConfigFile;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.api.utils.StringUtils;
+import com.github.beelzebu.coins.bukkit.CoinsBukkitPlugin;
+import com.github.beelzebu.coins.bukkit.utils.CompatUtils;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
@@ -48,7 +48,7 @@ public abstract class CoinsMenu {
 
     private static final Map<UUID, CoinsMenu> inventoriesByUUID = new HashMap<>();
     private static final Map<UUID, UUID> openInventories = new HashMap<>();
-    protected final CoinsPlugin plugin = CoinsAPI.getPlugin();
+    protected final CoinsBukkitPlugin plugin = (CoinsBukkitPlugin) CoinsAPI.getPlugin();
     protected final AbstractConfigFile multipliersConfig = plugin.getBootstrap().getFileAsConfig(new File(plugin.getBootstrap().getDataFolder(), "multipliers.yml"));
     protected final Inventory inv;
     protected final UUID uuid;

@@ -22,7 +22,7 @@ import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.MultiplierData;
 import com.github.beelzebu.coins.api.MultiplierType;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.bukkit.CoinsBukkitPlugin;
 import com.github.beelzebu.coins.bukkit.utils.CompatUtils;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,7 +34,11 @@ import org.bukkit.entity.Player;
  */
 public class MultipliersPlaceholders extends PlaceholderExpansion {
 
-    private final CoinsPlugin plugin = CoinsAPI.getPlugin();
+    private final CoinsBukkitPlugin plugin;
+
+    public MultipliersPlaceholders(CoinsBukkitPlugin plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public String getIdentifier() {
@@ -95,6 +99,6 @@ public class MultipliersPlaceholders extends PlaceholderExpansion {
         } catch (NullPointerException ex) {
             ex.printStackTrace();
         }
-        return "";
+        return "coins multiplier error";
     }
 }

@@ -20,7 +20,8 @@ package com.github.beelzebu.coins.common.messaging;
 
 import com.github.beelzebu.coins.api.messaging.AbstractMessagingService;
 import com.github.beelzebu.coins.api.messaging.MessagingServiceType;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
+import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import com.github.beelzebu.coins.common.utils.RedisManager;
 import com.google.gson.JsonObject;
 import java.util.UUID;
@@ -37,7 +38,7 @@ public class RedisMessaging extends AbstractMessagingService {
     private final RedisManager redisManager;
     private PubSubListener psl;
 
-    public RedisMessaging(CoinsPlugin coinsPlugin, RedisManager redisManager) {
+    public RedisMessaging(CommonCoinsPlugin<? extends CoinsBootstrap> coinsPlugin, RedisManager redisManager) {
         super(coinsPlugin);
         this.redisManager = redisManager;
     }

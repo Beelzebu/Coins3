@@ -19,7 +19,7 @@
 package com.github.beelzebu.coins.bukkit.importer;
 
 import com.github.beelzebu.coins.api.CoinsAPI;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
+import com.github.beelzebu.coins.bukkit.CoinsBukkitPlugin;
 import com.github.beelzebu.coins.common.importer.Importer;
 import com.github.beelzebu.coins.common.importer.PluginToImport;
 import com.twanl.tokens.commands.Commands;
@@ -49,7 +49,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class BukkitImporter extends Importer {
 
-    public BukkitImporter(CoinsPlugin plugin) {
+    public BukkitImporter(CoinsBukkitPlugin plugin) {
         super(plugin);
     }
 

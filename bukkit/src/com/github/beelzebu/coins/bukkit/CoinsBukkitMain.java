@@ -22,6 +22,7 @@ import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.config.AbstractConfigFile;
 import com.github.beelzebu.coins.api.messaging.ProxyMessaging;
 import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
+import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.api.utils.StringUtils;
 import com.github.beelzebu.coins.bukkit.command.CommandManager;
 import com.github.beelzebu.coins.bukkit.config.BukkitConfig;
@@ -31,7 +32,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -40,15 +40,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class CoinsBukkitMain extends JavaPlugin implements CoinsBootstrap {
 
-    @Getter
     private CommandManager commandManager;
-    @Getter
     private CoinsBukkitPlugin plugin;
     private BukkitMessaging messaging;
 
     @Override
     public void onLoad() {
-        plugin = new CoinsBukkitPlugin(this, new BukkitConfig(getPlugin(), getConfig()));
+        plugin = new CoinsBukkitPlugin(this, new BukkitConfig(getConfig()));
         plugin.load();
     }
 
@@ -61,6 +59,11 @@ public class CoinsBukkitMain extends JavaPlugin implements CoinsBootstrap {
     public void onEnable() {
         commandManager = new CommandManager(plugin);
         plugin.enable();
+    }
+
+    @Override
+    public CoinsPlugin<CoinsBukkitMain> getPlugin() {
+        return plugin;
     }
 
     @Override
@@ -160,5 +163,9 @@ public class CoinsBukkitMain extends JavaPlugin implements CoinsBootstrap {
     @Override
     public ProxyMessaging getProxyMessaging() {
         return messaging == null ? messaging = new BukkitMessaging(plugin) : messaging;
+    }
+
+    public CommandManager getCommandManager() {
+        return commandManager;
     }
 }

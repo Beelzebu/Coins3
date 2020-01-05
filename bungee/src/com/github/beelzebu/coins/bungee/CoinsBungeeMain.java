@@ -54,7 +54,7 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
 
     @Override
     public void onEnable() {
-        plugin = new CoinsBungeePlugin(this, new BungeeConfig(getPlugin(), new File(getDataFolder(), "config.yml")));
+        plugin = new CoinsBungeePlugin(this, new BungeeConfig(new File(getDataFolder(), "config.yml")));
         plugin.load();
         plugin.enable();
     }
@@ -65,7 +65,7 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
     }
 
     @Override
-    public CoinsPlugin getPlugin() {
+    public CoinsPlugin<CoinsBungeeMain> getPlugin() {
         return plugin;
     }
 

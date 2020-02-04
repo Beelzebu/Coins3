@@ -88,10 +88,11 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <artifactId>coinsystem-core</artifactId>
+            <artifactId>dkcoins</artifactId>
             <groupId>ch.dkrieger.coinsystem</groupId>
             <version>3.1.4</version>
-            <scope>provided</scope>
+            <scope>system</scope>
+            <systemPath>${libsDir}/DKCoins-3.1.8.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.twanl.tokens</groupId>

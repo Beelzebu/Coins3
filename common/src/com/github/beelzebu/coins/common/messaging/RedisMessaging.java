@@ -25,7 +25,6 @@ import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import com.github.beelzebu.coins.common.utils.RedisManager;
 import com.google.gson.JsonObject;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 
@@ -70,10 +69,13 @@ public class RedisMessaging extends AbstractMessagingService {
         psl.poison();
     }
 
-    @AllArgsConstructor
     private class PubSubListener implements Runnable {
 
         private final JedisPubSub jpsh;
+
+        public PubSubListener(JedisPubSub jpsh) {
+            this.jpsh = jpsh;
+        }
 
         @Override
         public void run() {

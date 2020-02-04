@@ -22,11 +22,10 @@ import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.config.AbstractConfigFile;
 import com.github.beelzebu.coins.api.messaging.ProxyMessaging;
 import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.api.utils.StringUtils;
 import com.github.beelzebu.coins.bukkit.command.CommandManager;
-import com.github.beelzebu.coins.bukkit.config.BukkitConfig;
-import com.github.beelzebu.coins.bukkit.config.BukkitMessages;
+import com.github.beelzebu.coins.bukkit.config.BukkitCoinsConfig;
+import com.github.beelzebu.coins.bukkit.config.BukkitConfigFile;
 import com.github.beelzebu.coins.bukkit.messaging.BukkitMessaging;
 import java.io.File;
 import java.util.ArrayList;
@@ -46,7 +45,7 @@ public class CoinsBukkitMain extends JavaPlugin implements CoinsBootstrap {
 
     @Override
     public void onLoad() {
-        plugin = new CoinsBukkitPlugin(this, new BukkitConfig(getConfig()));
+        plugin = new CoinsBukkitPlugin(this, new BukkitCoinsConfig(getConfig()));
         plugin.load();
     }
 
@@ -62,13 +61,13 @@ public class CoinsBukkitMain extends JavaPlugin implements CoinsBootstrap {
     }
 
     @Override
-    public CoinsPlugin<CoinsBukkitMain> getPlugin() {
+    public CoinsBukkitPlugin getPlugin() {
         return plugin;
     }
 
     @Override
     public AbstractConfigFile getFileAsConfig(File file) {
-        return new BukkitMessages(file);
+        return new BukkitConfigFile(file);
     }
 
     @Override

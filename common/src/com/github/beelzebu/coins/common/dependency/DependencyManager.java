@@ -46,10 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 public final class DependencyManager {
 
     private final CommonCoinsPlugin<? extends CoinsBootstrap> plugin;
@@ -58,6 +55,12 @@ public final class DependencyManager {
     private final Map<Dependency, Path> loaded = new EnumMap<>(Dependency.class);
     private final Map<ImmutableSet<Dependency>, IsolatedClassLoader> loaders = new HashMap<>();
     private RelocationHandler relocationHandler;
+
+    public DependencyManager(CommonCoinsPlugin<? extends CoinsBootstrap> plugin, ReflectionClassLoader reflectionClassLoader, DependencyRegistry registry) {
+        this.plugin = plugin;
+        this.reflectionClassLoader = reflectionClassLoader;
+        this.registry = registry;
+    }
 
     public void loadStorageDependencies(StorageType storageType) {
         Set<Dependency> dependencies = registry.resolveStorageDependencies(storageType);
@@ -173,7 +176,6 @@ public final class DependencyManager {
         }
     }
 
-    @Getter
     private static final class Source {
 
         private final Dependency dependency;
@@ -182,6 +184,14 @@ public final class DependencyManager {
         private Source(Dependency dependency, Path file) {
             this.dependency = dependency;
             this.file = file;
+        }
+
+        public Dependency getDependency() {
+            return dependency;
+        }
+
+        public Path getFile() {
+            return file;
         }
     }
 }

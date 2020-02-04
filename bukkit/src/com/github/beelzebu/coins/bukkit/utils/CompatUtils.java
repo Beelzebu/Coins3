@@ -25,7 +25,6 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
-import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -161,7 +160,7 @@ public final class CompatUtils {
         }
     }
 
-    public static Enchantment getEnchantment(@NonNull String string) {
+    public static Enchantment getEnchantment(String string) {
         if (VERSION.isAfterOrEq(MinecraftVersion.MINECRAFT_1_13)) {
             Optional<Enchantment> enchantmentOptional = Stream.of(Enchantment.values()).filter(enchantment -> enchantment.getKey().getKey().equalsIgnoreCase(string)).findFirst();
             if (enchantmentOptional.isPresent()) {

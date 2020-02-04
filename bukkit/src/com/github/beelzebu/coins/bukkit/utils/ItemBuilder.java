@@ -26,8 +26,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -36,13 +34,16 @@ import org.bukkit.inventory.meta.ItemMeta;
 /**
  * @author Beelzebu
  */
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class ItemBuilder {
 
     private final Material material;
     private String displayName;
     private List<String> lore;
     private Set<ItemFlag> flags;
+
+    private ItemBuilder(Material material) {
+        this.material = material;
+    }
 
     public static ItemBuilder newBuilder(Material material) {
         return new ItemBuilder(material);

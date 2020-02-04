@@ -27,9 +27,7 @@ package com.github.beelzebu.coins.common.dependency;
 import com.github.beelzebu.coins.common.dependency.relocation.Relocation;
 import java.util.Collections;
 import java.util.List;
-import lombok.Getter;
 
-@Getter
 public enum Dependency {
 
     ASM("org.ow2.asm", "asm", "6.1.1"),
@@ -66,5 +64,17 @@ public enum Dependency {
         this.url = url;
         this.version = version;
         this.relocations = relocations;
+    }
+
+    public String getUrl() {
+        return this.url;
+    }
+
+    public String getVersion() {
+        return this.version;
+    }
+
+    public List<Relocation> getRelocations() {
+        return this.relocations;
     }
 }

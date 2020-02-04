@@ -20,18 +20,18 @@ package com.github.beelzebu.coins.bukkit.config;
 
 import com.github.beelzebu.coins.api.config.CoinsConfig;
 import com.github.beelzebu.coins.bukkit.CoinsBukkitMain;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import org.bukkit.configuration.file.FileConfiguration;
 
 /**
  * @author Beelzebu
  */
-public class BukkitConfig extends CoinsConfig {
+public class BukkitCoinsConfig extends CoinsConfig {
 
     private final FileConfiguration config;
 
-    public BukkitConfig(FileConfiguration config) {
+    public BukkitCoinsConfig(FileConfiguration config) {
         this.config = config;
         reload();
     }
@@ -43,7 +43,7 @@ public class BukkitConfig extends CoinsConfig {
 
     @Override
     public Set<String> getConfigurationSection(String path) {
-        return config.getConfigurationSection(path) != null ? config.getConfigurationSection(path).getKeys(false) : Collections.emptySet();
+        return config.isConfigurationSection(path) && config.getConfigurationSection(path) != null ? config.getConfigurationSection(path).getKeys(false) : new HashSet<>();
     }
 
     @Override

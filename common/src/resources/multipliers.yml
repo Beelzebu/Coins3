@@ -41,6 +41,11 @@ Menus:
         Commands:
         - 'console: say this is a custom item'
         - 'player: say I love this server <3'
+  Confirm:
+    Use:
+      Sound: ENTITY_PLAYER_LEVELUP
+    Fail:
+      Sound: ENTITY_VILLAGER_NO
   Multipliers:
     Global:
       # Here you can define which multiplier types will be shown in this menu, valid multiplier types:

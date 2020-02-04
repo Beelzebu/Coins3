@@ -22,7 +22,6 @@ import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.config.AbstractConfigFile;
 import com.github.beelzebu.coins.api.messaging.ProxyMessaging;
 import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.velocity.config.VelocityConfig;
 import com.github.beelzebu.coins.velocity.config.VelocityMessages;
 import com.github.beelzebu.coins.velocity.messaging.VelocityMessaging;
@@ -84,7 +83,7 @@ public class CoinsVelocityMain implements CoinsBootstrap {
     }
 
     @Override
-    public CoinsPlugin getPlugin() {
+    public CoinsVelocityPlugin getPlugin() {
         return plugin;
     }
 
@@ -194,6 +193,7 @@ public class CoinsVelocityMain implements CoinsBootstrap {
     @Override
     public List<String> getPermissions(UUID uuid) {
         List<String> permissions = new ArrayList<>();
+
         return permissions;
     }
 

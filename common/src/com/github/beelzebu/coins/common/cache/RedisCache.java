@@ -58,20 +58,6 @@ public final class RedisCache implements CacheProvider {
 
     @Override
     public void start() {
-        if (plugin.getConfig().isRedisLoadMultipliers()) {
-            plugin.getBootstrap().runAsync(() -> {
-                plugin.log("Updating all multipliers from database in redis...");
-                long start = System.currentTimeMillis();
-                plugin.getStorageProvider().getMultipliers().forEach(multiplier -> {
-                    Optional<Multiplier> optionalMultiplier = getMultiplier(multiplier.getId());
-                    if (optionalMultiplier.isPresent() && !Objects.equals(optionalMultiplier.get(), multiplier)) {
-                        addMultiplier(multiplier);
-                    }
-                });
-                long end = System.currentTimeMillis();
-                plugin.log("Updated all multipliers in redis. Took " + (start - end) + "ms");
-            });
-        }
     }
 
     @Override

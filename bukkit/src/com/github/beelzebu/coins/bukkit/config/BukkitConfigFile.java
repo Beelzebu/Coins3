@@ -16,50 +16,38 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.beelzebu.coins.bungee.config;
+package com.github.beelzebu.coins.bukkit.config;
 
 import com.github.beelzebu.coins.api.config.AbstractConfigFile;
 import java.io.File;
-import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import net.md_5.bungee.config.ConfigurationProvider;
-import net.md_5.bungee.config.YamlConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
  * @author Beelzebu
  */
-public class BungeeMessages extends AbstractConfigFile {
+public class BukkitConfigFile extends AbstractConfigFile {
 
-    private File langFile;
-    private net.md_5.bungee.config.Configuration messages;
+    private final File langFile;
+    private YamlConfiguration yamlConfiguration;
 
-    public BungeeMessages(File file) {
-        load(langFile = file);
+    public BukkitConfigFile(File file) {
+        yamlConfiguration = YamlConfiguration.loadConfiguration(langFile = file);
     }
 
     @Override
     public Object get(String path) {
-        return messages.get(path);
+        return yamlConfiguration.get(path);
     }
 
     @Override
     public Set<String> getConfigurationSection(String path) {
-        return (Set<String>) messages.getSection(path).getKeys();
+        return yamlConfiguration.isConfigurationSection(path) && yamlConfiguration.getConfigurationSection(path) != null ? yamlConfiguration.getConfigurationSection(path).getKeys(false) : new HashSet<>();
     }
 
     @Override
-    public final void reload() {
-        load(langFile);
-    }
-
-    private void load(File file) {
-        langFile = file;
-        try {
-            messages = ConfigurationProvider.getProvider(YamlConfiguration.class).load(file);
-        } catch (IOException ex) {
-            Logger.getLogger(BungeeConfig.class.getName()).log(Level.WARNING, "An unexpected error has occurred reloading the messages file. {0}", ex.getMessage());
-        }
+    public void reload() {
+        yamlConfiguration = YamlConfiguration.loadConfiguration(langFile);
     }
 }

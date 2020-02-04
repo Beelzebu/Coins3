@@ -16,7 +16,7 @@ Vault:
     Singular: 'Coin'
     Plural: 'Coins'
 
-# Wich storage method the plugin should use.
+# Which storage method the plugin should use.
 #
 # Available options:
 #  -> sqlite    data is stored locally and can't be shared with other servers.
@@ -26,7 +26,7 @@ Storage Type: sqlite
 
 # Don't touch this setting, this is only for internal usage to auto update the
 # database when something changes.
-Database Version: 2
+Database Version: 3
 
 # Settings for messaging service
 # If enabled and configured, Coins will use the messaging service to inform other
@@ -72,10 +72,6 @@ Redis:
   Host: 'localhost'
   Port: 6379
   Password: 'S3CUR3P4SSW0RD'
-  # If true the plugin will get all multipliers from the database and try to update and upload
-  # all them to redis on plugin startup, this can be very resource expensive for big servers and
-  # should be enabled only in bungeecord servers or servers that should have a good uptime.
-  Load Multipliers: true
 
 # Plugin general configurations.
 General:

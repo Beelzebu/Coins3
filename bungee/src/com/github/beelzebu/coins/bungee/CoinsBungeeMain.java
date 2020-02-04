@@ -22,10 +22,9 @@ import com.github.beelzebu.coins.api.Multiplier;
 import com.github.beelzebu.coins.api.config.AbstractConfigFile;
 import com.github.beelzebu.coins.api.messaging.ProxyMessaging;
 import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
-import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.api.utils.StringUtils;
-import com.github.beelzebu.coins.bungee.config.BungeeConfig;
-import com.github.beelzebu.coins.bungee.config.BungeeMessages;
+import com.github.beelzebu.coins.bungee.config.BungeeCoinsConfig;
+import com.github.beelzebu.coins.bungee.config.BungeeConfigFile;
 import com.github.beelzebu.coins.bungee.messaging.BungeeMessaging;
 import java.io.File;
 import java.io.InputStream;
@@ -49,12 +48,11 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
 
     @Override
     public void onLoad() {
-
     }
 
     @Override
     public void onEnable() {
-        plugin = new CoinsBungeePlugin(this, new BungeeConfig(new File(getDataFolder(), "config.yml")));
+        plugin = new CoinsBungeePlugin(this, new BungeeCoinsConfig(new File(getDataFolder(), "config.yml")));
         plugin.load();
         plugin.enable();
     }
@@ -65,13 +63,13 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
     }
 
     @Override
-    public CoinsPlugin<CoinsBungeeMain> getPlugin() {
+    public CoinsBungeePlugin getPlugin() {
         return plugin;
     }
 
     @Override
     public AbstractConfigFile getFileAsConfig(File file) {
-        return new BungeeMessages(file);
+        return new BungeeConfigFile(file);
     }
 
     @Override

@@ -8,7 +8,7 @@ Executors:
     # This is the command that the console gonna run.
     Command:
     - 'eco give %player% 10000' # Note the %player% placeholder, this is replaced by the player that runs the command.
-    Cost: 100 # This is the cost of the command.
+    Cost: 10000 # This is the cost of the command.
   '2':
     # You can create executors without cost.
     Command:
@@ -26,7 +26,7 @@ Executors:
     - 'message: You win 100 $'
     - 'broadcast: %player% won 100 $'
     - 'eco give %player% 100'
-    Cost: 10
+    Cost: 100
   # This example executor is to be used with signs, for signs you can add the 'Displayname'
   # to be used in the sign, if isn't present the id is used for the displayname, in this case
   # if we don't put the Displayname this would be: sign1
@@ -46,4 +46,4 @@ Executors:
     Command:
     - 'lp user %player% parent add vip4 10d'
     - 'message:Here is your VIP for 10 days, enjoy! :D'
-    Cost: 500
+    Cost: 500000

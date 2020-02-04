@@ -47,6 +47,7 @@ public class SignListener implements Listener {
     private final CoinsBukkitPlugin plugin;
     private final File signsFile;
     private final FileConfiguration signs;
+    private final FileConfiguration executorsFile;
 
     public SignListener(CoinsBukkitPlugin plugin) {
         this.plugin = plugin;
@@ -56,10 +57,11 @@ public class SignListener implements Listener {
                 signsFile.createNewFile();
             } catch (IOException ex) {
                 plugin.log("An error has occurred while creating the signs.yml file.");
-                plugin.log(ex.getMessage());
+                plugin.debug(ex);
             }
         }
         signs = YamlConfiguration.loadConfiguration(signsFile);
+        executorsFile = YamlConfiguration.loadConfiguration(plugin.getFileManager().getExecutorsFile());
     }
 
     @EventHandler
@@ -74,10 +76,10 @@ public class SignListener implements Listener {
                 signs.set(id + ".Executor", e.getLine(1));
                 try {
                     signs.save(signsFile);
-                    if (plugin.getConfig().getConfigurationSection("Command executor." + ex.getId() + ".Executor Sign") != null) {
-                        e.setLine(1, rep(plugin.getConfig().getString("Command executor." + ex.getId() + ".Executor Sign.2"), ex));
-                        e.setLine(2, rep(plugin.getConfig().getString("Command executor." + ex.getId() + ".Executor Sign.3"), ex));
-                        e.setLine(3, rep(plugin.getConfig().getString("Command executor." + ex.getId() + ".Executor Sign.4"), ex));
+                    if (executorsFile.getConfigurationSection("Executors." + ex.getId() + ".Executor Sign") != null) {
+                        e.setLine(1, rep(executorsFile.getString("Executors." + ex.getId() + ".Executor Sign.2"), ex));
+                        e.setLine(2, rep(executorsFile.getString("Executors." + ex.getId() + ".Executor Sign.3"), ex));
+                        e.setLine(3, rep(executorsFile.getString("Executors." + ex.getId() + ".Executor Sign.4"), ex));
                     } else {
                         e.setLine(1, rep(plugin.getConfig().getString("General.Executor Sign.2"), ex));
                         e.setLine(2, rep(plugin.getConfig().getString("General.Executor Sign.3"), ex));
@@ -85,7 +87,7 @@ public class SignListener implements Listener {
                     }
                 } catch (IOException ex1) {
                     plugin.log("An error has occurred while saving the signs.yml file");
-                    plugin.log(ex1.getMessage());
+                    plugin.debug(ex1);
                     e.getPlayer().sendMessage(StringUtils.rep("%prefix% An error has occurred while saving the signs.yml file, please check the console"));
                 }
             } else {
@@ -112,7 +114,7 @@ public class SignListener implements Listener {
                         } catch (IOException ex) {
                             e.setCancelled(true);
                             plugin.log("An error has occurred while saving the signs.yml file");
-                            plugin.log(ex.getMessage());
+                            plugin.debug(ex);
                             e.getPlayer().sendMessage(StringUtils.rep("%prefix% An error has occurred while saving the signs.yml file, please check the console"));
                         }
                         break;

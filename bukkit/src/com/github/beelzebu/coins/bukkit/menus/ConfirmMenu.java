@@ -46,7 +46,7 @@ public class ConfirmMenu extends CoinsMenu {
         ItemStack accept = ItemBuilder.newBuilder(CompatUtils.getItem(CompatUtils.MaterialItem.GREEN_STAINED_GLASS)).setDisplayName(plugin.getString("Multipliers.Menu.Confirm.Accept", CompatUtils.getLocale(p))).build();
         setItem(2, accept, player -> {
             if (multiplier.enable()) {
-                String sound = plugin.getConfig().getString("Multipliers.GUI.Use.Sound");
+                String sound = plugin.getMultipliersConfig().getString("Menus.Confirm.Use.Sound", "ENTITY_PLAYER_LEVELUP");
                 if (sound != null) {
                     try {
                         player.playSound(player.getLocation(), Sound.valueOf(sound), 10, 2);
@@ -57,16 +57,7 @@ public class ConfirmMenu extends CoinsMenu {
                     }
                 }
             } else {
-                String sound = plugin.getConfig().getString("Multipliers.GUI.Use.Fail.Sound");
-                if (sound != null) {
-                    try {
-                        player.playSound(player.getLocation(), Sound.valueOf(sound), 10, 1);
-                    } catch (IllegalArgumentException ex) {
-                        plugin.log("Seems that you're using an invalid sound, please edit the config and set the sound that corresponds for the version of your server.");
-                        plugin.log("Please check https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html\n"
-                                + "If need more help, please open an issue in https://github.com/Beelzebu/Coins3/issues");
-                    }
-                }
+                playFailSound(player);
                 player.sendMessage(plugin.getString("Multipliers.Already active", CompatUtils.getLocale(player)));
             }
             player.closeInventory();
@@ -81,9 +72,22 @@ public class ConfirmMenu extends CoinsMenu {
         setItem(4, potion);
         ItemStack decline = ItemBuilder.newBuilder(CompatUtils.getItem(CompatUtils.MaterialItem.RED_STAINED_GLASS)).setDisplayName(plugin.getString("Multipliers.Menu.Confirm.Decline", CompatUtils.getLocale(p))).build();
         setItem(6, decline, player -> {
-            player.playSound(player.getLocation(), Sound.valueOf(plugin.getConfig().getString("Multipliers.GUI.Use.Fail.Sound", "VILLAGER_NO")), 10, 1);
+            playFailSound(player);
             player.closeInventory();
         });
+    }
+
+    private void playFailSound(Player player) {
+        String sound = plugin.getMultipliersConfig().getString("Menus.Confirm.Fail.Sound", "ENTITY_VILLAGER_NO");
+        if (sound != null) {
+            try {
+                player.playSound(player.getLocation(), Sound.valueOf(sound), 10, 1);
+            } catch (IllegalArgumentException ex) {
+                plugin.log("Seems that you're using an invalid sound, please edit the config and set the sound that corresponds for the version of your server.");
+                plugin.log("Please check https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html\n"
+                        + "If need more help, please open an issue in https://github.com/Beelzebu/Coins3/issues");
+            }
+        }
     }
 
     @Override

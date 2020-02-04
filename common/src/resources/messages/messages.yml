@@ -16,6 +16,7 @@ Help:
   - ' &a/coins <name> &f- &7Show the coins of the user.'
   - ' &a/coins pay <name> <amount> &f- &7Pay to the user the selected amount.'
   - ' &a/coins top &f- &7Show the top 10 users in coins.'
+  - ' &a/multiplier &f- &7Open multiplier menu.'
   - '&8&m+-------------------------------------------------+'
   Admin:
   - '&8&m+-------------------------------------------------+'
@@ -30,7 +31,6 @@ Help:
   - ' &c/coins about &f- &7Show information about the plugin.'
   - ' &c/coins import &f- &7Import data from other plugins.'
   - ' &c/coins importdb &f- &7Import data from another storage.'
-  - ' &c/coins multiplier &f- &7Show multiplier subcommands.'
   - ' &8&m+-------------------------------------------------+'
   Pay Usage: '%prefix% &cPlease use &f/coins pay <name> <coins>'
   Give Usage: '%prefix% &cPlease use &f/coins give <name> <coins>'
@@ -44,8 +44,9 @@ Help:
   - '&8&m+-------------------------------------------------+'
   - '%prefix% Multiplier subcommands'
   - ' '
-  - ' &ccreate <player> <amount> <minutes> (server) &f- &7Create a multiplier.'
-  - ' &cset <amount> <enabler> <minutes> (server) &f- &7Set a multiplier.'
+  - ' &chelp &f- &7Show this help message.'
+  - ' &c<player> &f- &7Open other player''s multiplier menu.'
+  - ' &ccreate <player> <amount> <minutes> (server) (type) &f- &7Create a multiplier.'
   - '&8&m+-------------------------------------------------+'
 Errors:
   No permissions: '%prefix% &cYou don''t have permissions.'

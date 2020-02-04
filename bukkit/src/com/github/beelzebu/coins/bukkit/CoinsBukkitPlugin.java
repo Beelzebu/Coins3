@@ -30,8 +30,6 @@ import com.github.beelzebu.coins.bukkit.utils.leaderheads.LeaderHeadsHook;
 import com.github.beelzebu.coins.bukkit.utils.placeholders.CoinsPlaceholders;
 import com.github.beelzebu.coins.bukkit.utils.placeholders.MultipliersPlaceholders;
 import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
-import lombok.Getter;
-import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -43,8 +41,6 @@ import org.bukkit.event.server.PluginEnableEvent;
 public class CoinsBukkitPlugin extends CommonCoinsPlugin<CoinsBukkitMain> {
 
     private boolean vault = false, placeholderapi = false, leaderheads = false;
-    @Getter
-    @Setter
     private CoinsEconomy coinsEconomy;
 
     CoinsBukkitPlugin(CoinsBukkitMain bootstrap, CoinsConfig coinsConfig) {
@@ -94,6 +90,14 @@ public class CoinsBukkitPlugin extends CommonCoinsPlugin<CoinsBukkitMain> {
         CoinsMenu.getInventoriesByUUID().values().forEach(CoinsMenu::delete);
         getBootstrap().getCommandManager().unregisterCommand();
         Bukkit.getScheduler().cancelTasks(getBootstrap());
+    }
+
+    public CoinsEconomy getCoinsEconomy() {
+        return this.coinsEconomy;
+    }
+
+    public void setCoinsEconomy(CoinsEconomy coinsEconomy) {
+        this.coinsEconomy = coinsEconomy;
     }
 
     private void hookOptionalDependencies() {

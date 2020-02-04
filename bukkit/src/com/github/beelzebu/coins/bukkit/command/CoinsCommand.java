@@ -26,7 +26,6 @@ import com.github.beelzebu.coins.api.executor.Executor;
 import com.github.beelzebu.coins.api.executor.ExecutorManager;
 import com.github.beelzebu.coins.api.storage.StorageType;
 import com.github.beelzebu.coins.api.utils.StringUtils;
-import com.github.beelzebu.coins.bukkit.CoinsBukkitMain;
 import com.github.beelzebu.coins.bukkit.CoinsBukkitPlugin;
 import com.github.beelzebu.coins.bukkit.importer.BukkitImporter;
 import com.github.beelzebu.coins.bukkit.utils.CoinsEconomy;
@@ -391,7 +390,7 @@ public class CoinsCommand extends AbstractCoinsCommand {
             plugin.getConfig().reload();
             plugin.reloadMessages();
             if (plugin.getConfig().getBoolean("Vault.Use", false)) {
-                plugin.setCoinsEconomy(new CoinsEconomy((CoinsBukkitMain) plugin.getBootstrap()));
+                plugin.setCoinsEconomy(new CoinsEconomy(plugin.getBootstrap()));
                 plugin.getCoinsEconomy().setup();
             }
             ExecutorManager.getExecutors().clear();

@@ -26,15 +26,16 @@ package com.github.beelzebu.coins.common.dependency.relocation;
 
 import java.util.Arrays;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
-@AllArgsConstructor
 public final class Relocation {
 
     private final String pattern;
     private final String relocatedPattern;
+
+    public Relocation(String pattern, String relocatedPattern) {
+        this.pattern = pattern;
+        this.relocatedPattern = relocatedPattern;
+    }
 
     public static Relocation of(String id, String pattern) {
         return new Relocation(pattern.replace("{}", "."), "com.github.beelzebu.lib." + id);
@@ -42,5 +43,13 @@ public final class Relocation {
 
     public static List<Relocation> allOf(Relocation... relocations) {
         return Arrays.asList(relocations);
+    }
+
+    public String getPattern() {
+        return this.pattern;
+    }
+
+    public String getRelocatedPattern() {
+        return this.relocatedPattern;
     }
 }

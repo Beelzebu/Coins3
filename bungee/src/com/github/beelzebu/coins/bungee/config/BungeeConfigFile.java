@@ -18,10 +18,9 @@
  */
 package com.github.beelzebu.coins.bungee.config;
 
-import com.github.beelzebu.coins.api.config.CoinsConfig;
+import com.github.beelzebu.coins.api.config.AbstractConfigFile;
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,32 +30,36 @@ import net.md_5.bungee.config.YamlConfiguration;
 /**
  * @author Beelzebu
  */
-public class BungeeConfig extends CoinsConfig {
+public class BungeeConfigFile extends AbstractConfigFile {
 
-    private final File configFile;
-    private net.md_5.bungee.config.Configuration config;
+    private File langFile;
+    private net.md_5.bungee.config.Configuration messages;
 
-    public BungeeConfig(File file) {
-        configFile = file;
-        reload();
+    public BungeeConfigFile(File file) {
+        load(langFile = file);
     }
 
     @Override
     public Object get(String path) {
-        return config.get(path);
+        return messages.get(path);
     }
 
     @Override
     public Set<String> getConfigurationSection(String path) {
-        return new LinkedHashSet<>(config.getSection(path).getKeys());
+        return (Set<String>) messages.getSection(path).getKeys();
     }
 
     @Override
     public final void reload() {
+        load(langFile);
+    }
+
+    private void load(File file) {
+        langFile = file;
         try {
-            config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
+            messages = ConfigurationProvider.getProvider(YamlConfiguration.class).load(file);
         } catch (IOException ex) {
-            Logger.getLogger(BungeeConfig.class.getName()).log(Level.SEVERE, "An unexpected error has occurred reloading the config. {0}", ex.getMessage());
+            Logger.getLogger(BungeeCoinsConfig.class.getName()).log(Level.WARNING, "An unexpected error has occurred reloading the messages file. {0}", ex.getMessage());
         }
     }
 }

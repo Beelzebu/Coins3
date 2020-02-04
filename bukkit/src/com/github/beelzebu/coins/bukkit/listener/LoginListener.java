@@ -22,7 +22,6 @@ import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.messaging.MessagingServiceType;
 import com.github.beelzebu.coins.bukkit.CoinsBukkitPlugin;
 import com.github.beelzebu.coins.bukkit.messaging.BukkitMessaging;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -32,11 +31,14 @@ import org.bukkit.event.player.PlayerQuitEvent;
 /**
  * @author Beelzebu
  */
-@RequiredArgsConstructor
 public class LoginListener implements Listener {
 
     private final CoinsBukkitPlugin plugin;
     private boolean first = true;
+
+    public LoginListener(CoinsBukkitPlugin plugin) {
+        this.plugin = plugin;
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent e) {

@@ -59,13 +59,12 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.UUID;
-import lombok.Getter;
-import lombok.Setter;
 import net.md_5.bungee.api.ChatColor;
 
 /**
@@ -73,29 +72,24 @@ import net.md_5.bungee.api.ChatColor;
  */
 public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin<T> {
 
+    private final T bootstrap;
     private final CoinsConfig config;
     private final MultipliersConfig multipliersConfig;
-    @Getter
-    private final FileManager fileManager;
-    @Getter
-    private final T bootstrap;
-    private final HashMap<String, AbstractConfigFile> messagesMap = new HashMap<>();
     private final DependencyManager dependencyManager;
-    @Setter
+    private final FileManager fileManager;
+    private final Map<String, AbstractConfigFile> messagesMap = new HashMap<>();
     private MessagingServiceType messagingServiceType;
-    @Setter
     private AbstractMessagingService messagingService;
     private boolean logEnabled = false;
     private StorageType storageType;
-    @Setter
     private StorageProvider storageProvider;
-    @Setter
     private CacheType cacheType;
-    @Setter
     private CacheProvider cache;
     private RedisManager redisManager;
 
     public CommonCoinsPlugin(T bootstrap, CoinsConfig config) {
+        Objects.requireNonNull(bootstrap, "CoinsBootstrap can't be null");
+        Objects.requireNonNull(config, "CoinsConfig can't be null");
         this.config = config;
         this.bootstrap = bootstrap;
         multipliersConfig = new MultipliersConfigImpl(this, bootstrap.getFileAsConfig(new File(bootstrap.getDataFolder(), "multipliers.yml")));
@@ -333,6 +327,40 @@ public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin
         return logEnabled;
     }
 
+    public FileManager getFileManager() {
+        return fileManager;
+    }
+
+    @Override
+    public T getBootstrap() {
+        return bootstrap;
+    }
+
+    @Override
+    public void setMessagingServiceType(MessagingServiceType messagingServiceType) {
+        this.messagingServiceType = messagingServiceType;
+    }
+
+    @Override
+    public void setMessagingService(AbstractMessagingService messagingService) {
+        this.messagingService = messagingService;
+    }
+
+    @Override
+    public void setStorageProvider(StorageProvider storageProvider) {
+        this.storageProvider = storageProvider;
+    }
+
+    @Override
+    public void setCacheType(CacheType cacheType) {
+        this.cacheType = cacheType;
+    }
+
+    @Override
+    public void setCache(CacheProvider cache) {
+        this.cache = cache;
+    }
+
     private void motd(boolean enable) {
         bootstrap.sendMessage(bootstrap.getConsole(), StringUtils.rep(""));
         bootstrap.sendMessage(bootstrap.getConsole(), StringUtils.rep("&6-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"));
@@ -398,7 +426,7 @@ public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin
                 Files.move(new File(bootstrap.getDataFolder(), "database.db").toPath(), new File(bootstrap.getDataFolder(), "database.old.db").toPath());
             } catch (IOException ex) {
                 log("An error has occurred moving the old database");
-                debug(ex.getMessage());
+                debug(ex);
             }
         }
     }

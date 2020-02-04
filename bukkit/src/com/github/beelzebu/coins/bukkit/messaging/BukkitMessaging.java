@@ -27,7 +27,6 @@ import com.google.common.io.ByteStreams;
 import com.google.gson.JsonObject;
 import java.util.LinkedList;
 import java.util.Queue;
-import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -38,7 +37,6 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
  */
 public final class BukkitMessaging extends ProxyMessaging implements PluginMessageListener {
 
-    @Getter
     private final Queue<String> messageQueue = new LinkedList<>();
 
     public BukkitMessaging(CoinsBukkitPlugin coinsPlugin) {
@@ -90,5 +88,9 @@ public final class BukkitMessaging extends ProxyMessaging implements PluginMessa
     public void stop() {
         Bukkit.getMessenger().unregisterIncomingPluginChannel((Plugin) coinsPlugin.getBootstrap(), CHANNEL, this);
         Bukkit.getMessenger().unregisterOutgoingPluginChannel((Plugin) coinsPlugin.getBootstrap(), CHANNEL);
+    }
+
+    public Queue<String> getMessageQueue() {
+        return this.messageQueue;
     }
 }

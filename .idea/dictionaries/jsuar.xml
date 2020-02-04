@@ -2,6 +2,8 @@
   <dictionary name="jsuar">
     <words>
       <w>bukkit</w>
+      <w>bungeecord</w>
+      <w>minecraft</w>
     </words>
   </dictionary>
 </component>

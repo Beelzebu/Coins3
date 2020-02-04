@@ -29,8 +29,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -41,11 +39,13 @@ import org.bukkit.inventory.meta.ItemMeta;
 /**
  * @author Beelzebu
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PaginatedMenu {
 
     private static final CoinsBukkitPlugin PLUGIN = (CoinsBukkitPlugin) CoinsAPI.getPlugin();
     private static final AbstractConfigFile MULTIPLIERS_CONFIG = PLUGIN.getBootstrap().getFileAsConfig(new File(PLUGIN.getBootstrap().getDataFolder(), "multipliers.yml"));
+
+    private PaginatedMenu() {
+    }
 
     public static CoinsMenu createPaginatedGUI(Player player, boolean global, Collection<Multiplier> multipliers, String extraTitle) {
         return nextPage(player, multipliers, global, multipliers.size() >= 36, 0, null, extraTitle);

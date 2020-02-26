@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -31,6 +31,7 @@ import net.milkbowl.vault.economy.EconomyResponse.ResponseType;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.ServicePriority;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
@@ -56,6 +57,7 @@ public class CoinsEconomy implements Economy {
         return plugin.isEnabled();
     }
 
+    @NotNull
     @Override
     public String getName() {
         return plugin.getName();
@@ -89,73 +91,74 @@ public class CoinsEconomy implements Economy {
 
     @Override
     @Deprecated
-    public boolean hasAccount(String string) {
+    public boolean hasAccount(@NotNull String string) {
         return CoinsAPI.isindb(string);
     }
 
     @Override
-    public boolean hasAccount(OfflinePlayer op) {
+    public boolean hasAccount(@NotNull OfflinePlayer op) {
         return CoinsAPI.isindb(op.getUniqueId());
     }
 
     @Override
     @Deprecated
-    public boolean hasAccount(String string, String string1) {
+    public boolean hasAccount(@NotNull String string, String string1) {
         return CoinsAPI.isindb(string);
     }
 
     @Override
-    public boolean hasAccount(OfflinePlayer op, String string) {
+    public boolean hasAccount(@NotNull OfflinePlayer op, String string) {
         return CoinsAPI.isindb(op.getUniqueId());
     }
 
     @Override
     @Deprecated
-    public double getBalance(String string) {
+    public double getBalance(@NotNull String string) {
         return CoinsAPI.getCoins(string);
     }
 
     @Override
-    public double getBalance(OfflinePlayer op) {
+    public double getBalance(@NotNull OfflinePlayer op) {
         return CoinsAPI.getCoins(op.getUniqueId());
     }
 
     @Override
     @Deprecated
-    public double getBalance(String string, String string1) {
+    public double getBalance(@NotNull String string, String string1) {
         return CoinsAPI.getCoins(string);
     }
 
     @Override
-    public double getBalance(OfflinePlayer op, String string) {
+    public double getBalance(@NotNull OfflinePlayer op, String string) {
         return CoinsAPI.getCoins(op.getUniqueId());
     }
 
     @Override
     @Deprecated
-    public boolean has(String string, double d) {
+    public boolean has(@NotNull String string, double d) {
         return CoinsAPI.getCoins(string) >= d;
     }
 
     @Override
-    public boolean has(OfflinePlayer op, double d) {
+    public boolean has(@NotNull OfflinePlayer op, double d) {
         return CoinsAPI.getCoins(op.getUniqueId()) >= d;
     }
 
     @Override
     @Deprecated
-    public boolean has(String string, String string1, double d) {
+    public boolean has(@NotNull String string, String string1, double d) {
         return CoinsAPI.getCoins(string) >= d;
     }
 
     @Override
-    public boolean has(OfflinePlayer op, String string, double d) {
+    public boolean has(@NotNull OfflinePlayer op, String string, double d) {
         return CoinsAPI.getCoins(op.getUniqueId()) >= d;
     }
 
+    @NotNull
     @Override
     @Deprecated
-    public EconomyResponse withdrawPlayer(String string, double d) {
+    public EconomyResponse withdrawPlayer(@NotNull String string, double d) {
         CoinsResponse response = CoinsAPI.takeCoins(string, d);
         if (response.isSuccess()) {
             return new EconomyResponse(d, getBalance(string), ResponseType.SUCCESS, "");
@@ -164,8 +167,9 @@ public class CoinsEconomy implements Economy {
         }
     }
 
+    @NotNull
     @Override
-    public EconomyResponse withdrawPlayer(OfflinePlayer op, double d) {
+    public EconomyResponse withdrawPlayer(@NotNull OfflinePlayer op, double d) {
         CoinsResponse response = CoinsAPI.takeCoins(op.getUniqueId(), d);
         if (response.isSuccess()) {
             return new EconomyResponse(d, getBalance(op), ResponseType.SUCCESS, "");
@@ -174,20 +178,23 @@ public class CoinsEconomy implements Economy {
         }
     }
 
+    @NotNull
     @Override
     @Deprecated
-    public EconomyResponse withdrawPlayer(String string, String string1, double d) {
+    public EconomyResponse withdrawPlayer(@NotNull String string, String string1, double d) {
         return withdrawPlayer(string, d);
     }
 
+    @NotNull
     @Override
-    public EconomyResponse withdrawPlayer(OfflinePlayer op, String string, double d) {
+    public EconomyResponse withdrawPlayer(@NotNull OfflinePlayer op, String string, double d) {
         return withdrawPlayer(op, d);
     }
 
+    @NotNull
     @Override
     @Deprecated
-    public EconomyResponse depositPlayer(String string, double d) {
+    public EconomyResponse depositPlayer(@NotNull String string, double d) {
         CoinsResponse response = CoinsAPI.addCoins(string, d, plugin.getPlugin().getConfig().vaultMultipliers());
         if (response.isSuccess()) {
             return new EconomyResponse(d, getBalance(string), ResponseType.SUCCESS, "");
@@ -196,8 +203,9 @@ public class CoinsEconomy implements Economy {
         }
     }
 
+    @NotNull
     @Override
-    public EconomyResponse depositPlayer(OfflinePlayer op, double d) {
+    public EconomyResponse depositPlayer(@NotNull OfflinePlayer op, double d) {
         CoinsResponse response = CoinsAPI.addCoins(op.getUniqueId(), d, plugin.getPlugin().getConfig().vaultMultipliers());
         if (response.isSuccess()) {
             return new EconomyResponse(d, getBalance(op), ResponseType.SUCCESS, "");
@@ -206,75 +214,89 @@ public class CoinsEconomy implements Economy {
         }
     }
 
+    @NotNull
     @Override
     @Deprecated
-    public EconomyResponse depositPlayer(String string, String string1, double d) {
+    public EconomyResponse depositPlayer(@NotNull String string, String string1, double d) {
         return depositPlayer(string, d);
     }
 
+    @NotNull
     @Override
-    public EconomyResponse depositPlayer(OfflinePlayer op, String string, double d) {
+    public EconomyResponse depositPlayer(@NotNull OfflinePlayer op, String string, double d) {
         return depositPlayer(op, d);
     }
 
+    @NotNull
     @Override
     @Deprecated
     public EconomyResponse createBank(String string, String string1) {
         return new EconomyResponse(0, 0, ResponseType.NOT_IMPLEMENTED, "");
     }
 
+    @NotNull
     @Override
     public EconomyResponse createBank(String string, OfflinePlayer op) {
         return new EconomyResponse(0, 0, ResponseType.NOT_IMPLEMENTED, "");
     }
 
+    @NotNull
     @Override
     public EconomyResponse deleteBank(String string) {
         return new EconomyResponse(0, 0, ResponseType.NOT_IMPLEMENTED, "");
     }
 
+    @NotNull
     @Override
     public EconomyResponse bankBalance(String string) {
         return new EconomyResponse(0, 0, ResponseType.NOT_IMPLEMENTED, "");
     }
 
+    @NotNull
     @Override
     public EconomyResponse bankHas(String string, double d) {
         return new EconomyResponse(0, 0, ResponseType.NOT_IMPLEMENTED, "");
     }
 
+    @NotNull
     @Override
     public EconomyResponse bankWithdraw(String string, double d) {
         return new EconomyResponse(0, 0, ResponseType.NOT_IMPLEMENTED, "");
     }
 
+    @NotNull
     @Override
     public EconomyResponse bankDeposit(String string, double d) {
         return new EconomyResponse(0, 0, ResponseType.NOT_IMPLEMENTED, "");
     }
 
+    @NotNull
     @Override
     @Deprecated
     public EconomyResponse isBankOwner(String string, String string1) {
         return new EconomyResponse(0, 0, ResponseType.NOT_IMPLEMENTED, "");
     }
 
+    @NotNull
     @Override
     public EconomyResponse isBankOwner(String string, OfflinePlayer op) {
         return new EconomyResponse(0, 0, ResponseType.NOT_IMPLEMENTED, "");
     }
 
+    @NotNull
     @Override
     @Deprecated
     public EconomyResponse isBankMember(String string, String string1) {
         return new EconomyResponse(0, 0, ResponseType.NOT_IMPLEMENTED, "");
     }
 
+    @NotNull
     @Override
     public EconomyResponse isBankMember(String string, OfflinePlayer op) {
         return new EconomyResponse(0, 0, ResponseType.NOT_IMPLEMENTED, "");
     }
 
+    @NotNull
     @Override
     public List<String> getBanks() {
         return Collections.emptyList();
@@ -282,24 +304,24 @@ public class CoinsEconomy implements Economy {
 
     @Override
     @Deprecated
-    public boolean createPlayerAccount(String string) {
+    public boolean createPlayerAccount(@NotNull String string) {
         UUID uuid = plugin.getPlugin().getUniqueId(string, false);
         return CoinsAPI.createPlayer(string, uuid != null ? uuid : UUID.randomUUID()).getResponse() == CoinsResponse.CoinsResponseType.SUCCESS;
     }
 
     @Override
-    public boolean createPlayerAccount(OfflinePlayer op) {
+    public boolean createPlayerAccount(@NotNull OfflinePlayer op) {
         return CoinsAPI.createPlayer(op.getName() != null ? op.getName() : "", op.getUniqueId()).getResponse() == CoinsResponse.CoinsResponseType.SUCCESS;
     }
 
     @Override
     @Deprecated
-    public boolean createPlayerAccount(String string, String string1) {
+    public boolean createPlayerAccount(@NotNull String string, String string1) {
         return createPlayerAccount(string);
     }
 
     @Override
-    public boolean createPlayerAccount(OfflinePlayer op, String string) {
+    public boolean createPlayerAccount(@NotNull OfflinePlayer op, String string) {
         return createPlayerAccount(op);
     }
 }

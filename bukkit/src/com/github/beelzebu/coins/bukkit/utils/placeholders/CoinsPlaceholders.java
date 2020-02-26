@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -24,6 +24,8 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Beelzebu
@@ -32,21 +34,25 @@ public class CoinsPlaceholders extends PlaceholderExpansion {
 
     private final DecimalFormat decimalFormat = new DecimalFormat("#.#");
 
+    @NotNull
     @Override
     public String getIdentifier() {
         return "coins";
     }
 
+    @NotNull
     @Override
     public String getPlugin() {
         return "Coins";
     }
 
+    @NotNull
     @Override
     public String getAuthor() {
         return "Beelzebu";
     }
 
+    @NotNull
     @Override
     public String getVersion() {
         return "1.0.0";
@@ -58,7 +64,7 @@ public class CoinsPlaceholders extends PlaceholderExpansion {
     }
 
     @Override
-    public String onPlaceholderRequest(Player p, String placeholder) {
+    public String onPlaceholderRequest(@Nullable Player p, @NotNull String placeholder) {
         if (p == null) {
             return "Player needed!";
         }

@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -25,6 +25,7 @@ import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import com.github.beelzebu.coins.common.utils.RedisManager;
 import com.google.gson.JsonObject;
 import java.util.UUID;
+import org.jetbrains.annotations.NotNull;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 
@@ -43,12 +44,12 @@ public class RedisMessaging extends AbstractMessagingService {
     }
 
     @Override
-    public void publishUser(UUID uuid, double coins) {
+    public void publishUser(@NotNull UUID uuid, double coins) {
         coinsPlugin.getCache().updatePlayer(uuid, coins);
     }
 
     @Override
-    protected void sendMessage(JsonObject message) {
+    protected void sendMessage(@NotNull JsonObject message) {
         try (Jedis jedis = redisManager.getPool().getResource()) {
             jedis.publish(REDIS_CHANNEL, message.toString());
         }
@@ -59,6 +60,7 @@ public class RedisMessaging extends AbstractMessagingService {
         coinsPlugin.getBootstrap().runAsync(psl = new PubSubListener(new JedisPubSubHandler()));
     }
 
+    @NotNull
     @Override
     public MessagingServiceType getType() {
         return MessagingServiceType.REDIS;

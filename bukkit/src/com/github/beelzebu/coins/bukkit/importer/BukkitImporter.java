@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -43,6 +43,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
@@ -54,7 +55,7 @@ public class BukkitImporter extends Importer {
     }
 
     @Override
-    public void importFrom(PluginToImport pluginToImport) {
+    public void importFrom(@NotNull PluginToImport pluginToImport) {
         switch (pluginToImport) {
             case PLAYER_POINTS:
                 importFromPlayerPoints();
@@ -75,7 +76,7 @@ public class BukkitImporter extends Importer {
             plugin.log("Seems that PlayerPoints is not installed in this server, you need to have this plugin installed to start the migration, you can remove it when it is finished.");
             return;
         }
-        plugin.log("Starting the migration of playerpoints data to coins, this may take a moment.");
+        plugin.log("Starting the migration of PlayerPoints data to coins, this may take a moment.");
         FileConfiguration ppConfig = JavaPlugin.getPlugin(PlayerPoints.class).getConfig();
         String storageType = ppConfig.getString("storage");
         switch (storageType.toUpperCase()) {
@@ -181,7 +182,7 @@ public class BukkitImporter extends Importer {
         plugin.log("The migration was completed, check the plugin logs for more information.");
     }
 
-    private void migrate(UUID uuid, String name, Number balance) {
+    private void migrate(@NotNull UUID uuid, @NotNull String name, @NotNull Number balance) {
         try {
             if (CoinsAPI.isindb(uuid)) {
                 CoinsAPI.addCoins(uuid, balance.doubleValue(), false);

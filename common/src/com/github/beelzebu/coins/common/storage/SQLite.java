@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -30,13 +30,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
  */
 public final class SQLite extends SQLDatabase {
 
-    public SQLite(CommonCoinsPlugin<? extends CoinsBootstrap> plugin) {
+    public SQLite(@NotNull CommonCoinsPlugin<? extends CoinsBootstrap> plugin) {
         super(plugin);
     }
 
@@ -56,6 +57,7 @@ public final class SQLite extends SQLDatabase {
         updateDatabase();
     }
 
+    @NotNull
     @Override
     public StorageType getStorageType() {
         return StorageType.SQLITE;

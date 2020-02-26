@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -66,28 +66,41 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.UUID;
 import net.md_5.bungee.api.ChatColor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Beelzebu
  */
 public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin<T> {
 
+    @NotNull
     private final T bootstrap;
     private final CoinsConfig config;
+    @NotNull
     private final MultipliersConfig multipliersConfig;
+    @NotNull
     private final DependencyManager dependencyManager;
+    @NotNull
     private final FileManager fileManager;
     private final Map<String, AbstractConfigFile> messagesMap = new HashMap<>();
+    @Nullable
     private MessagingServiceType messagingServiceType;
+    @Nullable
     private AbstractMessagingService messagingService;
-    private boolean logEnabled = false;
+    @Nullable
     private StorageType storageType;
+    @Nullable
     private StorageProvider storageProvider;
+    @Nullable
     private CacheType cacheType;
+    @Nullable
     private CacheProvider cache;
+    @Nullable
     private RedisManager redisManager;
+    private boolean logEnabled = false;
 
-    public CommonCoinsPlugin(T bootstrap, CoinsConfig config) {
+    public CommonCoinsPlugin(@NotNull T bootstrap, CoinsConfig config) {
         Objects.requireNonNull(bootstrap, "CoinsBootstrap can't be null");
         Objects.requireNonNull(config, "CoinsConfig can't be null");
         this.config = config;
@@ -119,7 +132,7 @@ public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin
         dependencyManager.loadStorageDependencies(storageType);
         messagingServiceType = getConfig().getMessagingServiceType();
         cacheType = getConfig().getCacheType();
-        if (messagingServiceType.equals(MessagingServiceType.REDIS) || cacheType.equals(CacheType.REDIS)) {
+        if (Objects.equals(messagingServiceType, MessagingServiceType.REDIS) || Objects.equals(cacheType, CacheType.REDIS)) {
             log("Loading JEDIS dependency for redis connections...");
             Set<Dependency> jedisDependency = new HashSet<>();
             jedisDependency.add(Dependency.JEDIS);
@@ -132,13 +145,28 @@ public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin
         // load local data
         loadExecutors();
         // setup storage and start messaging service
-        getStorageProvider().setup();
-        getCache().start();
-        getMessagingService().start();
+        if (getStorageProvider() != null) {
+            getStorageProvider().setup();
+        }
+        if (getCache() != null) {
+            getCache().start();
+        }
+        if (getMessagingService() != null) {
+            getMessagingService().start();
+        }
         motd(true);
         // now that everything is running we'll get things from other servers
-        getMessagingService().requestMultipliers();
-        getMessagingService().requestExecutors();
+        if (getMessagingService() != null) {
+            getMessagingService().requestMultipliers();
+            getMessagingService().requestExecutors();
+        }
+        if (getStorageProvider() == null || getCache() == null || getMessagingService() == null) {
+            bootstrap.log("Can't setup API");
+            bootstrap.log("Storage: " + (getStorageProvider() != null ? getStorageProvider().getStorageType() : "null"));
+            bootstrap.log("Cache: " + (getCache() != null ? getCache().getCacheType() : "null"));
+            bootstrap.log("Messaging: " + (getMessagingService() != null ? getMessagingService().getType() : "null"));
+            return;
+        }
         CoinsAPI.setPlugin(this);
     }
 
@@ -166,10 +194,14 @@ public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin
         motd(false);
     }
 
+    @Nullable
     @Override
     public AbstractMessagingService getMessagingService() {
         if (messagingService != null) {
             return messagingService;
+        }
+        if (messagingServiceType == null) {
+            return null;
         }
         switch (messagingServiceType) {
             case PROXY:
@@ -182,10 +214,14 @@ public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin
         }
     }
 
+    @Nullable
     @Override
     public final CacheProvider getCache() {
         if (cache != null) {
             return cache;
+        }
+        if (cacheType == null) {
+            return null;
         }
         switch (cacheType) {
             case REDIS:
@@ -197,10 +233,14 @@ public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin
         }
     }
 
+    @Nullable
     @Override
     public final StorageProvider getStorageProvider() {
         if (storageProvider != null) {
             return storageProvider;
+        }
+        if (storageType == null) {
+            return null;
         }
         switch (storageType) {
             case MARIADB:
@@ -217,7 +257,12 @@ public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin
         if (!Objects.equals(storageType, this.storageType)) {
             storageProvider = null;
             this.storageType = storageType;
-            getStorageProvider().setup();
+            StorageProvider storageProvider = getStorageProvider();
+            if (storageProvider != null) {
+                storageProvider.setup();
+            } else {
+                log("Can't setup storage provider for '" + storageType + "'");
+            }
         }
     }
 
@@ -228,13 +273,13 @@ public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin
     }
 
     @Override
-    public final void log(String message, Object... replace) {
+    public final void log(@NotNull String message, Object... replace) {
         bootstrap.log(message);
         fileManager.logToFile(message);
     }
 
     @Override
-    public final void debug(String message, Object... replace) {
+    public final void debug(@NotNull String message, Object... replace) {
         if (getConfig().isDebug()) {
             bootstrap.sendMessage(bootstrap.getConsole(), StringUtils.rep("&8[&cCoins&8] &cDebug: &7" + message));
         }
@@ -253,7 +298,7 @@ public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin
     }
 
     @Override
-    public final void debug(SQLException ex) {
+    public final void debug(@NotNull SQLException ex) {
         debug("SQLException:");
         debug("   Database state: " + ex.getSQLState());
         debug("   Error code: " + ex.getErrorCode());
@@ -262,7 +307,7 @@ public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin
     }
 
     @Override
-    public String getStackTrace(Exception ex) {
+    public String getStackTrace(@NotNull Exception ex) {
         try (StringWriter stringWriter = new StringWriter(); PrintWriter printWriter = new PrintWriter(stringWriter)) {
             ex.printStackTrace(printWriter);
             return stringWriter.toString();
@@ -273,11 +318,16 @@ public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin
     }
 
     @Override
-    public final UUID getUniqueId(String name, boolean fromdb) {
+    public final UUID getUniqueId(@NotNull String name, boolean fromdb) {
+        name = name.toLowerCase();
         if (!fromdb && bootstrap.getUUID(name) != null) {
             return bootstrap.getUUID(name);
         }
-        return getStorageProvider().getUUID(name.toLowerCase());
+        StorageProvider storageProvider = getStorageProvider();
+        if (storageProvider != null) {
+            return storageProvider.getUUID(name);
+        }
+        return null;
     }
 
     @Override
@@ -285,7 +335,11 @@ public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin
         if (!fromdb && bootstrap.getName(uniqueId) != null) {
             return bootstrap.getName(uniqueId);
         }
-        return getStorageProvider().getName(uniqueId);
+        StorageProvider storageProvider = getStorageProvider();
+        if (storageProvider != null) {
+            return storageProvider.getName(uniqueId);
+        }
+        return null;
     }
 
     @Override
@@ -293,23 +347,26 @@ public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin
         return config;
     }
 
+    @NotNull
     @Override
     public MultipliersConfig getMultipliersConfig() {
         return multipliersConfig;
     }
 
     @Override
-    public final AbstractConfigFile getMessages(String locale) {
+    public final AbstractConfigFile getMessages(@NotNull String locale) {
         return Optional.ofNullable(messagesMap.get(locale.split("_")[0])).orElse(messagesMap.get("default"));
     }
 
+    @NotNull
     @Override
-    public final String getString(String path, String locale) {
+    public final String getString(String path, @NotNull String locale) {
         return StringUtils.rep(getMessages(locale).getString(path, StringUtils.rep(getMessages("").getString(path, ""))));
     }
 
+    @NotNull
     @Override
-    public final List<String> getStringList(String path, String locale) {
+    public final List<String> getStringList(String path, @NotNull String locale) {
         return StringUtils.rep(getMessages(locale).getStringList(path, StringUtils.rep(getMessages("").getStringList(path, Collections.emptyList()))));
     }
 
@@ -327,37 +384,44 @@ public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin
         return logEnabled;
     }
 
+    @NotNull
     public FileManager getFileManager() {
         return fileManager;
     }
 
+    @NotNull
     @Override
     public T getBootstrap() {
         return bootstrap;
     }
 
     @Override
-    public void setMessagingServiceType(MessagingServiceType messagingServiceType) {
+    public void setMessagingServiceType(@NotNull MessagingServiceType messagingServiceType) {
+        Objects.requireNonNull(messagingServiceType, "messagingServiceType can't be null");
         this.messagingServiceType = messagingServiceType;
     }
 
     @Override
-    public void setMessagingService(AbstractMessagingService messagingService) {
+    public void setMessagingService(@NotNull AbstractMessagingService messagingService) {
+        Objects.requireNonNull(messagingService, "messagingService can't be null");
         this.messagingService = messagingService;
     }
 
     @Override
-    public void setStorageProvider(StorageProvider storageProvider) {
+    public void setStorageProvider(@NotNull StorageProvider storageProvider) {
+        Objects.requireNonNull(storageProvider, "storageProvider can't be null");
         this.storageProvider = storageProvider;
     }
 
     @Override
-    public void setCacheType(CacheType cacheType) {
+    public void setCacheType(@NotNull CacheType cacheType) {
+        Objects.requireNonNull(cacheType, "cacheType can't be null");
         this.cacheType = cacheType;
     }
 
     @Override
-    public void setCache(CacheProvider cache) {
+    public void setCache(@NotNull CacheProvider cache) {
+        Objects.requireNonNull(cache, "cache can't be null");
         this.cache = cache;
     }
 
@@ -382,11 +446,9 @@ public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin
             if (!logEnabled) {
                 debug("Logging to file is disabled, all debug messages will be sent to the console.");
             }
-            debug("Using \"" + storageType.toString().toLowerCase() + "\" for storage.");
-            if (!messagingService.getType().equals(MessagingServiceType.NONE)) {
-                debug("Using \"" + messagingService.getType().toString().toLowerCase() + "\" as messaging service.");
-            }
-            debug("Using \"" + getCache().getClass().getSimpleName() + "\" for cache");
+            debug("Using \"" + storageType + "\" as storage.");
+            debug("Using \"" + messagingServiceType + "\" as messaging service.");
+            debug("Using \"" + cacheType + "\" as cache.");
             bootstrap.runAsync(() -> { // run update check async, so it doesn't delay the startup
                 if (bootstrap.getVersion().contains("SNAPSHOT")) {
                     log("You're using a development version, be careful!");
@@ -405,7 +467,8 @@ public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin
     }
 
 
-    private String getFromURL(String surl) {
+    @Nullable
+    private String getFromURL(@NotNull String surl) {
         String response = null;
         try {
             URL url = new URL(surl);
@@ -421,6 +484,10 @@ public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin
     }
 
     private void migrateFromV2() {
+        if (storageType == null) {
+            log("Can't migrate from V2, storage is null.");
+            return;
+        }
         if (storageType.equals(StorageType.SQLITE) && getConfig().getInt("Database Version", 1) < 2) {
             try {
                 Files.move(new File(bootstrap.getDataFolder(), "database.db").toPath(), new File(bootstrap.getDataFolder(), "database.old.db").toPath());

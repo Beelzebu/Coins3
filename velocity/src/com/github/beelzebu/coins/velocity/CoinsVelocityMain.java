@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -45,6 +45,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 /**
@@ -54,6 +56,7 @@ public class CoinsVelocityMain implements CoinsBootstrap {
 
     private final ProxyServer proxyServer;
     private final Logger logger;
+    @NotNull
     private final CoinsVelocityPlugin plugin;
     private final Path configDirectory;
     private VelocityMessaging messaging;
@@ -82,13 +85,15 @@ public class CoinsVelocityMain implements CoinsBootstrap {
         plugin.disable();
     }
 
+    @NotNull
     @Override
     public CoinsVelocityPlugin getPlugin() {
         return plugin;
     }
 
+    @NotNull
     @Override
-    public AbstractConfigFile getFileAsConfig(File file) {
+    public AbstractConfigFile getFileAsConfig(@NotNull File file) {
         return new VelocityMessages(file.toPath());
     }
 
@@ -129,7 +134,7 @@ public class CoinsVelocityMain implements CoinsBootstrap {
 
     @SuppressWarnings("deprecation")
     @Override
-    public void sendMessage(Object commandSender, String msg) {
+    public void sendMessage(Object commandSender, @NotNull String msg) {
         if (!(commandSender instanceof CommandSource)) {
             throw new ClassCastException(commandSender.getClass().getName() + "is not an instance of CommandSource");
         }
@@ -137,16 +142,19 @@ public class CoinsVelocityMain implements CoinsBootstrap {
         commandSource.sendMessage(LegacyComponentSerializer.INSTANCE.deserialize(msg));
     }
 
+    @NotNull
     @Override
     public File getDataFolder() {
         return configDirectory.toFile();
     }
 
+    @Nullable
     @Override
     public InputStream getResource(String filename) {
         return getClass().getClassLoader().getResourceAsStream(filename);
     }
 
+    @NotNull
     @Override
     public String getVersion() {
         Optional<PluginContainer> pluginContainer = proxyServer.getPluginManager().getPlugin("coins");
@@ -190,6 +198,7 @@ public class CoinsVelocityMain implements CoinsBootstrap {
         // TODO
     }
 
+    @NotNull
     @Override
     public List<String> getPermissions(UUID uuid) {
         List<String> permissions = new ArrayList<>();
@@ -197,6 +206,7 @@ public class CoinsVelocityMain implements CoinsBootstrap {
         return permissions;
     }
 
+    @NotNull
     @Override
     public ProxyMessaging getProxyMessaging() {
         return messaging == null ? messaging = new VelocityMessaging(plugin) : messaging;

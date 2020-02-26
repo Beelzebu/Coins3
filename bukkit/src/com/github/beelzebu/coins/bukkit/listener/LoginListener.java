@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -27,6 +27,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
@@ -41,7 +42,7 @@ public class LoginListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerJoin(PlayerJoinEvent e) {
+    public void onPlayerJoin(@NotNull PlayerJoinEvent e) {
         if (plugin.getConfig().getBoolean("General.Create Join", false)) {
             plugin.getBootstrap().runAsync(() -> CoinsAPI.createPlayer(e.getPlayer().getName(), e.getPlayer().getUniqueId()));
         }
@@ -67,7 +68,7 @@ public class LoginListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerQuit(PlayerQuitEvent e) {
+    public void onPlayerQuit(@NotNull PlayerQuitEvent e) {
         plugin.getBootstrap().runAsync(() -> {
             if (!plugin.getMessagingService().getType().equals(MessagingServiceType.REDIS)) {
                 plugin.getCache().removePlayer(e.getPlayer().getUniqueId());

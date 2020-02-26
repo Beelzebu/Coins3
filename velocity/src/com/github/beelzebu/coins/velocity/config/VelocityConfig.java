@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -25,25 +25,29 @@ import java.util.Set;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.yaml.YAMLConfigurationLoader;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Beelzebu
  */
 public class VelocityConfig extends CoinsConfig {
 
+    @NotNull
     private final ConfigurateConfig configurateConfig;
 
     public VelocityConfig(Path path) {
         configurateConfig = new ConfigurateConfig(path);
     }
 
+    @Nullable
     @Override
-    public Object get(String path) {
+    public Object get(@NotNull String path) {
         return configurateConfig.get(path);
     }
 
     @Override
-    public Set<String> getConfigurationSection(String path) {
+    public Set<String> getConfigurationSection(@NotNull String path) {
         return configurateConfig.getConfigurationSection(path);
     }
 
@@ -52,14 +56,15 @@ public class VelocityConfig extends CoinsConfig {
         configurateConfig.reload();
     }
 
-    private class ConfigurateConfig extends ConfigurateAbstractConfigFile {
+    private static class ConfigurateConfig extends ConfigurateAbstractConfigFile {
 
         public ConfigurateConfig(Path path) {
             super(path);
         }
 
+        @NotNull
         @Override
-        protected ConfigurationLoader<? extends ConfigurationNode> getLoader(Path path) {
+        protected ConfigurationLoader<? extends ConfigurationNode> getLoader(@NotNull Path path) {
             return YAMLConfigurationLoader.builder().setPath(path).build();
         }
     }

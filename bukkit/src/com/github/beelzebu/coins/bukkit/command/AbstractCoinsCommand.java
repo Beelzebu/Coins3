@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -21,6 +21,8 @@ package com.github.beelzebu.coins.bukkit.command;
 import com.github.beelzebu.coins.bukkit.CoinsBukkitPlugin;
 import java.math.BigDecimal;
 import org.bukkit.command.Command;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Beelzebu
@@ -29,12 +31,12 @@ public abstract class AbstractCoinsCommand extends Command {
 
     protected final CoinsBukkitPlugin plugin;
 
-    AbstractCoinsCommand(CoinsBukkitPlugin plugin, String name) {
+    AbstractCoinsCommand(CoinsBukkitPlugin plugin, @NotNull String name) {
         super(name);
         this.plugin = plugin;
     }
 
-    protected boolean isNumber(String number) {
+    protected boolean isNumber(@Nullable String number) {
         if (number == null) {
             return false;
         }

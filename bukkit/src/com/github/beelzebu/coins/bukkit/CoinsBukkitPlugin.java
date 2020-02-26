@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -34,6 +34,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
@@ -43,7 +44,7 @@ public class CoinsBukkitPlugin extends CommonCoinsPlugin<CoinsBukkitMain> {
     private boolean vault = false, placeholderapi = false, leaderheads = false;
     private CoinsEconomy coinsEconomy;
 
-    CoinsBukkitPlugin(CoinsBukkitMain bootstrap, CoinsConfig coinsConfig) {
+    CoinsBukkitPlugin(@NotNull CoinsBukkitMain bootstrap, CoinsConfig coinsConfig) {
         super(bootstrap, coinsConfig);
     }
 
@@ -70,7 +71,7 @@ public class CoinsBukkitPlugin extends CommonCoinsPlugin<CoinsBukkitMain> {
         Bukkit.getPluginManager().registerEvents(new SignListener(this), getBootstrap());
         Bukkit.getPluginManager().registerEvents(new Listener() {
             @EventHandler
-            public void onPluginEnable(PluginEnableEvent e) { // keep trying to hook with optional dependencies
+            public void onPluginEnable(@NotNull PluginEnableEvent e) { // keep trying to hook with optional dependencies
                 if (getBootstrap().getDescription().getSoftDepend().stream().anyMatch(hook -> e.getPlugin().getName().equalsIgnoreCase(hook))) {
                     hookOptionalDependencies();
                 }
@@ -93,7 +94,7 @@ public class CoinsBukkitPlugin extends CommonCoinsPlugin<CoinsBukkitMain> {
     }
 
     public CoinsEconomy getCoinsEconomy() {
-        return this.coinsEconomy;
+        return coinsEconomy;
     }
 
     public void setCoinsEconomy(CoinsEconomy coinsEconomy) {

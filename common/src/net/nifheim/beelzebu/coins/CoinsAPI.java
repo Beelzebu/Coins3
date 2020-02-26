@@ -1,7 +1,7 @@
 /*
- * This file is part of Coins
+ * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Coins 2.0 API
@@ -42,7 +43,7 @@ public class CoinsAPI {
      * @param name Player to get the coins.
      * @return
      */
-    public static double getCoins(String name) {
+    public static double getCoins(@NotNull String name) {
         return com.github.beelzebu.coins.api.CoinsAPI.getCoins(name);
     }
 
@@ -52,7 +53,7 @@ public class CoinsAPI {
      * @param uuid Player to get the coins.
      * @return
      */
-    public static double getCoins(UUID uuid) {
+    public static double getCoins(@NotNull UUID uuid) {
         return com.github.beelzebu.coins.api.CoinsAPI.getCoins(uuid);
     }
 
@@ -62,7 +63,7 @@ public class CoinsAPI {
      * @param name Player to get the coins string.
      * @return
      */
-    public static String getCoinsString(String name) {
+    public static String getCoinsString(@NotNull String name) {
         return com.github.beelzebu.coins.api.CoinsAPI.getCoinsString(name);
     }
 
@@ -72,7 +73,7 @@ public class CoinsAPI {
      * @param uuid Player to get the coins string.
      * @return
      */
-    public static String getCoinsString(UUID uuid) {
+    public static String getCoinsString(@NotNull UUID uuid) {
         return com.github.beelzebu.coins.api.CoinsAPI.getCoinsString(uuid);
     }
 
@@ -85,7 +86,7 @@ public class CoinsAPI {
      * @deprecated This should not be used.
      */
     @Deprecated
-    public static void addCoins(String name, double coins) {
+    public static void addCoins(@NotNull String name, double coins) {
         addCoins(name, coins, false);
     }
 
@@ -98,7 +99,7 @@ public class CoinsAPI {
      * @deprecated This should not be used.
      */
     @Deprecated
-    public static void addCoins(UUID uuid, double coins) {
+    public static void addCoins(@NotNull UUID uuid, double coins) {
         addCoins(uuid, coins, false);
     }
 
@@ -109,7 +110,7 @@ public class CoinsAPI {
      * @param coins    The coins to add.
      * @param multiply Multiply coins if there are any active multipliers
      */
-    public static void addCoins(String name, double coins, boolean multiply) {
+    public static void addCoins(@NotNull String name, double coins, boolean multiply) {
         com.github.beelzebu.coins.api.CoinsAPI.addCoins(name, coins, multiply);
     }
 
@@ -120,7 +121,7 @@ public class CoinsAPI {
      * @param coins    The coins to add.
      * @param multiply Multiply coins if there are any active multipliers
      */
-    public static void addCoins(UUID uuid, double coins, boolean multiply) {
+    public static void addCoins(@NotNull UUID uuid, double coins, boolean multiply) {
         com.github.beelzebu.coins.api.CoinsAPI.addCoins(uuid, coins, multiply);
     }
 
@@ -130,7 +131,7 @@ public class CoinsAPI {
      * @param name
      * @param coins
      */
-    public static void takeCoins(String name, double coins) {
+    public static void takeCoins(@NotNull String name, double coins) {
         com.github.beelzebu.coins.api.CoinsAPI.takeCoins(name, coins);
     }
 
@@ -140,7 +141,7 @@ public class CoinsAPI {
      * @param uuid
      * @param coins
      */
-    public static void takeCoins(UUID uuid, double coins) {
+    public static void takeCoins(@NotNull UUID uuid, double coins) {
         com.github.beelzebu.coins.api.CoinsAPI.takeCoins(uuid, coins);
     }
 
@@ -149,7 +150,7 @@ public class CoinsAPI {
      *
      * @param name
      */
-    public static void resetCoins(String name) {
+    public static void resetCoins(@NotNull String name) {
         com.github.beelzebu.coins.api.CoinsAPI.resetCoins(name);
     }
 
@@ -158,7 +159,7 @@ public class CoinsAPI {
      *
      * @param uuid
      */
-    public static void resetCoins(UUID uuid) {
+    public static void resetCoins(@NotNull UUID uuid) {
         com.github.beelzebu.coins.api.CoinsAPI.resetCoins(uuid);
     }
 
@@ -168,7 +169,7 @@ public class CoinsAPI {
      * @param name
      * @param coins
      */
-    public static void setCoins(String name, double coins) {
+    public static void setCoins(@NotNull String name, double coins) {
         com.github.beelzebu.coins.api.CoinsAPI.setCoins(name, coins);
     }
 
@@ -178,7 +179,7 @@ public class CoinsAPI {
      * @param uuid
      * @param coins
      */
-    public static void setCoins(UUID uuid, double coins) {
+    public static void setCoins(@NotNull UUID uuid, double coins) {
         com.github.beelzebu.coins.api.CoinsAPI.setCoins(uuid, coins);
     }
 
@@ -190,7 +191,7 @@ public class CoinsAPI {
      * @param amount The amount of coins to pay.
      * @return true or false if the transaction is completed.
      */
-    public static boolean payCoins(String from, String to, double amount) {
+    public static boolean payCoins(@NotNull String from, @NotNull String to, double amount) {
         return com.github.beelzebu.coins.api.CoinsAPI.payCoins(from, to, amount).isSuccess();
     }
 
@@ -202,7 +203,7 @@ public class CoinsAPI {
      * @param amount The amount of coins to pay.
      * @return true or false if the transaction is completed.
      */
-    public static boolean payCoins(UUID from, UUID to, double amount) {
+    public static boolean payCoins(@NotNull UUID from, @NotNull UUID to, double amount) {
         return com.github.beelzebu.coins.api.CoinsAPI.payCoins(from, to, amount).isSuccess();
     }
 
@@ -213,7 +214,7 @@ public class CoinsAPI {
      * @param name The name to look for in the database.
      * @return true if the player exists in the database or false if not.
      */
-    public static boolean isindb(String name) {
+    public static boolean isindb(@NotNull String name) {
         return com.github.beelzebu.coins.api.CoinsAPI.isindb(name);
     }
 
@@ -223,7 +224,7 @@ public class CoinsAPI {
      * @param uuid The uuid to look for in the database.
      * @return true if the player exists in the database or false if not.
      */
-    public static boolean isindb(UUID uuid) {
+    public static boolean isindb(@NotNull UUID uuid) {
         return com.github.beelzebu.coins.api.CoinsAPI.isindb(uuid);
     }
 
@@ -245,6 +246,7 @@ public class CoinsAPI {
      * @param top The lenght of the top list, for example 5 will get a max of 5 users for the top.
      * @return The ordered top list of players and his balance.
      */
+    @NotNull
     public static Map<String, Double> getTopPlayers(int top) {
         Map<String, Double> topPlayers = new HashMap<>();
         Stream.of(com.github.beelzebu.coins.api.CoinsAPI.getTopPlayers(top)).forEach(coinsTopEntry -> topPlayers.put(coinsTopEntry.getName(), coinsTopEntry.getCoins()));
@@ -257,7 +259,7 @@ public class CoinsAPI {
      * @param name The name of the user that will be registered.
      * @param uuid The uuid of the user.
      */
-    public static void createPlayer(String name, UUID uuid) {
+    public static void createPlayer(@NotNull String name, UUID uuid) {
         com.github.beelzebu.coins.api.CoinsAPI.createPlayer(name, uuid);
     }
 
@@ -268,7 +270,7 @@ public class CoinsAPI {
      * @param uuid    The uuid of the user.
      * @param balance The balance of the user.
      */
-    public static void createPlayer(String name, UUID uuid, double balance) {
+    public static void createPlayer(@NotNull String name, UUID uuid, double balance) {
         com.github.beelzebu.coins.api.CoinsAPI.createPlayer(name, uuid, balance);
     }
 
@@ -278,7 +280,7 @@ public class CoinsAPI {
      * @param server The server to modify and get info about multiplier.
      * @return The active multiplier for the specified server.
      */
-    public static Multiplier getMultiplier(String server) {
+    public static Multiplier getMultiplier(@NotNull String server) {
         return com.github.beelzebu.coins.api.CoinsAPI.getMultipliers(server).stream().findFirst().orElse(null);
     }
 

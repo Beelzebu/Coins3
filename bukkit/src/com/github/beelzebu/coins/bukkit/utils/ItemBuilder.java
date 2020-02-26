@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -30,6 +30,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
@@ -45,34 +46,41 @@ public class ItemBuilder {
         this.material = material;
     }
 
+    @NotNull
     public static ItemBuilder newBuilder(Material material) {
         return new ItemBuilder(material);
     }
 
-    public static ItemBuilder newBuilder(ItemStack itemStack) {
+    @NotNull
+    public static ItemBuilder newBuilder(@NotNull ItemStack itemStack) {
         return new ItemBuilder(itemStack.getType()).setDisplayName(itemStack.getItemMeta().getDisplayName()).setLore(itemStack.getItemMeta().getLore()).addItemFlag(itemStack.getItemMeta().getItemFlags());
     }
 
+    @NotNull
     public ItemBuilder setDisplayName(String displayName) {
         this.displayName = displayName;
         return this;
     }
 
+    @NotNull
     public ItemBuilder setLore(List<String> lore) {
         this.lore = lore;
         return this;
     }
 
+    @NotNull
     public ItemBuilder setLore(String... lore) {
         this.lore = Arrays.asList(lore);
         return this;
     }
 
+    @NotNull
     public ItemBuilder setLore(String lore) {
         this.lore = Collections.singletonList(lore);
         return this;
     }
 
+    @NotNull
     public ItemBuilder addLore(String line) {
         if (lore == null) {
             lore = new ArrayList<>();
@@ -81,6 +89,7 @@ public class ItemBuilder {
         return this;
     }
 
+    @NotNull
     public ItemBuilder addLore(String line, int index) {
         if (lore == null) {
             lore = new ArrayList<>();
@@ -90,6 +99,7 @@ public class ItemBuilder {
     }
 
 
+    @NotNull
     public ItemBuilder addItemFlag(ItemFlag flag) {
         if (flags == null) {
             flags = new HashSet<>();
@@ -98,7 +108,8 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder addItemFlag(Collection<? extends ItemFlag> flags) {
+    @NotNull
+    public ItemBuilder addItemFlag(@NotNull Collection<? extends ItemFlag> flags) {
         if (this.flags == null) {
             this.flags = new HashSet<>();
         }
@@ -106,6 +117,7 @@ public class ItemBuilder {
         return this;
     }
 
+    @NotNull
     public ItemStack build() {
         ItemStack item = new ItemStack(material, 1);
         ItemMeta meta = item.getItemMeta();

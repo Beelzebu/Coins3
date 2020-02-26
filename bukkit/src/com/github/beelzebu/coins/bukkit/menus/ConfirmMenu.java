@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -29,6 +29,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
@@ -42,7 +43,7 @@ public class ConfirmMenu extends CoinsMenu {
         this.multiplier = multiplier;
     }
 
-    public void setItems(Player p) {
+    public void setItems(@NotNull Player p) {
         ItemStack accept = ItemBuilder.newBuilder(CompatUtils.getItem(CompatUtils.MaterialItem.GREEN_STAINED_GLASS)).setDisplayName(plugin.getString("Multipliers.Menu.Confirm.Accept", CompatUtils.getLocale(p))).build();
         setItem(2, accept, player -> {
             if (multiplier.enable()) {
@@ -77,7 +78,7 @@ public class ConfirmMenu extends CoinsMenu {
         });
     }
 
-    private void playFailSound(Player player) {
+    private void playFailSound(@NotNull Player player) {
         String sound = plugin.getMultipliersConfig().getString("Menus.Confirm.Fail.Sound", "ENTITY_VILLAGER_NO");
         if (sound != null) {
             try {
@@ -91,7 +92,7 @@ public class ConfirmMenu extends CoinsMenu {
     }
 
     @Override
-    public void open(Player p) {
+    public void open(@NotNull Player p) {
         setItems(p);
         super.open(p);
     }

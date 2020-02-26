@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -27,6 +27,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
@@ -34,7 +35,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public class GUIListener implements Listener {
 
     @EventHandler
-    public void onClick(InventoryClickEvent e) {
+    public void onClick(@NotNull InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player)) {
             return;
         }
@@ -52,14 +53,14 @@ public class GUIListener implements Listener {
     }
 
     @EventHandler
-    public void onClose(InventoryCloseEvent e) {
+    public void onClose(@NotNull InventoryCloseEvent e) {
         Player player = (Player) e.getPlayer();
         UUID playerUUID = player.getUniqueId();
         CoinsMenu.getOpenInventories().remove(playerUUID);
     }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent e) {
+    public void onQuit(@NotNull PlayerQuitEvent e) {
         Player player = e.getPlayer();
         UUID playerUUID = player.getUniqueId();
         CoinsMenu.getOpenInventories().remove(playerUUID);

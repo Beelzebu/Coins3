@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -23,6 +23,8 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Beelzebu
@@ -36,13 +38,15 @@ public class BukkitConfigFile extends AbstractConfigFile {
         yamlConfiguration = YamlConfiguration.loadConfiguration(langFile = file);
     }
 
+    @Nullable
     @Override
-    public Object get(String path) {
+    public Object get(@NotNull String path) {
         return yamlConfiguration.get(path);
     }
 
+    @NotNull
     @Override
-    public Set<String> getConfigurationSection(String path) {
+    public Set<String> getConfigurationSection(@NotNull String path) {
         return yamlConfiguration.isConfigurationSection(path) && yamlConfiguration.getConfigurationSection(path) != null ? yamlConfiguration.getConfigurationSection(path).getKeys(false) : new HashSet<>();
     }
 

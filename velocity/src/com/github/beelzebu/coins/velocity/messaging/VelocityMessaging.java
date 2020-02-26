@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -34,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
@@ -48,7 +49,7 @@ public class VelocityMessaging extends ProxyMessaging {
     }
 
     @Subscribe
-    public void onMessageReceive(PluginMessageEvent e) {
+    public void onMessageReceive(@NotNull PluginMessageEvent e) {
         if (!e.getIdentifier().equals(channelIdentifier)) {
             return;
         }
@@ -82,7 +83,7 @@ public class VelocityMessaging extends ProxyMessaging {
         bootstrap.getProxyServer().getAllServers().forEach(registeredServer -> sendMessage(message, wait, registeredServer));
     }
 
-    public void sendMessage(String message, boolean wait, RegisteredServer server) {
+    public void sendMessage(String message, boolean wait, @NotNull RegisteredServer server) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF(message);
         if (wait && !server.sendPluginMessage(channelIdentifier, out.toByteArray())) {
@@ -92,6 +93,7 @@ public class VelocityMessaging extends ProxyMessaging {
         }
     }
 
+    @NotNull
     public Map<String, Queue<String>> getMessageQueue() {
         return messageQueue;
     }

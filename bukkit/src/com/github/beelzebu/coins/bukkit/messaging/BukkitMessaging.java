@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -19,6 +19,7 @@
 package com.github.beelzebu.coins.bukkit.messaging;
 
 import com.github.beelzebu.coins.api.messaging.ProxyMessaging;
+import com.github.beelzebu.coins.api.plugin.CoinsPlugin;
 import com.github.beelzebu.coins.bukkit.CoinsBukkitPlugin;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
@@ -31,6 +32,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
@@ -44,12 +46,12 @@ public final class BukkitMessaging extends ProxyMessaging implements PluginMessa
     }
 
     @Override
-    public void onPluginMessageReceived(String channel, Player player, byte[] message) {
+    public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, @NotNull byte[] message) {
         if (!channel.equals(CHANNEL)) {
             return;
         }
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
-        JsonObject data = coinsPlugin.getGson().fromJson(in.readUTF(), JsonObject.class);
+        JsonObject data = CoinsPlugin.GSON.fromJson(in.readUTF(), JsonObject.class);
         handleMessage(data);
     }
 
@@ -90,7 +92,8 @@ public final class BukkitMessaging extends ProxyMessaging implements PluginMessa
         Bukkit.getMessenger().unregisterOutgoingPluginChannel((Plugin) coinsPlugin.getBootstrap(), CHANNEL);
     }
 
+    @NotNull
     public Queue<String> getMessageQueue() {
-        return this.messageQueue;
+        return messageQueue;
     }
 }

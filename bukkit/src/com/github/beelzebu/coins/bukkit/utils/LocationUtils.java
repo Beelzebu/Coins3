@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -20,17 +20,20 @@ package com.github.beelzebu.coins.bukkit.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
  */
 public class LocationUtils {
 
-    public static String locationToString(Location loc) {
+    @NotNull
+    public static String locationToString(@NotNull Location loc) {
         return loc.getWorld().getName() + ";" + loc.getX() + ";" + loc.getY() + ";" + loc.getZ();
     }
 
-    public static Location locationFromString(String string) {
+    @NotNull
+    public static Location locationFromString(@NotNull String string) {
         String[] s = string.split(";");
         return new Location(Bukkit.getWorld(s[0]), Double.parseDouble(s[1]), Double.parseDouble(s[2]), Double.parseDouble(s[3]));
     }

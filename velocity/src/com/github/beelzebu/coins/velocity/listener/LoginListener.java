@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -23,6 +23,7 @@ import com.github.beelzebu.coins.velocity.messaging.VelocityMessaging;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import java.util.Queue;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
@@ -36,7 +37,7 @@ public class LoginListener {
     }
 
     @Subscribe
-    public void onPlayerJoin(ServerConnectedEvent e) {
+    public void onPlayerJoin(@NotNull ServerConnectedEvent e) {
         VelocityMessaging velocityMessaging = (VelocityMessaging) coinsVelocityPlugin.getBootstrap().getProxyMessaging();
         Queue<String> messageQueue = velocityMessaging.getMessageQueue().get(e.getServer().getServerInfo().getName());
         String message;

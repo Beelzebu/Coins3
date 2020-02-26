@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -37,6 +37,8 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Beelzebu
@@ -67,6 +69,7 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
         return plugin;
     }
 
+    @NotNull
     @Override
     public AbstractConfigFile getFileAsConfig(File file) {
         return new BungeeConfigFile(file);
@@ -78,7 +81,7 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
     }
 
     @Override
-    public void runSync(Runnable rn) {
+    public void runSync(@NotNull Runnable rn) {
         rn.run();
     }
 
@@ -93,7 +96,7 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
     }
 
     @Override
-    public void executeCommand(String cmd) {
+    public void executeCommand(@NotNull String cmd) {
         ProxyServer.getInstance().getPluginManager().dispatchCommand((CommandSender) getConsole(), cmd);
     }
 
@@ -108,7 +111,7 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
     }
 
     @Override
-    public void sendMessage(Object commandSender, String msg) {
+    public void sendMessage(@NotNull Object commandSender, @NotNull String msg) {
         ((CommandSender) commandSender).sendMessage(TextComponent.fromLegacyText(msg));
     }
 
@@ -132,12 +135,14 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
         return ProxyServer.getInstance().getPlayer(name) != null;
     }
 
+    @Nullable
     @Override
     public UUID getUUID(String name) {
         ProxiedPlayer proxiedPlayer = ProxyServer.getInstance().getPlayer(name);
         return proxiedPlayer != null ? proxiedPlayer.getUniqueId() : null;
     }
 
+    @Nullable
     @Override
     public String getName(UUID uuid) {
         ProxiedPlayer proxiedPlayer = ProxyServer.getInstance().getPlayer(uuid);
@@ -156,6 +161,7 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
         //ProxyServer.getInstance().getPluginManager().callEvent(new MultiplierEnableEvent(multiplier));
     }
 
+    @NotNull
     @Override
     public List<String> getPermissions(UUID uuid) {
         List<String> permissions = new ArrayList<>();
@@ -165,6 +171,7 @@ public class CoinsBungeeMain extends Plugin implements CoinsBootstrap {
         return permissions;
     }
 
+    @NotNull
     @Override
     public ProxyMessaging getProxyMessaging() {
         return messaging == null ? messaging = new BungeeMessaging(plugin) : messaging;

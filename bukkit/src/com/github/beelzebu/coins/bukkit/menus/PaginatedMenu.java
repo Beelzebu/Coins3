@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -35,6 +35,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Beelzebu
@@ -47,11 +49,13 @@ public class PaginatedMenu {
     private PaginatedMenu() {
     }
 
-    public static CoinsMenu createPaginatedGUI(Player player, boolean global, Collection<Multiplier> multipliers, String extraTitle) {
+    @NotNull
+    public static CoinsMenu createPaginatedGUI(@NotNull Player player, boolean global, @NotNull Collection<Multiplier> multipliers, String extraTitle) {
         return nextPage(player, multipliers, global, multipliers.size() >= 36, 0, null, extraTitle);
     }
 
-    private static CoinsMenu nextPage(Player player, Collection<Multiplier> contents, boolean global, boolean hasNext, int start, CoinsMenu prevPage, String extraTitle) {
+    @NotNull
+    private static CoinsMenu nextPage(@NotNull Player player, @NotNull Collection<Multiplier> contents, boolean global, boolean hasNext, int start, @Nullable CoinsMenu prevPage, String extraTitle) {
         CoinsMenu menu = new MultipliersMenu(player, PLUGIN.getString("Menus.Multipliers." + (global ? "Global" : "Local") + ".Title" + extraTitle, CompatUtils.getLocale(player)), contents, start, global);
         if (hasNext) {
             menu.setItem(53, menu.getItem(MULTIPLIERS_CONFIG, "Menus.Multipliers." + (global ? "Global" : "Local") + ".Next", player), p -> nextPage(p, contents, global, true, start + 36, menu, extraTitle).open(p));
@@ -62,7 +66,7 @@ public class PaginatedMenu {
         return menu;
     }
 
-    private static void handleCloseSound(String path, Player p) {
+    private static void handleCloseSound(String path, @NotNull Player p) {
         String sound = MULTIPLIERS_CONFIG.getString(path + ".Sound");
         if (sound != null) {
             try {
@@ -78,11 +82,13 @@ public class PaginatedMenu {
     private static final class MultipliersMenu extends CoinsMenu {
 
         private final Player player;
+        @NotNull
         private final List<Multiplier> contents;
         private final int start;
+        @NotNull
         private final String path;
 
-        MultipliersMenu(Player player, String title, Collection<Multiplier> contents, int start, boolean global) {
+        MultipliersMenu(Player player, String title, @NotNull Collection<Multiplier> contents, int start, boolean global) {
             super(54, title);
             this.player = player;
             this.contents = new ArrayList<>(contents);
@@ -107,7 +113,8 @@ public class PaginatedMenu {
             }
         }
 
-        private ItemStack getMultiplier(Player player, Multiplier multiplier) {
+        @NotNull
+        private ItemStack getMultiplier(Player player, @NotNull Multiplier multiplier) {
             String path = this.path + ".Multiplier";
             ItemStack is = super.getItem(PaginatedMenu.MULTIPLIERS_CONFIG, path, player);
             ItemMeta meta = is.getItemMeta();

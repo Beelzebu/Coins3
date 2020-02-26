@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -25,6 +25,7 @@ import com.github.beelzebu.coins.bukkit.utils.CompatUtils;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
@@ -38,7 +39,7 @@ public class CommandListener implements Listener {
     }
 
     @EventHandler
-    public void onCommandEvent(PlayerCommandPreprocessEvent e) {
+    public void onCommandEvent(@NotNull PlayerCommandPreprocessEvent e) {
         String msg = e.getMessage().toLowerCase();
         plugin.getBootstrap().runAsync(() -> {
             if (msg.replaceFirst("/", "").startsWith(plugin.getConfig().getCommand()) || plugin.getConfig().getCommandAliases().contains(msg.split(" ")[0].replaceFirst("/", ""))) {

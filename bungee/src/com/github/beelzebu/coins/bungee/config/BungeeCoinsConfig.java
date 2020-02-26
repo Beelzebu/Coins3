@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
@@ -42,12 +43,13 @@ public class BungeeCoinsConfig extends CoinsConfig {
     }
 
     @Override
-    public Object get(String path) {
+    public Object get(@NotNull String path) {
         return config.get(path);
     }
 
+    @NotNull
     @Override
-    public Set<String> getConfigurationSection(String path) {
+    public Set<String> getConfigurationSection(@NotNull String path) {
         return new LinkedHashSet<>(config.getSection(path).getKeys());
     }
 

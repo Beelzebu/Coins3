@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -35,6 +35,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Beelzebu
@@ -60,7 +62,7 @@ public final class CompatUtils {
             this.id = id;
         }
 
-        public boolean isAfterOrEq(MinecraftVersion another) {
+        public boolean isAfterOrEq(@NotNull MinecraftVersion another) {
             return id >= another.id;
         }
     }
@@ -103,7 +105,7 @@ public final class CompatUtils {
         }
     }
 
-    public static ItemStack getItem(MaterialItem materialItem) {
+    public static ItemStack getItem(@NotNull MaterialItem materialItem) {
         return materials.computeIfAbsent(materialItem, mi -> {
             switch (materialItem) {
                 case MAGENTA_STAINED_GLASS_PANE:
@@ -130,7 +132,8 @@ public final class CompatUtils {
         });
     }
 
-    public static String getLocale(Player player) {
+    @NotNull
+    public static String getLocale(@NotNull Player player) {
         if (VERSION.isAfterOrEq(MinecraftVersion.MINECRAFT_1_12)) {
             return player.getLocale();
         } else { // this doesn't exists in 1.8
@@ -150,7 +153,7 @@ public final class CompatUtils {
         return "en";
     }
 
-    public static void setPotionType(PotionMeta meta, PotionType type) {
+    public static void setPotionType(@NotNull PotionMeta meta, @NotNull PotionType type) {
         if (VERSION.isAfterOrEq(MinecraftVersion.MINECRAFT_1_13)) {
             meta.setBasePotionData(new PotionData(type));
         } else {
@@ -160,7 +163,8 @@ public final class CompatUtils {
         }
     }
 
-    public static Enchantment getEnchantment(String string) {
+    @Nullable
+    public static Enchantment getEnchantment(@NotNull String string) {
         if (VERSION.isAfterOrEq(MinecraftVersion.MINECRAFT_1_13)) {
             Optional<Enchantment> enchantmentOptional = Stream.of(Enchantment.values()).filter(enchantment -> enchantment.getKey().getKey().equalsIgnoreCase(string)).findFirst();
             if (enchantmentOptional.isPresent()) {
@@ -174,7 +178,8 @@ public final class CompatUtils {
         return null;
     }
 
-    public static ItemStack setDamage(ItemStack itemStack, int damage) {
+    @NotNull
+    public static ItemStack setDamage(@NotNull ItemStack itemStack, int damage) {
         if (VERSION.isAfterOrEq(MinecraftVersion.MINECRAFT_1_13)) {
             if (itemStack.getItemMeta() instanceof Damageable) {
                 Damageable meta = (Damageable) itemStack.getItemMeta();
@@ -191,6 +196,7 @@ public final class CompatUtils {
         MAGENTA_STAINED_GLASS_PANE, GREEN_STAINED_GLASS, RED_STAINED_GLASS
     }
 
+    @NotNull
     private static String getRawVersion() {
         return Bukkit.getServer().getClass().getPackage().getName().substring(Bukkit.getServer().getClass().getPackage().getName().lastIndexOf(".") + 1);
     }

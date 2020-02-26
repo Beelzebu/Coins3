@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.yaml.YAMLConfigurationLoader;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
@@ -33,8 +34,9 @@ public class VelocityMessages extends ConfigurateAbstractConfigFile {
         super(path);
     }
 
+    @NotNull
     @Override
-    protected ConfigurationLoader<? extends ConfigurationNode> getLoader(Path path) {
+    protected ConfigurationLoader<? extends ConfigurationNode> getLoader(@NotNull Path path) {
         return YAMLConfigurationLoader.builder().setPath(path).build();
     }
 }

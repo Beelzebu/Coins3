@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -21,6 +21,7 @@ package com.github.beelzebu.coins.common.utils;
 import com.github.beelzebu.coins.api.plugin.CoinsBootstrap;
 import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
@@ -31,7 +32,7 @@ public class RedisManager {
     private final int port;
     private JedisPool pool;
 
-    public RedisManager(CommonCoinsPlugin<? extends CoinsBootstrap> commonCoinsPlugin) {
+    public RedisManager(@NotNull CommonCoinsPlugin<? extends CoinsBootstrap> commonCoinsPlugin) {
         host = commonCoinsPlugin.getConfig().getString("Redis.Host", "localhost");
         port = commonCoinsPlugin.getConfig().getInt("Redis.Port", 6379);
         password = commonCoinsPlugin.getConfig().getString("Redis.Password");
@@ -55,6 +56,6 @@ public class RedisManager {
     }
 
     public JedisPool getPool() {
-        return this.pool;
+        return pool;
     }
 }

@@ -1,26 +1,20 @@
 /*
- * This file is part of LuckPerms, licensed under the MIT License.
+ * This file is part of coins3
  *
- *  Copyright (c) lucko (Luck) <luck@lucko.me>
- *  Copyright (c) contributors
+ * Copyright © 2020 Beelzebu
  *
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
  *
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.beelzebu.coins.common.dependency;
 
@@ -46,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.jetbrains.annotations.NotNull;
 
 public final class DependencyManager {
 
@@ -68,7 +63,7 @@ public final class DependencyManager {
         loadDependencies(dependencies);
     }
 
-    public void loadDependencies(Set<Dependency> dependencies) {
+    public void loadDependencies(@NotNull Set<Dependency> dependencies) {
         Path saveDirectory = getSaveDirectory();
         List<Source> sources = new ArrayList<>();
         if (dependencies.contains(Dependency.JEDIS)) {
@@ -121,7 +116,7 @@ public final class DependencyManager {
         });
     }
 
-    public IsolatedClassLoader obtainClassLoaderWith(Set<Dependency> dependencies) {
+    public IsolatedClassLoader obtainClassLoaderWith(@NotNull Set<Dependency> dependencies) {
         ImmutableSet<Dependency> set = ImmutableSet.copyOf(dependencies);
         dependencies.stream().filter(dependency -> !loaded.containsKey(dependency)).forEachOrdered(dependency -> {
             throw new IllegalStateException("Dependency " + dependency + " is not loaded.");
@@ -144,6 +139,7 @@ public final class DependencyManager {
         }
     }
 
+    @NotNull
     private Path getSaveDirectory() {
         Path saveDirectory = new File(plugin.getBootstrap().getDataFolder(), "lib").toPath();
         try {
@@ -154,7 +150,8 @@ public final class DependencyManager {
         return saveDirectory;
     }
 
-    private Path downloadDependency(Path saveDirectory, Dependency dependency) throws Exception {
+    @NotNull
+    private Path downloadDependency(@NotNull Path saveDirectory, @NotNull Dependency dependency) throws Exception {
         String fileName = dependency.name().toLowerCase() + "-" + dependency.getVersion() + ".jar";
         Path file = saveDirectory.resolve(fileName);
         if (Files.exists(file)) {

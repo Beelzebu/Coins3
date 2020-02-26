@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -39,6 +39,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
@@ -49,17 +50,17 @@ public class MultipliersCommand extends AbstractCoinsCommand {
 
     private final AbstractConfigFile multipliersConfig = plugin.getMultipliersConfig();
 
-    MultipliersCommand(CoinsBukkitPlugin plugin, String command) {
+    MultipliersCommand(CoinsBukkitPlugin plugin, @NotNull String command) {
         super(plugin, command);
     }
 
     @Override
-    public boolean execute(CommandSender sender, String label, String[] args) {
+    public boolean execute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
         execute(sender, args, sender instanceof Player ? CompatUtils.getLocale((Player) sender) : "");
         return true;
     }
 
-    private void execute(CommandSender sender, String[] args, String lang) {
+    private void execute(@NotNull CommandSender sender, @NotNull String[] args, @NotNull String lang) {
         if (getPermission() != null && !sender.hasPermission(getPermission())) {
             sender.sendMessage(plugin.getString("Errors.No permissions", lang));
             return;
@@ -105,11 +106,11 @@ public class MultipliersCommand extends AbstractCoinsCommand {
         }
     }
 
-    private void _help(CommandSender sender, String lang, String... args) {
+    private void _help(@NotNull CommandSender sender, @NotNull String lang, String... args) {
         plugin.getStringList("Help.Multiplier", lang).forEach(sender::sendMessage);
     }
 
-    private void _create(CommandSender sender, String lang, String... args) {
+    private void _create(@NotNull CommandSender sender, @NotNull String lang, @NotNull String... args) {
         if (args.length >= 4 && args.length <= 6 && CoinsAPI.isindb(args[1])) {
             if (!isNumber(args[2]) || !isNumber(args[3])) {
                 sender.sendMessage(plugin.getString("Help.Multiplier Create", lang));
@@ -118,7 +119,7 @@ public class MultipliersCommand extends AbstractCoinsCommand {
             int multiplier = Integer.parseInt(args[2]);
             int minutes = Integer.parseInt(args[3]);
             String server = args.length == 5 && !args[4].equals("") ? args[4] : CoinsAPI.getServerName();
-            MultiplierType type = args.length == 6 && args[5] != null && Stream.of(MultiplierType.values()).map(Enum::toString).anyMatch(mtype -> mtype.equalsIgnoreCase(args[5])) ? MultiplierType.valueOf(args[5].toUpperCase()) : MultiplierType.SERVER;
+            MultiplierType type = args.length == 6 && Stream.of(MultiplierType.values()).map(Enum::toString).anyMatch(mtype -> mtype.equalsIgnoreCase(args[5])) ? MultiplierType.valueOf(args[5].toUpperCase()) : MultiplierType.SERVER;
             CoinsAPI.createMultiplier(plugin.getUniqueId(args[1], false), multiplier, minutes, server, type);
             sender.sendMessage(plugin.getString("Multipliers.Created", lang).replaceAll("%player%", args[1]));
         } else {
@@ -126,11 +127,12 @@ public class MultipliersCommand extends AbstractCoinsCommand {
         }
     }
 
-    private CoinsMenu createMultipliersMenu(boolean admin, UUID target, String lang) {
+    @NotNull
+    private CoinsMenu createMultipliersMenu(boolean admin, @NotNull UUID target, @NotNull String lang) {
         String extraTitle = (admin ? " " + plugin.getName(target, true) : "");
         return new CoinsMenu(multipliersConfig.getInt("Menus.Main.Size"), plugin.getString("Menus.Main.Title", lang) + extraTitle) {
             @Override
-            public void open(Player p) {
+            public void open(@NotNull Player p) {
                 setItems(p);
                 super.open(p);
             }
@@ -167,7 +169,8 @@ public class MultipliersCommand extends AbstractCoinsCommand {
                 }));
             }
 
-            private String normalizeCommand(String command) {
+            @NotNull
+            private String normalizeCommand(@NotNull String command) {
                 String[] cmdSplit = command.split(":");
                 command = cmdSplit[cmdSplit.length >= 1 ? 1 : 0];
                 while (command.startsWith(" ")) {

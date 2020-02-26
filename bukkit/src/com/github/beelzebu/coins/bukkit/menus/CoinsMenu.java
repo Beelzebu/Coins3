@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -40,6 +40,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Beelzebu
@@ -50,11 +52,14 @@ public abstract class CoinsMenu {
     private static final Map<UUID, UUID> openInventories = new HashMap<>();
     protected final CoinsBukkitPlugin plugin = (CoinsBukkitPlugin) CoinsAPI.getPlugin();
     protected final AbstractConfigFile multipliersConfig = plugin.getBootstrap().getFileAsConfig(new File(plugin.getBootstrap().getDataFolder(), "multipliers.yml"));
+    @NotNull
     protected final Inventory inv;
+    @NotNull
     protected final UUID uuid;
+    @NotNull
     private final Map<Integer, GUIAction> actions;
 
-    public CoinsMenu(int size, String name) {
+    public CoinsMenu(int size, @Nullable String name) {
         if (size % 9 != 0 && (size * 9) % 9 != 0) {
             plugin.log("Menu size must be a multiple of 9, " + size + " isn't.");
             size = 54;
@@ -65,19 +70,22 @@ public abstract class CoinsMenu {
         inventoriesByUUID.put(uuid, this);
     }
 
+    @NotNull
     public static Map<UUID, CoinsMenu> getInventoriesByUUID() {
         return Collections.unmodifiableMap(inventoriesByUUID);
     }
 
+    @NotNull
     public static Map<UUID, UUID> getOpenInventories() {
         return openInventories;
     }
 
+    @NotNull
     public final Inventory getInv() {
         return inv;
     }
 
-    public final void setItem(int slot, ItemStack is, GUIAction action) {
+    public final void setItem(int slot, ItemStack is, @Nullable GUIAction action) {
         inv.setItem(slot, is);
         if (action != null) {
             actions.put(slot, action);
@@ -88,7 +96,7 @@ public abstract class CoinsMenu {
         setItem(slot, is, null);
     }
 
-    public void open(Player p) {
+    public void open(@NotNull Player p) {
         plugin.getBootstrap().runSync(() -> {
             p.closeInventory();
             if (inv.getContents().length == 0) {
@@ -99,6 +107,7 @@ public abstract class CoinsMenu {
         });
     }
 
+    @NotNull
     public final Map<Integer, GUIAction> getActions() {
         return Collections.unmodifiableMap(actions);
     }
@@ -108,11 +117,13 @@ public abstract class CoinsMenu {
         inventoriesByUUID.remove(uuid);
     }
 
-    public ItemStack getItem(AbstractConfigFile config, String path) {
+    @NotNull
+    public ItemStack getItem(@NotNull AbstractConfigFile config, String path) {
         return getItem(config, path, null);
     }
 
-    public ItemStack getItem(AbstractConfigFile config, String path, Player player) {
+    @NotNull
+    public ItemStack getItem(@NotNull AbstractConfigFile config, String path, @Nullable Player player) {
         Objects.requireNonNull(config, "Config can't be null");
         Objects.requireNonNull(path, "Item path can't be null");
         Material mat;
@@ -175,7 +186,7 @@ public abstract class CoinsMenu {
         // NOOP
     }
 
-    protected boolean isNumber(String string) {
+    protected boolean isNumber(@Nullable String string) {
         if (string == null) {
             return false;
         }

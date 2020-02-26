@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -45,6 +45,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
@@ -52,18 +53,24 @@ import java.util.zip.GZIPOutputStream;
 public class FileManager {
 
     public static final int CONFIG_VERSION = 16;
+    @NotNull
     private final CommonCoinsPlugin<? extends CoinsBootstrap> plugin;
+    @NotNull
     private final File messagesFolder;
+    @NotNull
     private final File logsFolder;
+    @NotNull
     private final File configFile;
+    @NotNull
     private final File executorsFile;
     private final Map<String, File> messagesFiles = new HashMap<>();
     private final Queue<String> logQueue = new LinkedList<>();
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
+    @NotNull
     private final File logFile;
     private final ReadWriteLock rwl = new ReentrantReadWriteLock();
 
-    public FileManager(CommonCoinsPlugin<? extends CoinsBootstrap> plugin) {
+    public FileManager(@NotNull CommonCoinsPlugin<? extends CoinsBootstrap> plugin) {
         this.plugin = plugin;
         messagesFolder = new File(plugin.getBootstrap().getDataFolder(), "messages");
         logsFolder = new File(plugin.getBootstrap().getDataFolder(), "logs");
@@ -157,34 +164,42 @@ public class FileManager {
         }, 1);
     }
 
+    @NotNull
     public File getMessagesFolder() {
         return messagesFolder;
     }
 
+    @NotNull
     public File getLogsFolder() {
         return logsFolder;
     }
 
+    @NotNull
     public File getConfigFile() {
         return configFile;
     }
 
+    @NotNull
     public File getExecutorsFile() {
         return executorsFile;
     }
 
+    @NotNull
     public Map<String, File> getMessagesFiles() {
         return messagesFiles;
     }
 
+    @NotNull
     public Queue<String> getLogQueue() {
         return logQueue;
     }
 
+    @NotNull
     public SimpleDateFormat getSimpleDateFormat() {
         return simpleDateFormat;
     }
 
+    @NotNull
     public File getLogFile() {
         return logFile;
     }
@@ -205,7 +220,7 @@ public class FileManager {
         }
     }
 
-    public void logToFile(Object msg) {
+    public void logToFile(@NotNull Object msg) {
         if (!plugin.isLogEnabled()) {
             return;
         }
@@ -488,7 +503,7 @@ public class FileManager {
         }
     }
 
-    private void gzipFile(InputStream in, String to) throws IOException {
+    private void gzipFile(@NotNull InputStream in, @NotNull String to) throws IOException {
         try (GZIPOutputStream out = new GZIPOutputStream(new FileOutputStream(to))) {
             byte[] buffer = new byte[4096];
             int bytesRead;

@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -26,6 +26,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Beelzebu
@@ -40,10 +42,12 @@ public abstract class ConfigurateAbstractConfigFile extends AbstractConfigFile {
         reload();
     }
 
+    @NotNull
     protected abstract ConfigurationLoader<? extends ConfigurationNode> getLoader(Path path);
 
+    @Nullable
     @Override
-    public final Object get(String path) {
+    public final Object get(@NotNull String path) {
         if (root == null) {
             throw new RuntimeException("Config file is not loaded yet");
         }
@@ -51,7 +55,7 @@ public abstract class ConfigurateAbstractConfigFile extends AbstractConfigFile {
     }
 
     @Override
-    public final Set<String> getConfigurationSection(String path) {
+    public final Set<String> getConfigurationSection(@NotNull String path) {
         if (root == null) {
             throw new RuntimeException("Config file is not loaded yet");
         }

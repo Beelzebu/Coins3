@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -43,19 +43,23 @@ import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
  */
 public final class LocalCache implements CacheProvider {
 
+    @NotNull
     private final CommonCoinsPlugin<? extends CoinsBootstrap> plugin;
     private final Cache<UUID, Double> players = Caffeine.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES).build();
     private final Cache<Integer, Multiplier> multipliers = Caffeine.newBuilder().build();
+    @NotNull
     private final File multipliersFile;
+    @NotNull
     private final MultiplierPoller multiplierPoller;
 
-    public LocalCache(CommonCoinsPlugin<? extends CoinsBootstrap> plugin) {
+    public LocalCache(@NotNull CommonCoinsPlugin<? extends CoinsBootstrap> plugin) {
         this.plugin = plugin;
         multipliersFile = new File(plugin.getBootstrap().getDataFolder(), "multipliers.dat");
         multiplierPoller = new MultiplierPoller(plugin);
@@ -91,7 +95,7 @@ public final class LocalCache implements CacheProvider {
     }
 
     @Override
-    public OptionalDouble getCoins(UUID uuid) {
+    public OptionalDouble getCoins(@NotNull UUID uuid) {
         Double coins = players.getIfPresent(uuid);
         if (coins != null) {
             return OptionalDouble.of(coins);
@@ -100,7 +104,7 @@ public final class LocalCache implements CacheProvider {
     }
 
     @Override
-    public void updatePlayer(UUID uuid, double coins) {
+    public void updatePlayer(@NotNull UUID uuid, double coins) {
         if (plugin.getBootstrap().isOnline(uuid)) { // only update data if player is online
             CoinsAPI.getPlugin().debug("Updated local data for: " + uuid + " (" + plugin.getName(uuid, false) + ")");
             players.put(uuid, coins);
@@ -110,17 +114,18 @@ public final class LocalCache implements CacheProvider {
     }
 
     @Override
-    public void removePlayer(UUID uuid) {
+    public void removePlayer(@NotNull UUID uuid) {
         players.invalidate(uuid);
     }
 
+    @NotNull
     @Override
     public Optional<Multiplier> getMultiplier(int id) {
         return multipliers.asMap().values().stream().filter(multiplier -> multiplier.getId() == id).findFirst();
     }
 
     @Override
-    public void addMultiplier(Multiplier multiplier) {
+    public void addMultiplier(@NotNull Multiplier multiplier) {
         plugin.getBootstrap().runAsync(() -> {
             synchronized (multipliersFile) {
                 if (!multiplier.getServer().equals(plugin.getMultipliersConfig().getServerName())) {
@@ -174,7 +179,7 @@ public final class LocalCache implements CacheProvider {
                         }
                     }
                     Files.write(multipliersFile.toPath(), Lists.newArrayList(lines));
-                } catch (IOException | NullPointerException | JsonSyntaxException ex) {
+                } catch (@NotNull IOException | NullPointerException | JsonSyntaxException ex) {
                     plugin.log("An error has occurred removing a multiplier from local storage.");
                     plugin.debug(ex);
                 }
@@ -183,21 +188,25 @@ public final class LocalCache implements CacheProvider {
         });
     }
 
+    @NotNull
     @Override
     public Set<Multiplier> getMultipliers() {
         return new HashSet<>(multipliers.asMap().values());
     }
 
+    @NotNull
     @Override
     public Collection<UUID> getPlayers() {
         return new HashSet<>(players.asMap().keySet());
     }
 
+    @NotNull
     @Override
     public CacheType getCacheType() {
         return CacheType.LOCAL;
     }
 
+    @NotNull
     @Override
     public MultiplierPoller getMultiplierPoller() {
         return multiplierPoller;

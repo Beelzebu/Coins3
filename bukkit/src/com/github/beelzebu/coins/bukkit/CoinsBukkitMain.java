@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -36,6 +36,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class CoinsBukkitMain extends JavaPlugin implements CoinsBootstrap {
 
@@ -65,33 +67,34 @@ public class CoinsBukkitMain extends JavaPlugin implements CoinsBootstrap {
         return plugin;
     }
 
+    @NotNull
     @Override
     public AbstractConfigFile getFileAsConfig(File file) {
         return new BukkitConfigFile(file);
     }
 
     @Override
-    public void runAsync(Runnable rn) {
+    public void runAsync(@NotNull Runnable rn) {
         Bukkit.getScheduler().runTaskAsynchronously(this, rn);
     }
 
     @Override
-    public void runSync(Runnable rn) {
+    public void runSync(@NotNull Runnable rn) {
         Bukkit.getScheduler().runTask(this, rn);
     }
 
     @Override
-    public void schedule(Runnable rn, long interval) {
+    public void schedule(@NotNull Runnable rn, long interval) {
         Bukkit.getScheduler().runTaskTimer(this, rn, 0, interval);
     }
 
     @Override
-    public void scheduleAsync(Runnable rn, long interval) {
+    public void scheduleAsync(@NotNull Runnable rn, long interval) {
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, rn, 0, interval);
     }
 
     @Override
-    public void executeCommand(String cmd) {
+    public void executeCommand(@NotNull String cmd) {
         Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), cmd);
     }
 
@@ -100,39 +103,46 @@ public class CoinsBukkitMain extends JavaPlugin implements CoinsBootstrap {
         Bukkit.getConsoleSender().sendMessage(StringUtils.rep("&8[&cCoins&8] &7" + msg));
     }
 
+    @NotNull
     @Override
     public Object getConsole() {
         return Bukkit.getConsoleSender();
     }
 
     @Override
-    public void sendMessage(Object commandsender, String msg) {
-        ((CommandSender) commandsender).sendMessage(msg);
+    public void sendMessage(@NotNull Object commandSender, @NotNull String msg) {
+        if (!(commandSender instanceof CommandSender)) {
+            throw new IllegalArgumentException(commandSender + " is not an instance of CommandSender");
+        }
+        ((CommandSender) commandSender).sendMessage(msg);
     }
 
+    @NotNull
     @Override
     public String getVersion() {
         return getDescription().getVersion();
     }
 
     @Override
-    public boolean isOnline(UUID uuid) {
+    public boolean isOnline(@NotNull UUID uuid) {
         return Bukkit.getPlayer(uuid) != null;
     }
 
     @Override
-    public boolean isOnline(String name) {
+    public boolean isOnline(@NotNull String name) {
         return Bukkit.getPlayer(name) != null;
     }
 
+    @Nullable
     @Override
-    public UUID getUUID(String name) {
+    public UUID getUUID(@NotNull String name) {
         Player player = Bukkit.getPlayer(name);
         return player != null ? player.getUniqueId() : null;
     }
 
+    @Nullable
     @Override
-    public String getName(UUID uuid) {
+    public String getName(@NotNull UUID uuid) {
         Player player = Bukkit.getPlayer(uuid);
         return player != null ? player.getName() : null;
     }
@@ -149,8 +159,9 @@ public class CoinsBukkitMain extends JavaPlugin implements CoinsBootstrap {
         //runAsync(() -> Bukkit.getPluginManager().callEvent(new MultiplierEnableEvent(multiplier)));
     }
 
+    @NotNull
     @Override
-    public List<String> getPermissions(UUID uuid) {
+    public List<String> getPermissions(@NotNull UUID uuid) {
         List<String> permissions = new ArrayList<>();
         Player player = Bukkit.getPlayer(uuid);
         if (player != null) {
@@ -159,6 +170,7 @@ public class CoinsBukkitMain extends JavaPlugin implements CoinsBootstrap {
         return permissions;
     }
 
+    @NotNull
     @Override
     public ProxyMessaging getProxyMessaging() {
         return messaging == null ? messaging = new BukkitMessaging(plugin) : messaging;

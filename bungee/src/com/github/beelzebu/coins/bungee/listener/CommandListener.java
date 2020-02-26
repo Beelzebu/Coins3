@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -26,6 +26,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
@@ -39,7 +40,7 @@ public class CommandListener implements Listener {
     }
 
     @EventHandler
-    public void onCommand(ChatEvent e) {
+    public void onCommand(@NotNull ChatEvent e) {
         if (e.isCommand() && e.getSender() instanceof ProxiedPlayer) {
             String msg = e.getMessage().toLowerCase();
             plugin.getBootstrap().runAsync(() -> {

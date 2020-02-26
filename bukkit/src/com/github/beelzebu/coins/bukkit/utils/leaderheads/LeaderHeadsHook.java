@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -23,6 +23,7 @@ import java.util.Arrays;
 import me.robin.leaderheads.datacollectors.OnlineDataCollector;
 import me.robin.leaderheads.objects.BoardType;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
@@ -34,7 +35,7 @@ public class LeaderHeadsHook extends OnlineDataCollector {
     }
 
     @Override
-    public Double getScore(Player player) {
+    public Double getScore(@NotNull Player player) {
         return CoinsAPI.getCoins(player.getUniqueId());
     }
 }

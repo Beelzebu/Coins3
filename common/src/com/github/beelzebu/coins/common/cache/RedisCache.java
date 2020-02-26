@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -33,6 +33,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
@@ -48,6 +50,7 @@ public final class RedisCache implements CacheProvider {
     private static final int CACHE_SECONDS = 1800;
     private final CommonCoinsPlugin<? extends CoinsBootstrap> plugin;
     private final RedisManager redisManager;
+    @NotNull
     private final MultiplierPoller multiplierPoller;
 
     public RedisCache(CommonCoinsPlugin<? extends CoinsBootstrap> coinsPlugin, RedisManager redisManager) {
@@ -65,7 +68,7 @@ public final class RedisCache implements CacheProvider {
     }
 
     @Override
-    public synchronized OptionalDouble getCoins(UUID uuid) {
+    public synchronized OptionalDouble getCoins(@NotNull UUID uuid) {
         Objects.requireNonNull(uuid, "uuid can't be null");
         try (Jedis jedis = redisManager.getPool().getResource()) {
             return getDouble(jedis.get(COINS_KEY_PREFIX + uuid));
@@ -82,7 +85,7 @@ public final class RedisCache implements CacheProvider {
     }
 
     @Override
-    public synchronized void updatePlayer(UUID uuid, double coins) {
+    public synchronized void updatePlayer(@NotNull UUID uuid, double coins) {
         Objects.requireNonNull(uuid, "UUID can't be null");
         plugin.debug("Setting coins for '" + uuid + "' to '" + coins + "' in redis.");
         try (Jedis jedis = redisManager.getPool().getResource()) {
@@ -94,7 +97,7 @@ public final class RedisCache implements CacheProvider {
     }
 
     @Override
-    public synchronized void removePlayer(UUID uuid) {
+    public synchronized void removePlayer(@NotNull UUID uuid) {
         plugin.log("Removing '" + uuid + "' from redis.");
         try (Jedis jedis = redisManager.getPool().getResource()) {
             jedis.del(COINS_KEY_PREFIX + uuid);
@@ -115,13 +118,14 @@ public final class RedisCache implements CacheProvider {
         return Optional.empty();
     }
 
-    private synchronized Multiplier getMultiplier(Jedis jedis, String id) {
+    @Nullable
+    private synchronized Multiplier getMultiplier(@NotNull Jedis jedis, String id) {
         String multiplierString = jedis.get(MULTIPLIER_KEY_PREFIX + id);
         return multiplierString != null ? Multiplier.fromJson(multiplierString) : null;
     }
 
     @Override
-    public synchronized void addMultiplier(Multiplier multiplier) {
+    public synchronized void addMultiplier(@NotNull Multiplier multiplier) {
         try (Jedis jedis = redisManager.getPool().getResource()) {
             jedis.setex(MULTIPLIER_KEY_PREFIX + multiplier.getId(), (int) TimeUnit.MINUTES.toSeconds(multiplier.getData().getMinutes()), multiplier.toJson().toString());
         } catch (JedisException ex) {
@@ -140,6 +144,7 @@ public final class RedisCache implements CacheProvider {
         }
     }
 
+    @NotNull
     @Override
     public synchronized Set<Multiplier> getMultipliers() {
         Set<Multiplier> multipliers = new HashSet<>();
@@ -162,6 +167,7 @@ public final class RedisCache implements CacheProvider {
         return multipliers;
     }
 
+    @NotNull
     @Override
     public synchronized Collection<UUID> getPlayers() {
         Set<UUID> players = new HashSet<>();
@@ -179,20 +185,22 @@ public final class RedisCache implements CacheProvider {
         return players;
     }
 
+    @NotNull
     @Override
     public CacheType getCacheType() {
         return CacheType.REDIS;
     }
 
+    @NotNull
     @Override
     public MultiplierPoller getMultiplierPoller() {
         return multiplierPoller;
     }
 
-    private OptionalDouble getDouble(String string) {
+    private OptionalDouble getDouble(@NotNull String string) {
         try {
             return OptionalDouble.of(Double.parseDouble(string));
-        } catch (NumberFormatException | NullPointerException ignore) {
+        } catch (@NotNull NumberFormatException | NullPointerException ignore) {
         }
         return OptionalDouble.empty();
     }

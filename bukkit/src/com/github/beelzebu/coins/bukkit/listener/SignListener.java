@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -38,18 +38,23 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
  */
 public class SignListener implements Listener {
 
+    @NotNull
     private final CoinsBukkitPlugin plugin;
+    @NotNull
     private final File signsFile;
+    @NotNull
     private final FileConfiguration signs;
+    @NotNull
     private final FileConfiguration executorsFile;
 
-    public SignListener(CoinsBukkitPlugin plugin) {
+    public SignListener(@NotNull CoinsBukkitPlugin plugin) {
         this.plugin = plugin;
         signsFile = new File(plugin.getBootstrap().getDataFolder(), "signs.yml");
         if (!signsFile.exists()) {
@@ -65,7 +70,7 @@ public class SignListener implements Listener {
     }
 
     @EventHandler
-    public void onSignPlace(SignChangeEvent e) {
+    public void onSignPlace(@NotNull SignChangeEvent e) {
         if (e.getPlayer().hasPermission("coins.admin") && e.getLine(0).equalsIgnoreCase("[coins]") && !e.getLine(1).isEmpty()) {
             e.setLine(0, StringUtils.rep(plugin.getConfig().getString("General.Executor Sign.1")));
             Executor ex = ExecutorManager.getExecutor(e.getLine(1));
@@ -99,7 +104,7 @@ public class SignListener implements Listener {
     }
 
     @EventHandler
-    public void onSignBreak(BlockBreakEvent e) {
+    public void onSignBreak(@NotNull BlockBreakEvent e) {
         if (e.getBlock().getState() instanceof Sign) {
             Sign sign = (Sign) e.getBlock().getState();
             if ((sign.getLine(0).equals(StringUtils.rep(plugin.getConfig().getString("General.Executor Sign.1"))) || sign.getLine(0).equals(StringUtils.rep(plugin.getConfig().getString("General.Executor Sign.1")))) && !e.getPlayer().hasPermission("coins.admin")) {
@@ -125,7 +130,7 @@ public class SignListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onSignUse(PlayerInteractEvent e) {
+    public void onSignUse(@NotNull PlayerInteractEvent e) {
         if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock().getState() instanceof Sign) {
             Player p = e.getPlayer();
             for (String id : signs.getKeys(false)) {
@@ -164,7 +169,8 @@ public class SignListener implements Listener {
         }
     }
 
-    private String rep(String str, Executor ex) {
+    @NotNull
+    private String rep(String str, @NotNull Executor ex) {
         return StringUtils.rep(str).replaceAll("%executor_displayname%", ex.getDisplayname()).replaceAll("%executor_cost%", String.valueOf(ex.getCost()));
     }
 }

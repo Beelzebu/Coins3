@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -22,13 +22,14 @@ import com.github.beelzebu.coins.api.config.CoinsConfig;
 import com.github.beelzebu.coins.bungee.listener.CommandListener;
 import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import net.md_5.bungee.api.ProxyServer;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
  */
 public class CoinsBungeePlugin extends CommonCoinsPlugin<CoinsBungeeMain> {
 
-    CoinsBungeePlugin(CoinsBungeeMain bootstrap, CoinsConfig config) {
+    CoinsBungeePlugin(@NotNull CoinsBungeeMain bootstrap, CoinsConfig config) {
         super(bootstrap, config);
     }
 

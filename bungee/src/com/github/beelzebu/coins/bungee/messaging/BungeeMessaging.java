@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -31,6 +31,7 @@ import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.event.EventHandler;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
@@ -42,7 +43,7 @@ public final class BungeeMessaging extends ProxyMessaging implements Listener {
     }
 
     @EventHandler
-    public void onMessageReceive(PluginMessageEvent e) {
+    public void onMessageReceive(@NotNull PluginMessageEvent e) {
         if (!e.getTag().equals(CHANNEL)) {
             return;
         }
@@ -71,7 +72,7 @@ public final class BungeeMessaging extends ProxyMessaging implements Listener {
         ProxyServer.getInstance().getServers().values().forEach(server -> sendMessage(message, wait, server));
     }
 
-    private void sendMessage(String message, boolean wait, ServerInfo server) {
+    private void sendMessage(String message, boolean wait, @NotNull ServerInfo server) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF(message);
         server.sendData(CHANNEL, out.toByteArray(), wait);

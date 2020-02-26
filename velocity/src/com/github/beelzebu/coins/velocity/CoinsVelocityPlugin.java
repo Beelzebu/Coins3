@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -21,13 +21,14 @@ package com.github.beelzebu.coins.velocity;
 import com.github.beelzebu.coins.api.config.CoinsConfig;
 import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import com.github.beelzebu.coins.velocity.listener.LoginListener;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
  */
 public class CoinsVelocityPlugin extends CommonCoinsPlugin<CoinsVelocityMain> {
 
-    public CoinsVelocityPlugin(CoinsVelocityMain bootstrap, CoinsConfig config) {
+    public CoinsVelocityPlugin(@NotNull CoinsVelocityMain bootstrap, CoinsConfig config) {
         super(bootstrap, config);
     }
 

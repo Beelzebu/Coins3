@@ -1,7 +1,7 @@
 /*
  * This file is part of coins3
  *
- * Copyright © 2019 Beelzebu
+ * Copyright © 2020 Beelzebu
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -27,6 +27,7 @@ import com.github.beelzebu.coins.common.storage.MySQL;
 import com.github.beelzebu.coins.common.storage.SQLite;
 import java.util.Map;
 import java.util.UUID;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Beelzebu
@@ -49,7 +50,7 @@ public class ImportManager {
         }
     }
 
-    public void importFromStorage(StorageType storage) {
+    public void importFromStorage(@NotNull StorageType storage) {
         switch (storage) {
             case MYSQL:
                 if (plugin.getStorageProvider().getStorageType().equals(StorageType.MYSQL)) {
@@ -88,7 +89,7 @@ public class ImportManager {
         }
     }
 
-    private void copy(Map<String, Double> data) {
+    private void copy(@NotNull Map<String, Double> data) {
         data.forEach((key, value) -> {
             String name = null;
             UUID uuid = null;

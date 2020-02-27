@@ -86,6 +86,7 @@ public class FileManager {
     }
 
     public void onLoad() throws IOException {
+        plugin.getBootstrap().getDataFolder().mkdirs();
         // copy config file
         if (!configFile.exists()) {
             Files.copy(plugin.getBootstrap().getResource(configFile.getName()), configFile.toPath());

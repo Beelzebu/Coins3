@@ -116,7 +116,7 @@ public class CommonCoinsPlugin <T extends CoinsBootstrap> implements CoinsPlugin
             fileManager.onLoad();
         } catch (IOException ex) {
             log("An exception has occurred copying default files.");
-            debug(ex);
+            ex.printStackTrace();
         }
     }
 

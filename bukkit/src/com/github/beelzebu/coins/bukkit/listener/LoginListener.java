@@ -22,6 +22,7 @@ import com.github.beelzebu.coins.api.CoinsAPI;
 import com.github.beelzebu.coins.api.messaging.MessagingServiceType;
 import com.github.beelzebu.coins.bukkit.CoinsBukkitPlugin;
 import com.github.beelzebu.coins.bukkit.messaging.BukkitMessaging;
+import java.util.Objects;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -70,10 +71,13 @@ public class LoginListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(@NotNull PlayerQuitEvent e) {
         plugin.getBootstrap().runAsync(() -> {
-            if (!plugin.getMessagingService().getType().equals(MessagingServiceType.REDIS)) {
-                plugin.getCache().removePlayer(e.getPlayer().getUniqueId());
+            if (!Objects.requireNonNull(plugin.getMessagingService(), "Messaging service is null.").getType().equals(MessagingServiceType.REDIS)) {
+                Objects.requireNonNull(plugin.getCache(), "Can't remove '" + e.getPlayer().getUniqueId() + "' (" + e.getPlayer().getName() + ") from cache, cache is null.")
+                        .removePlayer(e.getPlayer().getUniqueId());
             }
-            plugin.getStorageProvider().updatePlayer(e.getPlayer().getUniqueId(), e.getPlayer().getName());
+            if (Objects.requireNonNull(plugin.getStorageProvider(), "Can't update '" + e.getPlayer().getUniqueId() + "' (" + e.getPlayer().getName() + ") in database, StorageProvider is null.").isindb(e.getPlayer().getUniqueId())) {
+                plugin.getStorageProvider().updatePlayer(e.getPlayer().getUniqueId(), e.getPlayer().getName());
+            }
         });
     }
 }

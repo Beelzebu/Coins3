@@ -62,33 +62,33 @@ public class CoinsCommand extends AbstractCoinsCommand {
         return true;
     }
 
-    private void execute(@NotNull CommandSender sender, @NotNull String[] args, @NotNull String lang) {
+    private void execute(@NotNull CommandSender sender, @NotNull String[] args, @NotNull String locale) {
         if (getPermission() != null && !sender.hasPermission(getPermission())) {
-            sender.sendMessage(plugin.getString("Errors.No permissions", lang));
+            sender.sendMessage(plugin.getString("Errors.No permissions", locale));
             return;
         }
         if (args.length == 0) {
             if (sender instanceof Player) {
-                sender.sendMessage(plugin.getString("Coins.Own coins", lang).replace("%coins%", CoinsAPI.getCoinsString(sender.getName())));
+                sender.sendMessage(plugin.getString("Coins.Own coins", locale).replace("%coins%", CoinsAPI.getCoinsString(sender.getName())));
             } else {
-                sender.sendMessage(plugin.getString("Errors.Console", ""));
+                sender.sendMessage(plugin.getString("Errors.Console", locale));
             }
         } else if (args[0].equalsIgnoreCase("execute")) {
-            executor(sender, args, lang);
+            executor(sender, args, locale);
         } else if (args[0].equalsIgnoreCase("help") && args.length == 1) {
-            help(sender, lang);
+            help(sender, locale);
         } else if (args[0].equalsIgnoreCase("pay") || args[0].equalsIgnoreCase("p")) {
-            pay(sender, args, lang);
+            pay(sender, args, locale);
         } else if (args[0].equalsIgnoreCase("give")) {
-            give(sender, args, lang);
+            give(sender, args, locale);
         } else if (args[0].equalsIgnoreCase("take")) {
-            take(sender, args, lang);
+            take(sender, args, locale);
         } else if (args[0].equalsIgnoreCase("reset")) {
-            reset(sender, args, lang);
+            reset(sender, args, locale);
         } else if (args[0].equalsIgnoreCase("set")) {
-            set(sender, args, lang);
+            set(sender, args, locale);
         } else if (args[0].equalsIgnoreCase("top") && args.length == 1) {
-            top(sender, lang);
+            top(sender, locale);
         } else if (args[0].equalsIgnoreCase("import")) {
             importer(sender, args);
         } else if (args[0].equalsIgnoreCase("importdb")) {
@@ -98,9 +98,9 @@ public class CoinsCommand extends AbstractCoinsCommand {
         } else if (args[0].equalsIgnoreCase("about")) {
             about(sender);
         } else if (args.length == 1 && CoinsAPI.isindb(args[0])) {
-            target(sender, args, lang);
+            target(sender, args, locale);
         } else {
-            sender.sendMessage(plugin.getString("Errors.Unknown command", lang));
+            sender.sendMessage(plugin.getString("Errors.Unknown command", locale));
         }
     }
 
@@ -404,8 +404,10 @@ public class CoinsCommand extends AbstractCoinsCommand {
             }
             ExecutorManager.getExecutors().clear();
             plugin.getBootstrap().getPlugin().loadExecutors();
-            plugin.getMessagingService().requestMultipliers();
-            plugin.getMessagingService().requestExecutors();
+            if (plugin.getMessagingService() != null) {
+                plugin.getMessagingService().requestMultipliers();
+                plugin.getMessagingService().requestExecutors();
+            }
             sender.sendMessage(StringUtils.rep("%prefix% Reloaded config and all loaded messages files. If you want reload the command, you need to restart the server."));
         }
     }

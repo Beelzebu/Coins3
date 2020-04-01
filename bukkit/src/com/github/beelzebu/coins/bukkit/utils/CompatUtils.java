@@ -145,7 +145,7 @@ public final class CompatUtils {
                 }
             }
             try {
-                return (String) (localeMethod = Player.Spigot.class.getMethod("getLocale")).invoke(player);
+                return (String) (localeMethod = Player.Spigot.class.getMethod("getLocale")).invoke(player.spigot());
             } catch (ReflectiveOperationException e) {
                 e.printStackTrace();
             }

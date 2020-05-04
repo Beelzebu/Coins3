@@ -35,8 +35,7 @@ public class DummyMessaging extends AbstractMessagingService {
     }
 
     @Override
-    protected void sendMessage(JsonObject message) {
-        handleMessage(message);
+    protected void sendMessage(JsonObject jsonObject) {
     }
 
     @Override

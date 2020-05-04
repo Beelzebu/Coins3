@@ -23,6 +23,7 @@ import com.github.beelzebu.coins.api.utils.StringUtils;
 import com.github.beelzebu.coins.common.plugin.CommonCoinsPlugin;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
@@ -153,7 +155,7 @@ public class FileManager {
                 String line;
                 while ((line = logQueue.poll()) != null) {
                     try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile, true))) {
-                        writer.write(logFormat.replace("%time", simpleDateFormat.format(System.currentTimeMillis())).replace("%msg", line));
+                        writer.write(logFormat.replaceFirst("%time", simpleDateFormat.format(System.currentTimeMillis())).replaceFirst("%msg", line));
                         writer.newLine();
                     } catch (IOException ex) {
                         Logger.getLogger(FileManager.class.getName()).log(Level.WARNING, "Can't save the debug to the file", ex);
@@ -478,17 +480,14 @@ public class FileManager {
 
     private void checkLogs() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        File latestLog = new File(logsFolder, "latest.log");
-        if (latestLog.exists()) { // gzip old log file
+        if (logFile.exists()) { // gzip old log file
             try {
+                File compressedLogFile;
                 int filen = 1;
-                while (new File(logsFolder, sdf.format(latestLog.lastModified()) + "-" + filen + ".log.gz").exists()) {
+                while ((compressedLogFile = new File(logsFolder, sdf.format(logFile.lastModified()) + "-" + filen + ".log.gz")).exists()) {
                     filen++;
                 }
-                gzipFile(Files.newInputStream(latestLog.toPath()), logsFolder + File.separator + sdf.format(latestLog.lastModified()) + "-" + filen + ".log.gz");
-                if (!latestLog.delete()) {
-                    Logger.getLogger(FileManager.class.getName()).log(Level.WARNING, "An unexpected error has occurred while deleting old log file");
-                }
+                gzipFile(logFile, compressedLogFile);
             } catch (IOException ex) {
                 Logger.getLogger(FileManager.class.getName()).log(Level.WARNING, "An unexpected error has occurred while trying to compress the latest log file. {0}", ex.getMessage());
             }
@@ -497,18 +496,20 @@ public class FileManager {
         // Auto purge for old logs
         if (fList != null && fList.length > 0) {
             for (File file : fList) {
-                if (file.isFile() && file.getName().contains(".gz") && (System.currentTimeMillis() - file.lastModified()) >= plugin.getConfig().getInt("General.Purge.Logs.Days") * 86400000L) {
+                if (file.isFile() && file.getName().contains(".gz") && (System.currentTimeMillis() - file.lastModified()) >= TimeUnit.DAYS.toMillis(plugin.getConfig().getInt("General.Purge.Log Purge.Days"))) {
                     file.delete();
                 }
             }
         }
     }
 
-    private void gzipFile(@NotNull InputStream in, @NotNull String to) throws IOException {
+    private void gzipFile(@NotNull File file, @NotNull File to) throws IOException {
+        to.createNewFile();
+        InputStream in = new FileInputStream(file.getAbsolutePath());
         try (GZIPOutputStream out = new GZIPOutputStream(new FileOutputStream(to))) {
-            byte[] buffer = new byte[4096];
+            byte[] buffer = new byte[1024];
             int bytesRead;
-            while ((bytesRead = in.read(buffer)) != -1) {
+            while ((bytesRead = in.read(buffer)) > 0) {
                 out.write(buffer, 0, bytesRead);
             }
             in.close();

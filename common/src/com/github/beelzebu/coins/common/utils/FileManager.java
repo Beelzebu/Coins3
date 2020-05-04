@@ -488,6 +488,7 @@ public class FileManager {
                     filen++;
                 }
                 gzipFile(logFile, compressedLogFile);
+                logFile.delete();
             } catch (IOException ex) {
                 Logger.getLogger(FileManager.class.getName()).log(Level.WARNING, "An unexpected error has occurred while trying to compress the latest log file. {0}", ex.getMessage());
             }
